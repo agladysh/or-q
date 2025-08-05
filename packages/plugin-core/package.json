@@ -1,6 +1,6 @@
 {
-  "name": "@or-q/plugin-stdin",
-  "description": "OR-Q Plugin: Reads Data from STDIN",
+  "name": "@or-q/plugin-core",
+  "description": "OR-Q Plugin: Core Plugins",
   "version": "1.0.0",
   "author": "Alexander Gladysh <agladysh@gmail.com>",
   "license": "MIT",

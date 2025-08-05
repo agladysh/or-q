@@ -18,6 +18,7 @@ export default tseslint.config(
     rules: {
       // treat all warnings as errors
       'no-warning-comments': ['error', { terms: ['todo', 'fixme'] }],
+      '@typescript-eslint/consistent-type-imports': 'error',
       '@typescript-eslint/no-unused-vars': [
         'error',
         {

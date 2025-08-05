@@ -1,0 +1,17 @@
+{
+  "name": "installed-node-modules",
+  "description": "TODO",
+  "version": "1.0.0",
+  "author": "Alexander Gladysh <agladysh@gmail.com>",
+  "license": "MIT",
+  "packageManager": "pnpm@10.13.1",
+  "type": "commonjs",
+  "main": "./src/index.cjs",
+  "exports": "./src/index.cjs",
+  "types": "./src/index.d.ts",
+  "scripts": {},
+  "dependencies": {
+    "glob": "^11.0.3",
+    "yaml": "^2.8.1"
+  }
+}

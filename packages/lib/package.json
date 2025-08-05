@@ -16,7 +16,9 @@
     "prepack": "tsc --emitDeclarationOnly"
   },
   "dependencies": {
-    "installed-node-modules": "workspace:*"
+    "glob": "^11.0.3",
+    "installed-node-modules": "workspace:*",
+    "minimatch": "^10.0.3"
   },
   "devDependencies": {
     "@types/node": "^24.2.0",

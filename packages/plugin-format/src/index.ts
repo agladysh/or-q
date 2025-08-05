@@ -1,6 +1,6 @@
 import type { Plugin } from '@or-q/lib';
 import { readableToString } from '@or-q/lib';
-import { Readable } from 'node:stream';
+import type { Readable } from 'node:stream';
 import yaml from 'yaml';
 
 import pkg from '../package.json' with { type: 'json' };

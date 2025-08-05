@@ -1,17 +1,11 @@
+import { globSync, type GlobOptions } from 'glob';
 import { spawn } from 'node:child_process';
+import { readFileSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
 import { Readable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
-
-export interface IPluginRuntime {
-  pluginNames: string[];
-  commandNames: string[];
-  commands: Commands;
-  usage: () => string;
-  runCommands: (
-    input: string | Readable,
-    args: string[]
-  ) => Promise<string | Readable>;
-}
+import { fileURLToPath } from 'node:url';
+import { minimatch, type MinimatchOptions } from 'minimatch';
 
 export interface Command {
   description: string;
@@ -23,10 +17,25 @@ export interface Command {
 }
 
 export type Commands = Record<string, Command>;
+export type Assets = Record<string, string>;
 
 export interface Plugin {
   name: string;
+  assets?: Commands;
   commands?: Commands;
+}
+
+export interface IPluginRuntime {
+  pluginNames: string[];
+  commandNames: string[];
+  assetNames: string[];
+  commands: Commands;
+  assets: Assets;
+  usage: () => string;
+  runCommands: (
+    input: string | Readable,
+    args: string[]
+  ) => Promise<string | Readable>;
 }
 
 export type SpawnOptions = {
@@ -102,4 +111,65 @@ export async function readableToString(
     result += chunk.toString('utf8');
   }
   return result;
+}
+
+// Lazy. Optimizable. Should we store file paths and load on demand?
+export function loadAssets(dirname: string, options?: GlobOptions) {
+  // Lazy. Should support ignores etc.
+  const filenames = globSync('**/*', { ...options, cwd: dirname, nodir: true });
+  return Object.fromEntries(
+    filenames.map((f) => [
+      f,
+      readFileSync(resolve(dirname, String(f)), 'utf-8'),
+    ])
+  );
+}
+
+export function loadModuleAssets(
+  importMetaUrl: string,
+  options?: GlobOptions,
+  subdir: string = '../assets'
+) {
+  const dir = dirname(fileURLToPath(importMetaUrl));
+  return loadAssets(resolve(dir, subdir), options);
+}
+
+export function assetGlob(
+  runtime: IPluginRuntime,
+  pattern: string,
+  options?: MinimatchOptions
+): string[] {
+  const filter = minimatch.filter(pattern, options);
+  return runtime.assetNames.filter(filter);
+}
+
+export function arrayWrap<T>(item: T): Array<T> {
+  if (item === undefined) {
+    return [];
+  }
+  if (Array.isArray(item)) {
+    return item;
+  }
+  return [item];
+}
+
+export function resolveAsset(
+  runtime: IPluginRuntime,
+  uri: string
+): string | undefined {
+  if (uri.startsWith('plugin:')) {
+    return runtime.assets[uri];
+  }
+
+  if (uri.startsWith('file:///')) {
+    // Lazy. Return undefined if file is not found.
+    return readFileSync(fileURLToPath(uri), 'utf-8');
+  }
+
+  if (uri.startsWith('.') || uri.startsWith('/') || uri.endsWith('.yaml')) {
+    // Lazy. Return undefined if file is not found.
+    return readFileSync(uri, 'utf-8');
+  }
+
+  return undefined; // You may want to use assetGlob next.
 }

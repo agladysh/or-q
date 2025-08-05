@@ -1,4 +1,4 @@
-import { Readable } from 'node:stream';
+import type { Readable } from 'node:stream';
 import { fail, spawnText } from '@or-q/lib';
 import type { Plugin } from '@or-q/lib';
 import pkg from '../package.json' with { type: 'json' };
@@ -12,7 +12,7 @@ const plugin: Plugin = {
         input: string | Readable,
         args: string[]
       ): Promise<string | Readable> => {
-        const query = args.pop();
+        const query = args.shift();
         // Lazy, this should be enforced by caller, including usage.
         if (query === undefined) {
           fail('usage: jp "[JMSEPath query string]"');

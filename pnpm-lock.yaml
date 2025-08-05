@@ -95,9 +95,15 @@ importers:
 
   packages/lib:
     dependencies:
+      glob:
+        specifier: ^11.0.3
+        version: 11.0.3
       installed-node-modules:
         specifier: workspace:*
         version: link:../installed-node-modules
+      minimatch:
+        specifier: ^10.0.3
+        version: 10.0.3
     devDependencies:
       '@types/node':
         specifier: ^24.2.0

@@ -1,3 +1,4 @@
+import type { Assets } from '@or-q/lib';
 import {
   type Plugin,
   type Commands,
@@ -5,7 +6,7 @@ import {
   type IPluginRuntime,
 } from '@or-q/lib';
 import installedNodeModules from 'installed-node-modules';
-import { Readable } from 'node:stream';
+import type { Readable } from 'node:stream';
 
 export function listAllPluginModules(
   re: RegExp = /((^@or-q\/plugin-)|(or-q-plugin))/
@@ -19,22 +20,23 @@ type UnknownRecord = Record<PropertyKey, unknown>;
 
 function resolveRecord<
   Field extends keyof Plugin,
-  Result extends Extract<Plugin[Field], UnknownRecord>,
->(plugins: Plugin[], field: Field): Result {
+  Result extends Extract<Plugin, UnknownRecord>[Field],
+>(plugins: Plugin[], field: Field, prefix: boolean = false): Result {
   const result: UnknownRecord = {};
   for (const plugin of plugins) {
     if (plugin[field] !== undefined) {
       for (const [k, v] of Object.entries(plugin[field])) {
+        const key = `${prefix ? `plugin:${plugin.name}/` : ''}${k}`;
         if (v === undefined) {
           continue;
         }
-        if (result[k] !== undefined) {
+        if (result[key] !== undefined) {
           // Lazy. We should capture original setter for more user-friendly error messages.
           process.emitWarning(
-            `plugin ${plugin.name} overrode previously set ${field} value ${k}`
+            `plugin ${plugin.name} overrode previously set ${field} value ${key}`
           );
         }
-        result[k] = v;
+        result[key] = v;
       }
     }
   }
@@ -44,10 +46,14 @@ function resolveRecord<
 export class PluginRuntime implements IPluginRuntime {
   pluginNames: string[];
   commandNames: string[];
+  assetNames: string[];
+  assets: Assets;
   commands: Commands;
 
   constructor(plugins: Plugin[]) {
     this.pluginNames = plugins.map((p) => p.name);
+    this.assets = resolveRecord(plugins, 'assets', true);
+    this.assetNames = Object.keys(this.assets);
     this.commands = resolveRecord(plugins, 'commands');
     this.commandNames = Object.keys(this.commands);
   }

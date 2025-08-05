@@ -12,7 +12,8 @@
     "lint": "pnpm run lint:tsc && pnpm run lint:eslint && pnpm run lint:prettier",
     "fix:eslint": "eslint --fix",
     "fix:prettier": "prettier --write .",
-    "fix": "pnpm run fix:prettier && pnpm run fix:eslint"
+    "fix": "pnpm run fix:prettier && pnpm run fix:eslint",
+    "lefthook:precommit": "pnpm exec lefthook run pre-commit"
   },
   "keywords": [
     "or-q"
@@ -20,9 +21,13 @@
   "author": "Alexander Gladysh <agladysh@gmail.com>",
   "license": "MIT",
   "packageManager": "pnpm@10.13.1",
+  "dependencies": {
+    "@or-q/cli": "workspace:*",
+    "@or-q/plugin-jp": "workspace:*",
+    "@or-q/plugin-stdin": "workspace:*"
+  },
   "devDependencies": {
     "@eslint/js": "^9.32.0",
-    "@or-q/cli": "workspace:*",
     "eslint": "^9.32.0",
     "globals": "^16.3.0",
     "lefthook": "^1.12.2",

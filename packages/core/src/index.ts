@@ -10,7 +10,7 @@ export function listAllPluginModules(
   return result;
 }
 
-export interface Plugins {
+export interface IPluginRuntime {
   pluginNames: string[];
   commandNames: string[];
   commands: Commands;
@@ -47,41 +47,42 @@ function resolveRecord<
   return result as Result;
 }
 
-export async function loadAllPlugins(): Promise<Plugins> {
-  const pluginNames = listAllPluginModules();
-  const plugins = (
-    await Promise.all(pluginNames.map((name) => import(name)))
-  ).map((module) => module.default as Plugin);
+export class PluginRuntime implements IPluginRuntime {
+  pluginNames: string[];
+  commandNames: string[];
+  commands: Commands;
 
-  // Lazy. Optimizable, do not walk over the same array multiple times.
+  constructor(plugins: Plugin[]) {
+    this.pluginNames = plugins.map((p) => p.name);
+    this.commands = resolveRecord(plugins, 'commands');
+    this.commandNames = Object.keys(this.commands);
+  }
 
-  const commands: Commands = resolveRecord(plugins, 'commands');
-  const commandNames = Object.keys(commands);
+  static async fromNodeModules(): Promise<PluginRuntime> {
+    const pluginNames = listAllPluginModules();
+    const plugins = (
+      await Promise.all(pluginNames.map((name) => import(name)))
+    ).map((module) => module.default as Plugin);
+    return new PluginRuntime(plugins);
+  }
 
-  // Lazy. This should be a class.
-  return {
-    pluginNames,
-    commandNames,
-    commands,
+  usage(): string {
+    return `Available commands: ${this.commandNames.join(', ')}`;
+  }
 
-    usage: (): string => {
-      return `Available commands: ${Object.keys(commands).join(', ')}`;
-    },
-
-    runCommands: async (
-      input: string | Readable,
-      args: string[]
-    ): Promise<string | Readable> => {
-      while (args.length > 0) {
-        const command = args.shift()!;
-        if (!(command in commands)) {
-          fail(`Unknown command ${command}`);
-        }
-        // Lazy, implicit arg eating sucks.
-        input = await commands[command].run(input, args); // This will eat more args
+  async runCommands(
+    input: string | Readable,
+    args: string[]
+  ): Promise<string | Readable> {
+    args = args.slice();
+    while (args.length > 0) {
+      const command = args.shift()!;
+      if (!(command in this.commands)) {
+        fail(`Unknown command ${command}`);
       }
+      input = await this.commands[command].run(input, args);
+    }
 
-      return input;
-    },
-  };
+    return input;
+  }
 }

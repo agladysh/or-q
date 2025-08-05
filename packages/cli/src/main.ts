@@ -1,10 +1,10 @@
 #! /usr/bin/env node --experimental-strip-types --disable-warning=ExperimentalWarning
-import { loadAllPlugins } from '@or-q/core';
+import { PluginRuntime } from '@or-q/core';
 import { readableToString } from '@or-q/lib';
 import { Readable } from 'node:stream';
 
 async function main() {
-  const plugins = await loadAllPlugins();
+  const plugins = await PluginRuntime.fromNodeModules();
 
   const args = process.argv.slice(2);
   if (args.length === 0) {

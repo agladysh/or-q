@@ -1,5 +1,8 @@
 {
   "compilerOptions": {
+    "allowImportingTsExtensions": true,
+    "allowJs": true,
+    "emitDeclarationOnly": true,
     "incremental": true,
     "target": "ES2022",
     "module": "ESNext",

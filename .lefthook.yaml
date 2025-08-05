@@ -11,4 +11,4 @@ pre-commit:
       exclude:
         - 'eslint.config.mjs'
       glob: '*.{js,cjs,mjs,ts,tsx,cts,mts,mts}'
-      run: pnpm lint:tsc {staged_files}
+      run: pnpm exec tsc-files --noEmit {staged_files} # We run tsc-files because plain tsc ignores config when fed file list

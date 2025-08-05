@@ -1,4 +1,9 @@
-import { type Plugin, type Commands, fail } from '@or-q/lib';
+import {
+  type Plugin,
+  type Commands,
+  fail,
+  type IPluginRuntime,
+} from '@or-q/lib';
 import installedNodeModules from 'installed-node-modules';
 import { Readable } from 'node:stream';
 
@@ -8,17 +13,6 @@ export function listAllPluginModules(
   const allPackages = installedNodeModules();
   const result = [...allPackages].filter((id) => !!re.test(id));
   return result;
-}
-
-export interface IPluginRuntime {
-  pluginNames: string[];
-  commandNames: string[];
-  commands: Commands;
-  usage: () => string;
-  runCommands: (
-    input: string | Readable,
-    args: string[]
-  ) => Promise<string | Readable>;
 }
 
 type UnknownRecord = Record<PropertyKey, unknown>;
@@ -80,7 +74,7 @@ export class PluginRuntime implements IPluginRuntime {
       if (!(command in this.commands)) {
         fail(`Unknown command ${command}`);
       }
-      input = await this.commands[command].run(input, args);
+      input = await this.commands[command].run(input, args, this);
     }
 
     return input;

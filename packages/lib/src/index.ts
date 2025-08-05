@@ -2,9 +2,24 @@ import { spawn } from 'node:child_process';
 import { Readable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
 
+export interface IPluginRuntime {
+  pluginNames: string[];
+  commandNames: string[];
+  commands: Commands;
+  usage: () => string;
+  runCommands: (
+    input: string | Readable,
+    args: string[]
+  ) => Promise<string | Readable>;
+}
+
 export interface Command {
   description: string;
-  run: (input: string | Readable, args: string[]) => Promise<string | Readable>;
+  run: (
+    input: string | Readable,
+    args: string[],
+    runtime: IPluginRuntime
+  ) => Promise<string | Readable>;
 }
 
 export type Commands = Record<string, Command>;

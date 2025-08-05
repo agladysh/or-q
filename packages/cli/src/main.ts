@@ -1,17 +1,7 @@
 #! /usr/bin/env node --experimental-strip-types --disable-warning=ExperimentalWarning
 import { Readable } from 'node:stream';
 import { loadAllPlugins } from '@or-q/core';
-import { fail } from '@or-q/lib';
-
-async function readableToString(readable: Readable): Promise<string> {
-  let result = '';
-  // Readable supports async iteration out-of-the-box in Node 18+
-  for await (const chunk of readable) {
-    // chunk is a Buffer; convert to string as you go
-    result += chunk.toString('utf8');
-  }
-  return result;
-}
+import { fail, readableToString } from '@or-q/lib';
 
 async function main() {
   const plugins = await loadAllPlugins();

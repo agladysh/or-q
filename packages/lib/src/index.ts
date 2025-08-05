@@ -72,3 +72,19 @@ export function fail(message: string): never {
   process.stderr.write(message.endsWith('\n') ? message : `${message}\n`);
   process.exit(1);
 }
+
+export async function readableToString(
+  readable: Readable | string
+): Promise<string> {
+  if (!(readable instanceof Readable)) {
+    return String(readable);
+  }
+
+  let result = '';
+  // Readable supports async iteration out-of-the-box in Node 18+
+  for await (const chunk of readable) {
+    // chunk is a Buffer; convert to string as you go
+    result += chunk.toString('utf8');
+  }
+  return result;
+}

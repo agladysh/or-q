@@ -1,0 +1,33 @@
+{
+  "name": "@or-q/workspace",
+  "version": "1.0.0",
+  "private": true,
+  "description": "OR-Q Workspace Package",
+  "scripts": {
+    "pretest": "pnpm run lint",
+    "test": "true",
+    "lint:eslint": "eslint",
+    "lint:prettier": "prettier --check .",
+    "lint:tsc": "tsc --noEmit",
+    "lint": "pnpm run lint:tsc && pnpm run lint:eslint && pnpm run lint:prettier",
+    "fix:eslint": "eslint --fix",
+    "fix:prettier": "prettier --write .",
+    "fix": "pnpm run fix:prettier && pnpm run fix:eslint"
+  },
+  "keywords": [
+    "or-q"
+  ],
+  "author": "Alexander Gladysh <agladysh@gmail.com>",
+  "license": "MIT",
+  "packageManager": "pnpm@10.13.1",
+  "devDependencies": {
+    "@or-q/cli": "workspace:*",
+    "@eslint/js": "^9.32.0",
+    "eslint": "^9.32.0",
+    "globals": "^16.3.0",
+    "lefthook": "^1.12.2",
+    "prettier": "^3.6.2",
+    "typescript": "^5.9.2",
+    "typescript-eslint": "^8.39.0"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "name": "@or-q/cli",
+  "version": "1.0.0",
+  "type": "module",
+  "bin": {
+    "or-q": "./src/main.ts"
+  },
+  "scripts": {
+    "prepack": "tsc --emitDeclarationOnly"
+  },
+  "dependencies": {
+    "@or-q/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^24.2.0",
+    "typescript": "^5.9.2"
+  }
+}

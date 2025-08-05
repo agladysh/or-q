@@ -1,0 +1,14 @@
+assert_lefthook_installed: true
+pre-commit:
+  parallel: true
+  commands:
+    prettier:
+      run: pnpm lint:prettier {staged_files}
+    eslint:
+      glob: '*.{js,cjs,mjs,ts,tsx,cts,mts,mts}'
+      run: pnpm lint:eslint {staged_files}
+    tsc:
+      exclude:
+        - 'eslint.config.mjs'
+      glob: '*.{js,cjs,mjs,ts,tsx,cts,mts,mts}'
+      run: pnpm exec tsc --noEmit {staged_files} # pnpm lint:tsc {staged_files}

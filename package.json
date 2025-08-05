@@ -24,9 +24,10 @@
   "dependencies": {
     "@or-q/cli": "workspace:*",
     "@or-q/plugin-jp": "workspace:*",
-    "@or-q/plugin-stdin": "workspace:*",
+    "@or-q/plugin-core": "workspace:*",
     "@or-q/plugin-openrouter-api": "workspace:*",
-    "@or-q/plugin-format": "workspace:*"
+    "@or-q/plugin-format": "workspace:*",
+    "@or-q/plugin-yaml-script": "workspace:*"
   },
   "devDependencies": {
     "@eslint/js": "^9.32.0",

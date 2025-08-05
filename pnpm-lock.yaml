@@ -11,6 +11,9 @@ importers:
       '@or-q/cli':
         specifier: workspace:*
         version: link:packages/cli
+      '@or-q/plugin-core':
+        specifier: workspace:*
+        version: link:packages/plugin-core
       '@or-q/plugin-format':
         specifier: workspace:*
         version: link:packages/plugin-format
@@ -20,9 +23,9 @@ importers:
       '@or-q/plugin-openrouter-api':
         specifier: workspace:*
         version: link:packages/plugin-openrouter-api
-      '@or-q/plugin-stdin':
+      '@or-q/plugin-yaml-script':
         specifier: workspace:*
-        version: link:packages/plugin-stdin
+        version: link:packages/plugin-yaml-script
     devDependencies:
       '@eslint/js':
         specifier: ^9.32.0
@@ -103,6 +106,18 @@ importers:
         specifier: ^5.9.2
         version: 5.9.2
 
+  packages/plugin-core:
+    devDependencies:
+      '@or-q/lib':
+        specifier: workspace:*
+        version: link:../lib
+      '@types/node':
+        specifier: ^24.2.0
+        version: 24.2.0
+      typescript:
+        specifier: ^5.9.2
+        version: 5.9.2
+
   packages/plugin-format:
     dependencies:
       yaml:
@@ -143,7 +158,11 @@ importers:
         specifier: ^5.9.2
         version: 5.9.2
 
-  packages/plugin-stdin:
+  packages/plugin-yaml-script:
+    dependencies:
+      yaml:
+        specifier: ^2.8.1
+        version: 2.8.1
     devDependencies:
       '@or-q/lib':
         specifier: workspace:*

@@ -1,6 +1,10 @@
 {
   "name": "@or-q/cli",
+  "description": "OR-Q CLI",
   "version": "1.0.0",
+  "author": "Alexander Gladysh <agladysh@gmail.com>",
+  "license": "MIT",
+  "packageManager": "pnpm@10.13.1",
   "type": "module",
   "bin": {
     "or-q": "./src/main.ts"
@@ -9,6 +13,7 @@
     "prepack": "tsc --emitDeclarationOnly"
   },
   "dependencies": {
+    "@or-q/lib": "workspace:*",
     "@or-q/core": "workspace:*"
   },
   "devDependencies": {

@@ -1,6 +1,10 @@
 {
   "name": "@or-q/core",
+  "description": "OR-Q Core Module",
   "version": "1.0.0",
+  "author": "Alexander Gladysh <agladysh@gmail.com>",
+  "license": "MIT",
+  "packageManager": "pnpm@10.13.1",
   "type": "module",
   "exports": "./src/index.ts",
   "types": "./dist/index.d.ts",
@@ -10,6 +14,10 @@
   ],
   "scripts": {
     "prepack": "tsc --emitDeclarationOnly"
+  },
+  "dependencies": {
+    "@or-q/lib": "workspace:*",
+    "installed-node-modules": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^24.2.0",

@@ -21,7 +21,10 @@ async function main() {
     input = await readableToString(input);
   }
 
-  process.stdout.write(input.endsWith('\n') ? input : `${input}\n`);
+  input = input.trimEnd();
+  if (input !== '') {
+    process.stdout.write(`${input}\n`);
+  }
 }
 
 main().catch((e: unknown) => {

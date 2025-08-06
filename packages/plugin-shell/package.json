@@ -1,0 +1,23 @@
+{
+  "name": "@or-q/plugin-shell",
+  "description": "OR-Q Plugin: Runs a shell command with your privileges (Use with caution)",
+  "version": "1.0.0",
+  "author": "Alexander Gladysh <agladysh@gmail.com>",
+  "license": "MIT",
+  "packageManager": "pnpm@10.13.1",
+  "type": "module",
+  "exports": "./src/index.ts",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "src",
+    "dist"
+  ],
+  "scripts": {
+    "prepack": "tsc --emitDeclarationOnly"
+  },
+  "devDependencies": {
+    "@or-q/lib": "workspace:*",
+    "@types/node": "^24.2.0",
+    "typescript": "^5.9.2"
+  }
+}

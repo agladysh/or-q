@@ -23,6 +23,9 @@ importers:
       '@or-q/plugin-openrouter-api':
         specifier: workspace:*
         version: link:packages/plugin-openrouter-api
+      '@or-q/plugin-shell':
+        specifier: workspace:*
+        version: link:packages/plugin-shell
       '@or-q/plugin-yaml-script':
         specifier: workspace:*
         version: link:packages/plugin-yaml-script
@@ -153,6 +156,18 @@ importers:
         version: 5.9.2
 
   packages/plugin-openrouter-api:
+    devDependencies:
+      '@or-q/lib':
+        specifier: workspace:*
+        version: link:../lib
+      '@types/node':
+        specifier: ^24.2.0
+        version: 24.2.0
+      typescript:
+        specifier: ^5.9.2
+        version: 5.9.2
+
+  packages/plugin-shell:
     devDependencies:
       '@or-q/lib':
         specifier: workspace:*

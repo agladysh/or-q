@@ -1,0 +1,14 @@
+commands:
+  - - run
+    - list-free-models-full
+  - - jp
+    - "[].[id, context_length, contains(supported_parameters, 'tools') && '✅' || '❌', contains(supported_parameters, 'tool_choice') && '✅' || '❌', contains(supported_parameters, 'temperature') && '✅' || '❌']"
+  - - tsv
+  - - shell
+    - sort -t $'\t' -k2 -n -r # Sort by context length
+  - - prepend
+    - "ID\tCTX\tTOOLS\tTOOL CHOICE\tTEMPERATURE\n"
+  - - append # TODO: ?! Why is this needed?
+    - "\n"
+  - - shell
+    - column -t -s $'\t'

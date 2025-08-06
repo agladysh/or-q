@@ -8,6 +8,7 @@ import {
 } from '@or-q/lib';
 import { basename } from 'node:path';
 import type { Readable } from 'node:stream';
+import yaml from 'yaml';
 import pkg from '../package.json' with { type: 'json' };
 
 const plugin: Plugin = {
@@ -47,6 +48,50 @@ const plugin: Plugin = {
         input = await readableToString(input);
         process.stdout.write(`${input.trimEnd()}\n`);
         return input;
+      },
+    },
+    tsv: {
+      description: 'converts input JSON or YAML array of arrays to TSV',
+      run: async (
+        input: string | Readable,
+        _args: string[]
+      ): Promise<string | Readable> => {
+        // Lazy. Very fragile. Use a real library.
+        input = await readableToString(input);
+        const data = yaml.parse(input) as Array<string>[][];
+        return data.map((row) => `${row.join('\t')}`).join('\n');
+      },
+    },
+    prepend: {
+      description:
+        'prepends argument to input, does NOT insert a newline at either end of argument',
+      run: async (
+        input: string | Readable,
+        args: string[]
+      ): Promise<string | Readable> => {
+        const text = args.shift();
+        // Lazy, this should be enforced by caller, including usage.
+        if (text === undefined) {
+          fail('usage: prepend "<text>\\n"');
+        }
+        input = await readableToString(input);
+        return `${text}${input}`;
+      },
+    },
+    append: {
+      description:
+        'appends argument to input, does NOT insert a newline at either end of argument',
+      run: async (
+        input: string | Readable,
+        args: string[]
+      ): Promise<string | Readable> => {
+        const text = args.shift();
+        // Lazy, this should be enforced by caller, including usage.
+        if (text === undefined) {
+          fail('usage: append "\\n<text>\\n"');
+        }
+        input = await readableToString(input);
+        return `${input}${text}`;
       },
     },
     echo: {

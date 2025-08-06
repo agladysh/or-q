@@ -1,0 +1,5 @@
+commands:
+  - - run
+    - list-free-models-full
+  - - jp
+    - '[].id'

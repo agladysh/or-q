@@ -3,22 +3,21 @@ import { fail, spawnText } from '@or-q/lib';
 import type { Plugin } from '@or-q/lib';
 import pkg from '../package.json' with { type: 'json' };
 
-// Lazy, this should use JS module!
 const plugin: Plugin = {
   name: pkg.name,
   commands: {
-    jp: {
-      description: "run JMSEPath's jp command",
+    shell: {
+      description: 'run a shell command (use with caution)',
       run: async (
         input: string | Readable,
         args: string[]
       ): Promise<string | Readable> => {
-        const query = args.shift();
+        const command = args.shift();
         // Lazy, this should be enforced by caller, including usage.
-        if (query === undefined) {
-          fail('usage: jp "[JMSEPath query string]"');
+        if (command === undefined) {
+          fail('usage: shell "[shell command]"');
         }
-        return spawnText('jp', input, { args: [query] });
+        return spawnText(command, input, { shell: true });
       },
     },
   },

@@ -43,6 +43,7 @@ export type SpawnOptions = {
   args?: string[];
   /** Milliseconds to wait before SIGTERM. */
   timeout?: number;
+  shell?: boolean | string | undefined;
 };
 
 /**
@@ -56,7 +57,10 @@ export async function spawnText(
 ): Promise<string> {
   const { args = [], timeout } = opts;
 
-  const child = spawn(cmd, args, { stdio: ['pipe', 'pipe', 'pipe'] });
+  const child = spawn(cmd, args, {
+    stdio: ['pipe', 'pipe', 'pipe'],
+    shell: opts.shell,
+  });
 
   if (timeout) {
     const timer = setTimeout(() => child.kill('SIGTERM'), timeout);

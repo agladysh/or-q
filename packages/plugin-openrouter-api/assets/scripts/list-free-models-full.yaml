@@ -1,0 +1,4 @@
+commands:
+  - - models
+  - - jp
+    - data[?pricing.prompt=='0' && pricing.completion=='0']

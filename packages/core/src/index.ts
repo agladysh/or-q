@@ -78,7 +78,6 @@ export class PluginRuntime implements IPluginRuntime {
     input: string | Readable,
     args: Arguments
   ): Promise<string | Readable> {
-    console.log('commands', args);
     args = args.slice();
     while (args.length > 0) {
       const command = await commandArgument(

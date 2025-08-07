@@ -26,7 +26,7 @@ const commands: Commands = {
       return JSON.stringify(entries, null, 2);
     },
   },
-  glob2: {
+  glob3: {
     description:
       'replaces input with a list of files matching pattern in JSON, accepts arguments as JSON values',
     run: async (
@@ -34,9 +34,7 @@ const commands: Commands = {
       args: Arguments,
       runtime: IPluginRuntime
     ): Promise<string | Readable> => {
-      const usage = 'usage: glob "pattern" "ignore-pattern"';
-
-      console.log('args', args);
+      const usage = 'usage: glob "pattern" "ignore-pattern" "options"';
 
       // Lazy. Should validate schemas
       const patterns = JSON.parse(
@@ -45,8 +43,12 @@ const commands: Commands = {
       const ignores = JSON.parse(
         await commandArgument(runtime, args.shift(), usage)
       );
+      const options = JSON.parse(
+        await commandArgument(runtime, args.shift(), usage)
+      );
 
       const entries = await glob(patterns, {
+        ...options,
         ignore: ignores,
         cwd: process.cwd(),
         nodir: true,

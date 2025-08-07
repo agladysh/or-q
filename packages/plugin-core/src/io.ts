@@ -19,8 +19,9 @@ const commands: Commands = {
       return process.stdin;
     },
   },
-  log: {
-    description: 'logs trimmed argument to stdout, passing input forward',
+  // Lazy. This should not trim. Instead define trim, trim-start and trim-end commands in string.ts.
+  print: {
+    description: 'prints trimmed argument to stdout, passing input forward',
     run: async (
       input: string | Readable,
       args: Arguments,
@@ -35,6 +36,7 @@ const commands: Commands = {
       return input;
     },
   },
+  // Lazy. This is not tee. Rename. Tee must write to a file.
   tee: {
     description:
       'outputs end-trimmed input to stdout, passes it along untrimmed',

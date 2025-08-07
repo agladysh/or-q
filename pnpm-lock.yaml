@@ -26,6 +26,9 @@ importers:
       '@or-q/plugin-shell':
         specifier: workspace:*
         version: link:packages/plugin-shell
+      '@or-q/plugin-stdio-logger':
+        specifier: workspace:*
+        version: link:packages/plugin-stdio-logger
       '@or-q/plugin-store':
         specifier: workspace:*
         version: link:packages/plugin-store
@@ -177,6 +180,19 @@ importers:
         version: 5.9.2
 
   packages/plugin-shell:
+    dependencies:
+      '@or-q/lib':
+        specifier: workspace:*
+        version: link:../lib
+    devDependencies:
+      '@types/node':
+        specifier: ^24.2.0
+        version: 24.2.0
+      typescript:
+        specifier: ^5.9.2
+        version: 5.9.2
+
+  packages/plugin-stdio-logger:
     dependencies:
       '@or-q/lib':
         specifier: workspace:*

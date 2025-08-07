@@ -46,17 +46,20 @@ const commands: Commands = {
     },
   },
   ['dirtree']: {
-    description: 'consumes list of paths, returns hierarchy as text',
+    description:
+      'consumes list of path or dirtree-json output, returns hierarchy as text',
     run: async (
       input: string | Readable,
       _args: Arguments,
       _runtime: IPluginRuntime
     ): Promise<string | Readable> => {
       input = await readableToString(input);
-      const paths = yaml.parse(input).sort();
-      return (
-        '.\n' + treeify.asTree(paths2object(paths) as TreeObject, true, true)
-      );
+      let dirtree = yaml.parse(input);
+      // Lazy. Should validate schema.
+      if (Array.isArray(dirtree)) {
+        dirtree = paths2object(dirtree.sort());
+      }
+      return './\n' + treeify.asTree(dirtree as TreeObject, true, true);
     },
   },
 };

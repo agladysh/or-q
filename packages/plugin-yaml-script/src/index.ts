@@ -1,19 +1,21 @@
 import {
-  type Arguments,
   assetGlob,
   commandArgument,
   fail,
+  loggingEventName,
+  logLevels,
   readableToString,
   resolveAsset,
+  type Arguments,
   type IPluginRuntime,
   type Plugin,
 } from '@or-q/lib';
 import { parse } from 'node:path';
 import type { Readable } from 'node:stream';
-import { parseArgsStringToArgv } from 'string-argv';
 import yaml from 'yaml';
 
 import pkg from '../package.json' with { type: 'json' };
+import parseArgsStringToArgv from 'string-argv';
 
 type CommandList = unknown;
 
@@ -31,16 +33,16 @@ function loadArgs(args: unknown): string | Arguments {
 }
 
 function loadCommands(commands: CommandList): Arguments {
-  if (typeof commands === 'string') {
-    return parseArgsStringToArgv(commands);
-  }
-
   if (!Array.isArray(commands)) {
     return fail(`unexpected command list value type ${typeof commands}`);
   }
 
   return commands.flatMap((command) => {
-    if (typeof command === 'string' || Array.isArray(command)) {
+    if (typeof command === 'string') {
+      return command;
+    }
+
+    if (Array.isArray(command)) {
       return loadCommands(command);
     }
 
@@ -74,12 +76,18 @@ async function runYAMLScript(
     input = await readableToString(input);
     if (input === '') {
       const args = loadCommands(data['on-empty-stdin']);
-      console.log('YYY', args);
       input = await runtime.runCommands(input, args);
     }
   }
   const args = loadCommands(data.commands);
-  console.log('XXX', args);
+
+  // Lazy. Should be a wrapper in the plugin lib.
+  runtime.emit(loggingEventName, {
+    source: pkg.name,
+    level: logLevels.debug,
+    value: ['loaded YAML script', args],
+  });
+
   return runtime.runCommands(input, args);
 }
 
@@ -168,6 +176,27 @@ const plugin: Plugin = {
         }
 
         return runYAMLScript(input, yamlString, runtime);
+      },
+    },
+    // Lazy. Replace with proper control flow commands
+    forever: {
+      description: 'runs forever, interrupt to exit',
+      run: async (
+        input: string | Readable,
+        args: Arguments,
+        runtime: IPluginRuntime
+      ): Promise<string | Readable> => {
+        // Not using commandArgument() helper, since we do NOT want sub-command expansion here.
+        let arg = args.shift();
+        if (arg === undefined) {
+          return fail('usage: forever [actions]');
+        }
+        if (typeof arg === 'string') {
+          arg = parseArgsStringToArgv(arg);
+        }
+        while (true) {
+          input = await runtime.runCommands(input, arg.slice());
+        }
       },
     },
   },

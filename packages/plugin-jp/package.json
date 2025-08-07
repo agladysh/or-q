@@ -15,8 +15,10 @@
   "scripts": {
     "prepack": "tsc --emitDeclarationOnly"
   },
+  "dependencies": {
+    "@or-q/lib": "workspace:*"
+  },
   "devDependencies": {
-    "@or-q/lib": "workspace:*",
     "@types/node": "^24.2.0",
     "typescript": "^5.9.2"
   }

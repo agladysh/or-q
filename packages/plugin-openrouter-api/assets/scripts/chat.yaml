@@ -1,0 +1,13 @@
+requires:
+  - '@or-q/plugin-openrouter-api'
+  - '@or-q/plugin-store'
+
+on-empty-stdin:
+  # TODO: Let user select these values
+  - conversation: openai/gpt-oss-20b:free
+  - system: You are a helpful assistant
+
+commands:
+  - print: Press CTRL+C to exit
+  - forever:
+      - run: conversation-turn

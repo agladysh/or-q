@@ -2,11 +2,6 @@ requires:
   - '@or-q/plugin-openrouter-api'
   - '@or-q/plugin-store'
 
-on-empty-stdin:
-  # TODO: Let user select these values
-  - conversation: openai/gpt-oss-20b:free
-  - system: You are a helpful assistant
-
 commands:
   - user:
       - readline: 'User> '
@@ -16,3 +11,4 @@ commands:
       - completions
       - jp: 'choices[0].message.content'
       - unquote
+      - tee # TODO: Move this to chat.yaml, so this script remains glueable

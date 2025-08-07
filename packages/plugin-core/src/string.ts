@@ -1,5 +1,4 @@
 import {
-  commandArgument,
   readableToString,
   type Arguments,
   type Commands,
@@ -17,23 +16,6 @@ const commands: Commands = {
     ): Promise<string | Readable> => {
       input = await readableToString(input);
       return JSON.parse(input);
-    },
-  },
-  append: {
-    description:
-      'appends argument to input, does NOT insert a newline at either end of argument',
-    run: async (
-      input: string | Readable,
-      args: Arguments,
-      runtime: IPluginRuntime
-    ): Promise<string | Readable> => {
-      const text = await commandArgument(
-        runtime,
-        args.shift(),
-        'usage: append "\n<text>\n"'
-      );
-      input = await readableToString(input);
-      return `${input}${text}`;
     },
   },
 };

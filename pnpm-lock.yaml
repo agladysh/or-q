@@ -14,6 +14,9 @@ importers:
       '@or-q/plugin-core':
         specifier: workspace:*
         version: link:packages/plugin-core
+      '@or-q/plugin-filesystem':
+        specifier: workspace:*
+        version: link:packages/plugin-filesystem
       '@or-q/plugin-format':
         specifier: workspace:*
         version: link:packages/plugin-format
@@ -129,6 +132,22 @@ importers:
       '@or-q/lib':
         specifier: workspace:*
         version: link:../lib
+    devDependencies:
+      '@types/node':
+        specifier: ^24.2.0
+        version: 24.2.0
+      typescript:
+        specifier: ^5.9.2
+        version: 5.9.2
+
+  packages/plugin-filesystem:
+    dependencies:
+      '@or-q/lib':
+        specifier: workspace:*
+        version: link:../lib
+      glob:
+        specifier: ^11.0.3
+        version: 11.0.3
     devDependencies:
       '@types/node':
         specifier: ^24.2.0

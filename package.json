@@ -31,7 +31,8 @@
     "@or-q/plugin-shell": "workspace:*",
     "@or-q/plugin-store": "workspace:*",
     "@or-q/plugin-template": "workspace:*",
-    "@or-q/plugin-stdio-logger": "workspace:*"
+    "@or-q/plugin-stdio-logger": "workspace:*",
+    "@or-q/plugin-filesystem": "workspace:*"
   },
   "devDependencies": {
     "@eslint/js": "^9.32.0",

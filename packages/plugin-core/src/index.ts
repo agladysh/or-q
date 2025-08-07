@@ -108,6 +108,15 @@ const plugin: Plugin = {
         return text;
       },
     },
+    clear: {
+      description: 'replaces input with empty string',
+      run: async (
+        _input: string | Readable,
+        _args: string[]
+      ): Promise<string | Readable> => {
+        return '';
+      },
+    },
     ['list-assets']: {
       description:
         'prints the list of available assets to stdout, passes input along',

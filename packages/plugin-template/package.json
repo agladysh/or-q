@@ -1,0 +1,26 @@
+{
+  "name": "@or-q/plugin-template",
+  "description": "OR-Q Plugin: Basic String Templates",
+  "version": "1.0.0",
+  "author": "Alexander Gladysh <agladysh@gmail.com>",
+  "license": "MIT",
+  "packageManager": "pnpm@10.13.1",
+  "type": "module",
+  "exports": "./src/index.ts",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "src",
+    "dist"
+  ],
+  "scripts": {
+    "prepack": "tsc --emitDeclarationOnly"
+  },
+  "dependencies": {
+    "@or-q/lib": "workspace:*",
+    "string-argv": "^0.3.2"
+  },
+  "devDependencies": {
+    "@types/node": "^24.2.0",
+    "typescript": "^5.9.2"
+  }
+}

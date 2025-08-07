@@ -17,10 +17,12 @@
   },
   "dependencies": {
     "@or-q/lib": "workspace:*",
-    "glob": "^11.0.3"
+    "glob": "^11.0.3",
+    "treeify": "^1.1.0"
   },
   "devDependencies": {
     "@types/node": "^24.2.0",
+    "@types/treeify": "^1.0.3",
     "typescript": "^5.9.2"
   }
 }

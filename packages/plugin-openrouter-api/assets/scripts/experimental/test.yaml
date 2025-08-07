@@ -1,0 +1,13 @@
+requires:
+  - '@or-q/plugin-openrouter-api'
+  - '@or-q/plugin-store'
+  - '@or-q/plugin-jp'
+
+commands:
+  - print: testing...
+  - glob2:
+      - _DATA: '**/*'
+      - _DATA:
+          - '**/node_modules/**'
+          - '**/dist/**'
+  - yaml

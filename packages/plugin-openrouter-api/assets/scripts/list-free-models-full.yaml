@@ -1,4 +1,7 @@
+requires:
+  - '@or-q/plugin-openrouter-api'
+  - '@or-q/plugin-jp'
+
 commands:
-  - - models
-  - - jp
-    - data[?pricing.prompt=='0' && pricing.completion=='0']
+  - models
+  - jp: data[?pricing.prompt=='0' && pricing.completion=='0']

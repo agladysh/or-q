@@ -1,5 +1,7 @@
+requires:
+  - '@or-q/plugin-openrouter-api'
+  - '@or-q/plugin-jp'
+
 commands:
-  - - run
-    - list-free-models-full
-  - - jp
-    - '[].id'
+  - run: list-free-models-full
+  - jp: '[].id'

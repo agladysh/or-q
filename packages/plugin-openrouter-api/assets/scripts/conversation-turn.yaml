@@ -6,9 +6,10 @@ commands:
   - user:
       - readline: 'User> '
   - save: CONVERSATION
+
   - assistant:
       - load: CONVERSATION
       - completions
       - jp: 'choices[0].message.content'
       - unquote
-      - tee # TODO: Move this to chat.yaml, so this script remains glueable
+  - save: CONVERSATION

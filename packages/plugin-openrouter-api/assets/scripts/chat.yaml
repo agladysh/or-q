@@ -11,3 +11,7 @@ commands:
   - print: Press CTRL+C to exit
   - forever:
       - run: conversation-turn
+      - print:
+          - load: CONVERSATION
+          - jp: 'messages[-1:].content'
+          - unquote

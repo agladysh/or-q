@@ -39,8 +39,51 @@ export interface Command {
 export type Commands = Record<string, Command>;
 export type Assets = Record<string, string>;
 
-export interface Plugin {
+export const logLevelNames = [
+  'spam',
+  'debug',
+  'info',
+  'log',
+  'warn',
+  'error',
+  'none',
+] as const;
+
+export type LogLevel = (typeof logLevelNames)[number];
+export type LogLevelOrd = number;
+export type LogLevels = Record<LogLevel, LogLevel>;
+
+export const logLevels: LogLevels = Object.fromEntries(
+  logLevelNames.map((name) => [name, name])
+) as LogLevels;
+
+type LogLevelOrds = Record<string, LogLevelOrd>;
+export const logLevelOrds: LogLevelOrds = Object.fromEntries(
+  logLevelNames.map((name, index) => [name, index])
+) as LogLevelOrds;
+
+export interface IPluginRuntimeEvent {
+  source: string;
+}
+
+export type IPluginRuntimeEventListener<
+  E extends IPluginRuntimeEvent = IPluginRuntimeEvent,
+> = (event: E) => void;
+
+export type IPluginRuntimeEventListeners<
+  E extends IPluginRuntimeEvent = IPluginRuntimeEvent,
+> = Record<string, IPluginRuntimeEventListener<E>>;
+
+export const loggingEventName = 'log';
+export interface LoggingEvent extends IPluginRuntimeEvent {
+  level: LogLevel;
+  value: unknown;
+}
+export type LoggingEventListener = IPluginRuntimeEventListener<LoggingEvent>;
+
+export interface Plugin<E extends IPluginRuntimeEvent = IPluginRuntimeEvent> {
   name: string;
+  eventListeners?: IPluginRuntimeEventListeners<E>;
   assets?: Commands;
   commands?: Commands;
 }
@@ -52,7 +95,11 @@ export interface IPluginRuntime {
   assetNames: string[];
   commands: Commands;
   assets: Assets;
-  usage: () => string;
+  on: <T extends IPluginRuntimeEventListener>(
+    eventName: string,
+    listener: T
+  ) => void;
+  emit: <E extends IPluginRuntimeEvent>(eventName: string, event: E) => boolean;
   runCommands: (
     input: string | Readable,
     args: Arguments
@@ -215,4 +262,17 @@ export function resolveAsset(
   }
 
   return undefined; // You may want to use assetGlob next.
+}
+
+export function getPlugin<T extends Plugin>(
+  runtime: IPluginRuntime,
+  name: string
+): T {
+  const plugin = runtime.plugins[name];
+  if (!plugin) {
+    return fail(
+      `getPlugin: plugin "${name}" not available, try installing it as the node package`
+    );
+  }
+  return plugin as T;
 }

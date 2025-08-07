@@ -28,7 +28,8 @@
     "@or-q/plugin-openrouter-api": "workspace:*",
     "@or-q/plugin-format": "workspace:*",
     "@or-q/plugin-yaml-script": "workspace:*",
-    "@or-q/plugin-shell": "workspace:*"
+    "@or-q/plugin-shell": "workspace:*",
+    "@or-q/plugin-store": "workspace:*"
   },
   "devDependencies": {
     "@eslint/js": "^9.32.0",

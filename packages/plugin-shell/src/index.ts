@@ -1,6 +1,6 @@
+import type { Arguments, IPluginRuntime, Plugin } from '@or-q/lib';
+import { commandArgument, spawnText } from '@or-q/lib';
 import type { Readable } from 'node:stream';
-import { fail, spawnText } from '@or-q/lib';
-import type { Plugin } from '@or-q/lib';
 import pkg from '../package.json' with { type: 'json' };
 
 const plugin: Plugin = {
@@ -10,13 +10,14 @@ const plugin: Plugin = {
       description: 'run a shell command (use with caution)',
       run: async (
         input: string | Readable,
-        args: string[]
+        args: Arguments,
+        runtime: IPluginRuntime
       ): Promise<string | Readable> => {
-        const command = args.shift();
-        // Lazy, this should be enforced by caller, including usage.
-        if (command === undefined) {
-          fail('usage: shell "[shell command]"');
-        }
+        const command = await commandArgument(
+          runtime,
+          args.shift(),
+          'usage: shell "[shell command]"'
+        );
         return spawnText(command, input, { shell: true });
       },
     },

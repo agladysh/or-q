@@ -1,4 +1,10 @@
-import { type Commands, fail, readableToString } from '@or-q/lib';
+import {
+  type Arguments,
+  type Commands,
+  fail,
+  type IPluginRuntime,
+  readableToString,
+} from '@or-q/lib';
 import { Readable } from 'node:stream';
 import type { ReadableStream } from 'stream/web';
 
@@ -10,7 +16,8 @@ const commands: Commands = {
       'feeds input to the OpenRouter completions API, requires OPENROUTER_API_KEY env variable',
     run: async (
       input: string | Readable,
-      _args: string[]
+      _args: Arguments,
+      _runtime: IPluginRuntime
     ): Promise<string | Readable> => {
       const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
       if (!OPENROUTER_API_KEY) {

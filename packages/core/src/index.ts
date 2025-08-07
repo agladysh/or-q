@@ -1,9 +1,10 @@
-import type { Assets } from '@or-q/lib';
+import type { Arguments, Assets } from '@or-q/lib';
 import {
-  type Plugin,
+  commandArgument,
   type Commands,
   fail,
   type IPluginRuntime,
+  type Plugin,
 } from '@or-q/lib';
 import installedNodeModules from 'installed-node-modules';
 import type { Readable } from 'node:stream';
@@ -44,6 +45,7 @@ function resolveRecord<
 }
 
 export class PluginRuntime implements IPluginRuntime {
+  plugins: Record<string, Plugin>;
   pluginNames: string[];
   commandNames: string[];
   assetNames: string[];
@@ -51,6 +53,7 @@ export class PluginRuntime implements IPluginRuntime {
   commands: Commands;
 
   constructor(plugins: Plugin[]) {
+    this.plugins = Object.fromEntries(plugins.map((p) => [p.name, p]));
     this.pluginNames = plugins.map((p) => p.name);
     this.assets = resolveRecord(plugins, 'assets', true);
     this.assetNames = Object.keys(this.assets);
@@ -66,17 +69,23 @@ export class PluginRuntime implements IPluginRuntime {
     return new PluginRuntime(plugins);
   }
 
+  // Lazy. This does not belong here.
   usage(): string {
     return `Available commands: ${this.commandNames.join(', ')}`;
   }
 
   async runCommands(
     input: string | Readable,
-    args: string[]
+    args: Arguments
   ): Promise<string | Readable> {
+    console.log('commands', args);
     args = args.slice();
     while (args.length > 0) {
-      const command = args.shift()!;
+      const command = await commandArgument(
+        this,
+        args.shift(),
+        'Internal error: unreachable'
+      );
       if (!(command in this.commands)) {
         fail(`Unknown command ${command}`);
       }

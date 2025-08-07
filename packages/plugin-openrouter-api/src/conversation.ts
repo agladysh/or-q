@@ -1,4 +1,10 @@
-import { type Commands, fail, readableToString } from '@or-q/lib';
+import {
+  type Arguments,
+  commandArgument,
+  type Commands,
+  type IPluginRuntime,
+  readableToString,
+} from '@or-q/lib';
 import { type Readable } from 'node:stream';
 
 function messageHandler(
@@ -7,13 +13,14 @@ function messageHandler(
 ) {
   return async function run(
     input: string | Readable,
-    args: string[]
+    args: Arguments,
+    runtime: IPluginRuntime
   ): Promise<string | Readable> {
-    const content = args.shift();
-    // Lazy, this should be enforced by caller, including usage.
-    if (content === undefined) {
-      fail(`usage: ${command} "<message>"`);
-    }
+    const content = await commandArgument(
+      runtime,
+      args.shift(),
+      `usage: ${command} "<message>"`
+    );
 
     // Lazy. Should validate input
     const conversation = JSON.parse(await readableToString(input));
@@ -28,13 +35,14 @@ const commands: Commands = {
     description: 'replaces input with an empty conversation object',
     run: async (
       _input: string | Readable,
-      args: string[]
+      args: Arguments,
+      runtime: IPluginRuntime
     ): Promise<string | Readable> => {
-      const model = args.shift();
-      // Lazy, this should be enforced by caller, including usage.
-      if (model === undefined) {
-        fail('usage: conversation "<model>"');
-      }
+      const model = await commandArgument(
+        runtime,
+        args.shift(),
+        'usage: conversation "<model>"'
+      );
 
       return JSON.stringify({
         model: model,

@@ -1,4 +1,9 @@
-import { type Commands, fail } from '@or-q/lib';
+import {
+  type Arguments,
+  type Commands,
+  fail,
+  type IPluginRuntime,
+} from '@or-q/lib';
 import { Readable } from 'node:stream';
 import type { ReadableStream } from 'stream/web';
 
@@ -12,7 +17,8 @@ const commands: Commands = {
     description: 'replaces input with data from OpenResty models endpoint',
     run: async (
       _input: string | Readable,
-      _args: string[]
+      _args: Arguments,
+      _runtime: IPluginRuntime
     ): Promise<string | Readable> => {
       const response = await fetch(url, options);
       if (!response.body) {

@@ -1,19 +1,57 @@
 import {
+  type Arguments,
   assetGlob,
+  commandArgument,
   fail,
+  readableToString,
   resolveAsset,
   type IPluginRuntime,
   type Plugin,
 } from '@or-q/lib';
+import { parse } from 'node:path';
 import type { Readable } from 'node:stream';
+import { parseArgsStringToArgv } from 'string-argv';
 import yaml from 'yaml';
 
-import { parse } from 'node:path';
 import pkg from '../package.json' with { type: 'json' };
 
+type CommandList = unknown;
+
 interface Script {
-  // Lazy. Replace with more ergonomic design once plugin command arguments have proper schemas!
-  commands: [[string, string]];
+  requires: [string];
+  ['on-empty-stdin']: CommandList;
+  commands: CommandList;
+}
+
+function loadArgs(args: unknown): string | Arguments {
+  if (Array.isArray(args)) {
+    return loadCommands(args);
+  }
+  return String(args);
+}
+
+function loadCommands(commands: CommandList): Arguments {
+  if (typeof commands === 'string') {
+    return parseArgsStringToArgv(commands);
+  }
+
+  if (!Array.isArray(commands)) {
+    return fail(`unexpected command list value type ${typeof commands}`);
+  }
+
+  return commands.flatMap((command) => {
+    if (typeof command === 'string' || Array.isArray(command)) {
+      return loadCommands(command);
+    }
+
+    if (typeof command === 'object' && command !== null) {
+      return Object.entries(command).flatMap(([command, args]) => {
+        return [String(command), loadArgs(args)];
+      });
+    }
+
+    return fail(`unexpected command value type ${typeof command}`);
+  });
 }
 
 async function runYAMLScript(
@@ -23,30 +61,58 @@ async function runYAMLScript(
 ): Promise<string | Readable> {
   // Lazy: Validate schema with arktype
   const data = yaml.parse(yamlString) as Script;
-  return runtime.runCommands(
-    input,
-    data.commands.flatMap((a) => a)
-  );
+  if (data.requires?.length > 0) {
+    for (const name of data.requires) {
+      if (!runtime.plugins[name]) {
+        return fail(
+          `required dependency ${name} not installed, try installing this node package`
+        );
+      }
+    }
+  }
+  if (data['on-empty-stdin']) {
+    input = await readableToString(input);
+    if (input === '') {
+      const args = loadCommands(data['on-empty-stdin']);
+      console.log('YYY', args);
+      input = await runtime.runCommands(input, args);
+    }
+  }
+  const args = loadCommands(data.commands);
+  console.log('XXX', args);
+  return runtime.runCommands(input, args);
 }
 
 const plugin: Plugin = {
   name: pkg.name,
   commands: {
+    fail: {
+      description: 'fails with an error message',
+      run: async (
+        _input: string | Readable,
+        args: Arguments,
+        runtime: IPluginRuntime
+      ): Promise<string | Readable> => {
+        const text = await commandArgument(
+          runtime,
+          args.shift(),
+          'usage: fail "<text>"'
+        );
+        return fail(text);
+      },
+    },
     exec: {
       description: 'executes YAML script from argument',
       run: async (
         input: string | Readable,
-        args: string[],
+        args: Arguments,
         runtime: IPluginRuntime
       ): Promise<string | Readable> => {
-        const yamlString = args.shift();
-        // Lazy, this should be enforced by caller, including usage.
-        if (yamlString === undefined) {
-          fail(
-            'usage: exec "<yaml>", you may use run <(cat filename.yaml) to read from file'
-          );
-        }
-
+        const yamlString = await commandArgument(
+          runtime,
+          args.shift(),
+          'usage: exec "<yaml>", you may use run <(cat filename.yaml) to read from file'
+        );
         return runYAMLScript(input, yamlString, runtime);
       },
     },
@@ -55,7 +121,7 @@ const plugin: Plugin = {
         'prints the list of available builtin scripts to stdout, passes input along',
       run: async (
         input: string | Readable,
-        _args: string[],
+        _args: Arguments,
         runtime: IPluginRuntime
       ): Promise<string | Readable> => {
         // Lazy. Sort by name, so duplicates are clearly visible.
@@ -70,16 +136,14 @@ const plugin: Plugin = {
       description: 'runs YAML script file from file: or plugin:',
       run: async (
         input: string | Readable,
-        args: string[],
+        args: Arguments,
         runtime: IPluginRuntime
       ): Promise<string | Readable> => {
-        // Lazy. This is copy-pasted in several places with minor changes. Generalize.
-        const uri = args.shift();
-        // Lazy, this should be enforced by caller, including usage.
-        if (uri === undefined) {
-          // Lazy. Document uri schemas and resolution logic better
-          return fail('usage: run "<file>"');
-        }
+        const uri = await commandArgument(
+          runtime,
+          args.shift(),
+          'usage: run "<file>"'
+        );
 
         let yamlString = resolveAsset(runtime, uri);
         if (yamlString === undefined) {

@@ -1,0 +1,18 @@
+requires:
+  - '@or-q/plugin-openrouter-api'
+  - '@or-q/plugin-store'
+
+on-empty-stdin:
+  # TODO: Let user select these values
+  - conversation: openai/gpt-oss-20b:free
+  - system: You are a helpful assistant
+
+commands:
+  - user:
+      - readline: 'User> '
+  - save: CONVERSATION
+  - assistant:
+      - load: CONVERSATION
+      - completions
+      - jp: 'choices[0].message.content'
+      - unquote

@@ -1,4 +1,4 @@
-import type { Plugin } from '@or-q/lib';
+import type { Arguments, IPluginRuntime, Plugin } from '@or-q/lib';
 import { readableToString } from '@or-q/lib';
 import type { Readable } from 'node:stream';
 import yaml from 'yaml';
@@ -12,7 +12,8 @@ const plugin: Plugin = {
       description: 'pretty-prints JSON',
       run: async (
         input: string | Readable,
-        _args: string[]
+        _args: Arguments,
+        _runtime: IPluginRuntime
       ): Promise<string | Readable> => {
         return JSON.stringify(
           JSON.parse(await readableToString(input)),
@@ -25,7 +26,8 @@ const plugin: Plugin = {
       description: 'converts JSON to YAML',
       run: async (
         input: string | Readable,
-        _args: string[]
+        _args: Arguments,
+        _runtime: IPluginRuntime
       ): Promise<string | Readable> => {
         return yaml.stringify(JSON.parse(await readableToString(input)));
       },

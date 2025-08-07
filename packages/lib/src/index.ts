@@ -1,4 +1,22 @@
 import { globSync, type GlobOptions } from 'glob';
+
+export function mergeCommands(
+  pluginName: string,
+  commands: Commands[]
+): Commands {
+  const merged: Commands = {};
+  for (const cmd of commands) {
+    for (const [name, command] of Object.entries(cmd)) {
+      if (merged[name]) {
+        process.emitWarning(
+          `Command "${name}" from plugin "${pluginName}" overrides a previously registered command.`
+        );
+      }
+      merged[name] = command;
+    }
+  }
+  return merged;
+}
 import { spawn } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
@@ -7,11 +25,13 @@ import { pipeline } from 'node:stream/promises';
 import { fileURLToPath } from 'node:url';
 import { minimatch, type MinimatchOptions } from 'minimatch';
 
+export type Arguments = (string | Arguments)[];
+
 export interface Command {
   description: string;
   run: (
     input: string | Readable,
-    args: string[],
+    args: Arguments,
     runtime: IPluginRuntime
   ) => Promise<string | Readable>;
 }
@@ -26,6 +46,7 @@ export interface Plugin {
 }
 
 export interface IPluginRuntime {
+  plugins: Record<string, Plugin>;
   pluginNames: string[];
   commandNames: string[];
   assetNames: string[];
@@ -34,8 +55,26 @@ export interface IPluginRuntime {
   usage: () => string;
   runCommands: (
     input: string | Readable,
-    args: string[]
+    args: Arguments
   ) => Promise<string | Readable>;
+}
+
+// Lazy. Too low-level. Rearchitect.
+export async function commandArgument(
+  runtime: IPluginRuntime,
+  arg: string | Arguments | undefined,
+  usage: string,
+  input: string | Readable = ''
+): Promise<string> {
+  if (arg === undefined) {
+    return fail(usage);
+  }
+
+  if (!Array.isArray(arg)) {
+    return arg;
+  }
+
+  return readableToString(await runtime.runCommands(input, arg));
 }
 
 export type SpawnOptions = {

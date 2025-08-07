@@ -11,3 +11,5 @@
 - [ ] Implement tests once feasible
 - [ ] Provide a `spawn` command to spawn arbitrary shell process
 - [ ] Implement the bi-system.
+- [ ] Support YAML string passing as input
+- [ ] Support JSON-like data object passing as input to save on serialization / deserialization

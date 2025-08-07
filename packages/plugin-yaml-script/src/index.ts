@@ -25,11 +25,46 @@ interface Script {
   commands: CommandList;
 }
 
-function loadArgs(args: unknown): string | Arguments {
-  if (Array.isArray(args)) {
-    return loadCommands(args);
+function loadCommandsImpl(
+  root: Arguments,
+  commands: CommandList
+): Arguments | string {
+  if (typeof commands === 'string') {
+    root.push(commands);
+    return root;
   }
-  return String(args);
+
+  if (Array.isArray(commands)) {
+    // Nested call
+    const child: Arguments = [];
+    root.push(child);
+    for (const command of commands) {
+      loadCommandsImpl(child, command);
+    }
+    return root;
+  }
+
+  if (typeof commands === 'object' && commands !== null) {
+    for (const [command, args] of Object.entries(commands)) {
+      if (command === '_DATA') {
+        root.push(JSON.stringify(args));
+        continue;
+      }
+
+      root.push(String(command));
+      if (Array.isArray(args)) {
+        // Several arguments
+        for (const command of args) {
+          loadCommandsImpl(root, command);
+        }
+        continue;
+      }
+      loadCommandsImpl(root, args);
+    }
+    return root;
+  }
+
+  return fail(`unexpected command value type ${typeof commands}`);
 }
 
 function loadCommands(commands: CommandList): Arguments {
@@ -37,23 +72,12 @@ function loadCommands(commands: CommandList): Arguments {
     return fail(`unexpected command list value type ${typeof commands}`);
   }
 
-  return commands.flatMap((command) => {
-    if (typeof command === 'string') {
-      return command;
-    }
+  const result: Arguments = [];
+  for (const command of commands) {
+    loadCommandsImpl(result, command);
+  }
 
-    if (Array.isArray(command)) {
-      return loadCommands(command);
-    }
-
-    if (typeof command === 'object' && command !== null) {
-      return Object.entries(command).flatMap(([command, args]) => {
-        return [String(command), loadArgs(args)];
-      });
-    }
-
-    return fail(`unexpected command value type ${typeof command}`);
-  });
+  return result;
 }
 
 async function runYAMLScript(
@@ -63,6 +87,14 @@ async function runYAMLScript(
 ): Promise<string | Readable> {
   // Lazy: Validate schema with arktype
   const data = yaml.parse(yamlString) as Script;
+
+  // Lazy. Should be a wrapper in the plugin lib.
+  runtime.emit(loggingEventName, {
+    source: pkg.name,
+    level: logLevels.spam,
+    value: ['loading YAML data', data.commands],
+  });
+
   if (data.requires?.length > 0) {
     for (const name of data.requires) {
       if (!runtime.plugins[name]) {
@@ -76,16 +108,23 @@ async function runYAMLScript(
     input = await readableToString(input);
     if (input === '') {
       const args = loadCommands(data['on-empty-stdin']);
+      // Lazy. Should be a wrapper in the plugin lib.
+      runtime.emit(loggingEventName, {
+        source: pkg.name,
+        level: logLevels.debug,
+        value: ['loaded YAML script for on-empty-stdin', args],
+      });
       input = await runtime.runCommands(input, args);
     }
   }
+
   const args = loadCommands(data.commands);
 
   // Lazy. Should be a wrapper in the plugin lib.
   runtime.emit(loggingEventName, {
     source: pkg.name,
     level: logLevels.debug,
-    value: ['loaded YAML script', args],
+    value: ['loaded YAML script for commands', args],
   });
 
   return runtime.runCommands(input, args);
@@ -197,6 +236,17 @@ const plugin: Plugin = {
         while (true) {
           input = await runtime.runCommands(input, arg.slice());
         }
+      },
+    },
+    // See also special handling in loader.
+    _DATA: {
+      description: 'converts remaining program to JSON data in input',
+      run: async (
+        _input: string | Readable,
+        args: Arguments,
+        _runtime: IPluginRuntime
+      ): Promise<string | Readable> => {
+        return JSON.stringify(args.splice(0, args.length));
       },
     },
   },

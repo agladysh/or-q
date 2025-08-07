@@ -1,6 +1,6 @@
 {
   "name": "@or-q/plugin-core",
-  "description": "OR-Q Plugin: Core Plugins",
+  "description": "OR-Q Plugin: Core Commands",
   "version": "1.0.0",
   "author": "Alexander Gladysh <agladysh@gmail.com>",
   "license": "MIT",

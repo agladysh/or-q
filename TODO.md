@@ -13,3 +13,4 @@
 - [ ] Implement the bi-system.
 - [ ] Support YAML string passing as input
 - [ ] Support JSON-like data object passing as input to save on serialization / deserialization
+- [ ] Emit operations on input pipeline? We are kinda doing this anyway, might make it official as well

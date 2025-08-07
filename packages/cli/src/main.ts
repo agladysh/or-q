@@ -1,4 +1,4 @@
-#! /usr/bin/env node --experimental-strip-types --disable-warning=ExperimentalWarning
+#! /usr/bin/env node --env-file-if-exists=.env --experimental-strip-types --disable-warning=ExperimentalWarning
 import { PluginRuntime } from '@or-q/core';
 import { readableToString } from '@or-q/lib';
 import { Readable } from 'node:stream';

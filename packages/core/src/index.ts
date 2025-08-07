@@ -108,7 +108,7 @@ export class PluginRuntime extends EventEmitter implements IPluginRuntime {
   // Lazy. This should be in IORQPluginRuntime
   async runCommands(
     input: string | Readable,
-    args: Arguments
+    program: Arguments
   ): Promise<string | Readable> {
     // Lazy. Generalize so it is reusable.
     const spam = (...args: unknown[]) => {
@@ -127,9 +127,9 @@ export class PluginRuntime extends EventEmitter implements IPluginRuntime {
       } as LoggingEvent);
     };
 
-    dbg('runCommands: executing', args);
+    dbg('runCommands: executing', program);
 
-    args = args.slice();
+    const args = program.slice();
     while (args.length > 0) {
       const command = await commandArgument(
         this,
@@ -137,7 +137,9 @@ export class PluginRuntime extends EventEmitter implements IPluginRuntime {
         'Internal error: unreachable'
       );
       if (!(command in this.commands)) {
-        fail(`Unknown command ${command}`);
+        dbg('failed while executing', program);
+        dbg('remaining program', args);
+        fail(`Unknown command "${command}"`);
       }
       dbg('runCommands: running', command);
       try {
@@ -150,7 +152,7 @@ export class PluginRuntime extends EventEmitter implements IPluginRuntime {
       spam('runCommands: done running', command);
     }
 
-    spam('runCommands: done executing', args);
+    spam('runCommands: done executing', program);
 
     return input;
   }

@@ -4,12 +4,7 @@ requires:
 
 commands:
   - user:
-      - readline: 'User> '
+      - - readline: 'User> '
   - save: CONVERSATION
 
-  - assistant:
-      - load: CONVERSATION
-      - completions
-      - jp: 'choices[0].message.content'
-      - unquote
-  - save: CONVERSATION
+  - run: conversation-turn-assistant

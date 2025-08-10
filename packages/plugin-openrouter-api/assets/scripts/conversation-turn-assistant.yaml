@@ -1,0 +1,11 @@
+requires:
+  - '@or-q/plugin-openrouter-api'
+  - '@or-q/plugin-store'
+
+commands:
+  - assistant:
+      - - load: CONVERSATION
+        - completions
+        - jp: 'choices[0].message.content'
+        - unquote
+  - save: CONVERSATION

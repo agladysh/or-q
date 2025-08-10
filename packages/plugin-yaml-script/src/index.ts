@@ -26,6 +26,7 @@ interface Script {
 }
 
 function loadCommandsImpl(
+  parent: Arguments,
   root: Arguments,
   commands: CommandList
 ): Arguments | string {
@@ -37,9 +38,11 @@ function loadCommandsImpl(
   if (Array.isArray(commands)) {
     // Nested call
     const child: Arguments = [];
-    root.push(child);
     for (const command of commands) {
-      loadCommandsImpl(child, command);
+      loadCommandsImpl(root, child, command);
+    }
+    if (child.length > 0) {
+      root.push(child);
     }
     return root;
   }
@@ -47,7 +50,7 @@ function loadCommandsImpl(
   if (typeof commands === 'object' && commands !== null) {
     for (const [command, args] of Object.entries(commands)) {
       if (command === '_DATA') {
-        root.push(JSON.stringify(args));
+        parent.push(JSON.stringify(args));
         continue;
       }
 
@@ -55,15 +58,16 @@ function loadCommandsImpl(
       if (Array.isArray(args)) {
         // Several arguments
         for (const command of args) {
-          loadCommandsImpl(root, command);
+          loadCommandsImpl(parent, root, command);
         }
         continue;
       }
-      loadCommandsImpl(root, args);
+      loadCommandsImpl(parent, root, args);
     }
     return root;
   }
 
+  console.error('ingested so far', root);
   return fail(`unexpected command value type ${typeof commands}`);
 }
 
@@ -74,7 +78,7 @@ function loadCommands(commands: CommandList): Arguments {
 
   const result: Arguments = [];
   for (const command of commands) {
-    loadCommandsImpl(result, command);
+    loadCommandsImpl(result, result, command);
   }
 
   return result;

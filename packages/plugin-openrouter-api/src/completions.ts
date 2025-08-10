@@ -3,10 +3,14 @@ import {
   type Commands,
   fail,
   type IPluginRuntime,
+  type LoggingEvent,
+  loggingEventName,
+  logLevels,
   readableToString,
 } from '@or-q/lib';
 import { Readable } from 'node:stream';
 import type { ReadableStream } from 'stream/web';
+import pkg from '../package.json' with { type: 'json' };
 
 const url = 'https://openrouter.ai/api/v1/chat/completions';
 
@@ -17,7 +21,7 @@ const commands: Commands = {
     run: async (
       input: string | Readable,
       _args: Arguments,
-      _runtime: IPluginRuntime
+      runtime: IPluginRuntime
     ): Promise<string | Readable> => {
       const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
       if (!OPENROUTER_API_KEY) {
@@ -37,8 +41,14 @@ const commands: Commands = {
       });
       if (!response.body) {
         console.error(response);
-        fail(`${name}: response body is null`);
+        fail(`completions: response body is null`);
       }
+      // Lazy. Must handle HTTP code (esp. 429), in this handler and in others
+      runtime.emit(loggingEventName, {
+        source: pkg.name,
+        level: logLevels.spam,
+        value: ['completions', response],
+      } as LoggingEvent);
       return Readable.fromWeb(response.body as ReadableStream);
     },
   },

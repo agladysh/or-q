@@ -6,6 +6,7 @@ commands:
   - assistant:
       - - load: CONVERSATION
         - completions
+        - info: [[tee]]
         - jp: 'choices[0].message.content'
         - unquote
   - save: CONVERSATION

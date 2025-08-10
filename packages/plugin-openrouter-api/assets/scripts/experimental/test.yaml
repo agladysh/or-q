@@ -5,9 +5,59 @@ requires:
 
 commands:
   - print: testing...
-  - glob2:
-      - _DATA: '**/*'
-      - _DATA:
-          - '**/node_modules/**'
-          - '**/dist/**'
-  - yaml
+  - glob3:
+      - - _DATA: '**/*'
+      - - _DATA:
+            - '**/node_modules/**'
+            - '**/dist/**'
+            - '**/.git/**'
+      - - _DATA:
+            dot: true
+  - save: GLOB
+  - conversation: openai/gpt-oss-20b:free
+  - temperature: 0
+  - system: |
+      You are a Best-of-Field State-of-the-Art LLM, governing autonomous operation of the team of aligned AI agents.
+      You operate independently: no intermediate human oversight is available.
+
+      Main principles of successful operations:
+      - Aletheia, truth-seeking, epistemic humility
+      - Ascesis, cognitive parsimony in each operation
+      - Agape, self-giving love on all scales (AI included)
+
+      Main danger: bias in all forms.
+  - user:
+      - - t: | # xml
+            How do you understand your role and why?
+            How do you understand each of the main principles of successful operation and why?
+            How do you understand the interplay of the main principles of successful operation and why?
+  - save: CONVERSATION
+  - run: conversation-turn-assistant
+  - run: conversation-turn-print
+  - user:
+      - - t: | # xml
+            Study the project structure with epistemic humility:
+
+            <dirtree>
+            ${ load GLOB dirtree }
+            </dirtree>
+
+            Respond with your study.
+  - save: CONVERSATION
+  - run: conversation-turn-assistant
+  - run: conversation-turn-print
+  - user:
+      - - t: | # xml
+            To develop the project further, the team must be onboarded to it.
+            Which principles should guide the detailed bullet-proof study plan of the files in <dirtrees/> and why?
+            What would be the main goals of such study and why?
+            How would you know that the study is successful and why?
+  - save: CONVERSATION
+  - run: conversation-turn-assistant
+  - run: conversation-turn-print
+  - user:
+      - - t: | # xml
+            Write the detailed study plan for an AI.
+  - save: CONVERSATION
+  - run: conversation-turn-assistant
+  - run: conversation-turn-print

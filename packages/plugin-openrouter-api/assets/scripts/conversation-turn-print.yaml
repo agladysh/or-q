@@ -1,0 +1,9 @@
+requires:
+  - '@or-q/plugin-openrouter-api'
+  - '@or-q/plugin-store'
+
+commands:
+  - print:
+      - - load: CONVERSATION
+        - jp: 'messages[-1:].content'
+        - unquote

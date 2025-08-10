@@ -46,8 +46,7 @@ const plugin: Plugin = {
       },
     },
     set: {
-      description:
-        'loads a named value from the store, replacing input with it, unknown values are empty strings',
+      description: 'sets key to value in store, forwards input',
       run: async (
         input: string | Readable,
         args: Arguments,

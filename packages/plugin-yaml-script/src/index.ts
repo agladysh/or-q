@@ -30,8 +30,8 @@ function loadCommandsImpl(
   root: Arguments,
   commands: CommandList
 ): Arguments | string {
-  if (typeof commands === 'string') {
-    root.push(commands);
+  if (typeof commands === 'string' || Number.isFinite(commands)) {
+    root.push(String(commands)); // Lazy. Push numbers as is, accept any number.
     return root;
   }
 

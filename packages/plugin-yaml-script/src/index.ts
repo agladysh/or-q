@@ -99,7 +99,9 @@ async function runYAMLScript(
     value: ['loading YAML data', data.commands],
   });
 
-  if (data.requires?.length > 0) {
+  const isArray = Array.isArray(data);
+
+  if (!isArray && data.requires?.length > 0) {
     for (const name of data.requires) {
       if (!runtime.plugins[name]) {
         return fail(
@@ -108,7 +110,7 @@ async function runYAMLScript(
       }
     }
   }
-  if (data['on-empty-stdin']) {
+  if (!isArray && data['on-empty-stdin']) {
     input = await readableToString(input);
     if (input === '') {
       const args = loadCommands(data['on-empty-stdin']);
@@ -122,7 +124,7 @@ async function runYAMLScript(
     }
   }
 
-  const args = loadCommands(data.commands);
+  const args = loadCommands(isArray ? data : data.commands);
 
   // Lazy. Should be a wrapper in the plugin lib.
   runtime.emit(loggingEventName, {

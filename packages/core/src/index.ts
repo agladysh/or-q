@@ -62,6 +62,7 @@ export class PluginRuntime extends EventEmitter implements IPluginRuntime {
   assetNames: string[];
   assets: Assets;
   commands: Commands;
+  private context: Record<string, unknown[]> = {};
 
   constructor(plugins: Plugin[]) {
     super();
@@ -103,6 +104,62 @@ export class PluginRuntime extends EventEmitter implements IPluginRuntime {
 
   emit<E extends IPluginRuntimeEvent>(eventName: string, event: E): boolean {
     return super.emit(eventName, event);
+  }
+
+  pushContext<T>(id: string, data: T): void {
+    this.emit(loggingEventName, {
+      source: pkg.name,
+      level: logLevels.spam,
+      value: ['pushContext', id, data],
+    } as LoggingEvent);
+
+    let ctx = this.context[id];
+    if (ctx === undefined) {
+      ctx = [];
+      this.context[id] = ctx;
+    }
+    ctx.push(data);
+  }
+
+  popContext<T>(id: string): T | undefined {
+    const ctx = this.context[id];
+    if (ctx === undefined) {
+      this.emit(loggingEventName, {
+        source: pkg.name,
+        level: logLevels.debug,
+        value: ['popContext', id, 'not found'],
+      } as LoggingEvent);
+
+      return undefined;
+    }
+
+    this.emit(loggingEventName, {
+      source: pkg.name,
+      level: logLevels.spam,
+      value: ['popContext', id, ctx[ctx.length - 1]],
+    } as LoggingEvent);
+
+    return ctx.pop() as T;
+  }
+
+  getContext<T>(id: string): T | undefined {
+    const ctx = this.context[id];
+    if (ctx === undefined) {
+      this.emit(loggingEventName, {
+        source: pkg.name,
+        level: logLevels.debug,
+        value: ['getContext', id, 'not found'],
+      } as LoggingEvent);
+      return undefined;
+    }
+
+    this.emit(loggingEventName, {
+      source: pkg.name,
+      level: logLevels.spam,
+      value: ['getContext', id, ctx[ctx.length - 1]],
+    } as LoggingEvent);
+
+    return ctx[ctx.length - 1] as T;
   }
 
   // Lazy. This should be in IORQPluginRuntime

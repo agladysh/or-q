@@ -100,10 +100,26 @@ export interface IPluginRuntime {
     listener: T
   ) => void;
   emit: <E extends IPluginRuntimeEvent>(eventName: string, event: E) => boolean;
+  pushContext: <T>(id: string, data: T) => void;
+  popContext: <T>(id: string) => T | undefined;
+  getContext: <T>(id: string) => T | undefined;
   runCommands: (
     input: string | Readable,
     args: Arguments
   ) => Promise<string | Readable>;
+}
+
+export async function runCommandsInContext<T>(
+  runtime: IPluginRuntime,
+  input: string | Readable,
+  program: Arguments,
+  id: string,
+  data: T
+): Promise<string | Readable> {
+  runtime.pushContext(id, data);
+  return runtime.runCommands(input, program).finally(() => {
+    runtime.popContext(id);
+  });
 }
 
 // Lazy. Too low-level. Rearchitect.

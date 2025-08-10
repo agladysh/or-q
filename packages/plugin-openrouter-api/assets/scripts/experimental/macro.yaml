@@ -1,0 +1,12 @@
+requires:
+  - '@or-q/plugin-store'
+
+commands:
+  - $defmacro:
+      - $print_impl
+      - - print: [[$arg: 1]]
+  - $defmacro:
+      - $print
+      #      - - print: [[ $arg: 1 ]]
+      - - $macro: [[$print_impl, [$arg: 1]]]
+  - $macro: [[$print, 'Hello, world!']]

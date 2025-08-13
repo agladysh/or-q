@@ -25,6 +25,27 @@ const commands: Commands = {
       return input.replaceAll(from, to);
     },
   },
+  trim: {
+    description: 'trims input',
+    run: async (input: string | Readable, _args: Arguments, _runtime: IPluginRuntime): Promise<string | Readable> => {
+      input = await readableToString(input);
+      return input.trim();
+    },
+  },
+  trimStart: {
+    description: 'trims input start',
+    run: async (input: string | Readable, _args: Arguments, _runtime: IPluginRuntime): Promise<string | Readable> => {
+      input = await readableToString(input);
+      return input.trimStart();
+    },
+  },
+  trimEnd: {
+    description: 'trims input end',
+    run: async (input: string | Readable, _args: Arguments, _runtime: IPluginRuntime): Promise<string | Readable> => {
+      input = await readableToString(input);
+      return input.trimEnd();
+    },
+  },
 };
 
 export default commands;

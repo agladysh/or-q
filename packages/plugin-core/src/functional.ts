@@ -3,6 +3,26 @@ import type { Readable } from 'node:stream';
 import parseArgsStringToArgv from 'string-argv';
 
 const commands: Commands = {
+  head: {
+    description: 'returns first N items from the input array',
+    run: async (input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
+      const usage = 'usage: mapN N [program1] ... [programN]';
+      const nStr = await commandArgument(runtime, args.shift(), usage);
+      const n = Number(nStr);
+      if (!Number.isInteger(n) || n < 0 || n > args.length) {
+        return fail(usage);
+      }
+      if (n === 0) {
+        return input;
+      }
+
+      input = await readableToString(input);
+      // Lazy. Should check schema.
+      const data = JSON.parse(input) as string[];
+      const result = data.slice(0, n);
+      return JSON.stringify(result, null, 2);
+    },
+  },
   map: {
     description: 'applies commands from the argument to each entry of the input array, returns resulting array',
     run: async (input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {

@@ -2,7 +2,19 @@ import { type Arguments, commandArgument, fail, type IPluginRuntime, type Plugin
 import type { Readable } from 'node:stream';
 import pkg from '../package.json' with { type: 'json' };
 
-const store: Record<string, string | Readable> = {};
+const contextID = `context:${pkg.name}:store`;
+
+type Store = Record<string, string | Readable>;
+
+function getStore(runtime: IPluginRuntime): Store {
+  let result = runtime.getContext<Store>(contextID);
+  if (result !== undefined) {
+    return result;
+  }
+  result = {};
+  runtime.pushContext<Store>(contextID, result);
+  return result;
+}
 
 const plugin: Plugin = {
   name: pkg.name,
@@ -11,14 +23,14 @@ const plugin: Plugin = {
       description: 'loads a named value from the store, replacing input with it, unknown values are empty strings',
       run: async (_input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
         const key = await commandArgument(runtime, args.shift(), 'usage: load "<text>"');
-        return store[key] ?? '';
+        return getStore(runtime)[key] ?? '';
       },
     },
     save: {
       description: 'saves input into a named value of the store, passes input along',
       run: async (input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
         const key = await commandArgument(runtime, args.shift(), 'usage: save "<key>"');
-        store[key] = input; // Should we read Readable?
+        getStore(runtime)[key] = input; // Should we read Readable?
         return input;
       },
     },
@@ -28,7 +40,7 @@ const plugin: Plugin = {
         const usage = 'usage: set "<key>" "<value>"';
         const key = await commandArgument(runtime, args.shift(), usage);
         const value = await commandArgument(runtime, args.shift(), usage);
-        store[key] = value;
+        getStore(runtime)[key] = value;
         return input;
       },
     },
@@ -41,14 +53,14 @@ const plugin: Plugin = {
         if (value === undefined) {
           return fail(usage);
         }
-        store[key] = JSON.stringify(value);
+        getStore(runtime)[key] = JSON.stringify(value);
         return input;
       },
     },
     ['dump-store']: {
       description: 'dumps store content to stdout as JSON, passes input forward',
-      run: async (input: string | Readable, _args: Arguments, _runtime: IPluginRuntime): Promise<string | Readable> => {
-        process.stdout.write(`${JSON.stringify(store, null, 2)}\n`);
+      run: async (input: string | Readable, _args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
+        process.stdout.write(`${JSON.stringify(getStore(runtime), null, 2)}\n`);
         return input;
       },
     },

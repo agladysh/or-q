@@ -80,7 +80,7 @@ const plugin: Plugin = {
   name: pkg.name,
   commands: {
     t: {
-      description: 'replaces input with eta template instantiated from @orq/store',
+      description: 'replaces input with a template instantiated from @orq/store',
       run: async (_input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
         const template = await commandArgument(runtime, args.shift(), 'usage: t "[template]"');
 

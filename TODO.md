@@ -7,6 +7,8 @@
 - [ ] Add loglevel event and core command, let logging plugins deviate (until next loglevel command)
 - [ ] Do not rethrow on command failures, instead, log JS stacktrace nicely to fail.
 - [ ] Implement initial task and decision tracking processes.
+- [ ] Implement nice logger systems
+- [ ] Forbid console.\* in eslint, emit logging events instead.
 - [x] Support markdownlint in lint and fix modes.
 - [x] Add ollama connector for gpt-oss:20b
 - [ ] Fill in (and update) nicely descriptions, keywords and other fields in all package.json files
@@ -23,7 +25,7 @@
 - [ ] Cleanup `Lazy` comments.
 - [ ] Implement declaratuve black-box tests: per plugin, `packages/**/tests/**/.yaml` (env, args, stdin, stdout,
       stderr), add a test-plugin and test-all-plugins commands
-- [ ] Provide a `spawn` command to spawn arbitrary shell process
+- [x] Provide a `shell` command to spawn arbitrary shell process
 - [ ] Implement the bi-system.
 - [ ] Support YAML string passing as input
 - [ ] Support JSON-like data object passing as input to save on serialization / deserialization

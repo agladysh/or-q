@@ -87,6 +87,16 @@ const plugin: Plugin = {
         return renderORQ(runtime, template);
       },
     },
+    f: {
+      description: 'replaces input with a template instantiated from @orq/store, feeding it input',
+      run: async (input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
+        const template = await commandArgument(runtime, args.shift(), 'usage: t "[template]"');
+
+        input = await readableToString(input); // Reading it as string to preserve stream.
+
+        return renderORQ(runtime, template, input);
+      },
+    },
     render: {
       description: 'treats input as a template and instantiates it from @orq/store',
       run: async (input: string | Readable, _args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {

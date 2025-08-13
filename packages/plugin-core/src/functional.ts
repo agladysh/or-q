@@ -1,6 +1,7 @@
 import { commandArgument, fail, readableToString, type Arguments, type Commands, type IPluginRuntime } from '@or-q/lib';
 import type { Readable } from 'node:stream';
 import parseArgsStringToArgv from 'string-argv';
+import yaml from 'yaml';
 
 const commands: Commands = {
   head: {
@@ -18,7 +19,7 @@ const commands: Commands = {
 
       input = await readableToString(input);
       // Lazy. Should check schema.
-      const data = JSON.parse(input) as string[];
+      const data = yaml.parse(input) as string[];
       const result = data.slice(0, n);
       return JSON.stringify(result, null, 2);
     },
@@ -36,7 +37,7 @@ const commands: Commands = {
 
       input = await readableToString(input);
       // Lazy. Should check schema.
-      const data = JSON.parse(input) as string[];
+      const data = yaml.parse(input) as string[];
       const result = [];
       for (const entry of data) {
         result.push(await runtime.runCommands(entry, arg.slice()));

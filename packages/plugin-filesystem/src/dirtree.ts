@@ -45,7 +45,6 @@ const commands: Commands = {
     run: async (input: string | Readable, _args: Arguments, _runtime: IPluginRuntime): Promise<string | Readable> => {
       input = await readableToString(input);
       // Lazy. Should validate schema.
-      console.log('xxx', input);
       const annotatedPaths = (yaml.parse(input) as AnnotatedPathList).sort((lhs, rhs) => lhs[0].localeCompare(rhs[0]));
       const paths = [];
       const annotations = [];

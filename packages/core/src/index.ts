@@ -1,4 +1,11 @@
-import type { Arguments, Assets, IPluginRuntimeEvent, IPluginRuntimeEventListener, LoggingEvent } from '@or-q/lib';
+import type {
+  Arguments,
+  Assets,
+  IPluginRuntimeEvent,
+  LoggingEvent,
+  RuntimeCloneChildEvent,
+  RuntimeCloneParentEvent,
+} from '@or-q/lib';
 import {
   commandArgument,
   type Commands,
@@ -7,10 +14,13 @@ import {
   loggingEventName,
   logLevels,
   type Plugin,
+  type PluginRecord,
+  runtimeCloneChildEventName,
+  runtimeCloneParentEventName,
 } from '@or-q/lib';
 import installedNodeModules from 'installed-node-modules';
-import { type Readable } from 'node:stream';
 import { EventEmitter } from 'node:events';
+import { type Readable } from 'node:stream';
 import pkg from '../package.json' with { type: 'json' };
 
 export function listAllPluginModules(re: RegExp = /((^@or-q\/plugin-)|(or-q-plugin))/) {
@@ -45,32 +55,48 @@ function resolveRecord<Field extends keyof Plugin, Result extends Extract<Plugin
   return result as Result;
 }
 
+type Contexts = Record<string, unknown[]>;
+
 // Lazy. This should use EventMap<T>
-export class PluginRuntime extends EventEmitter implements IPluginRuntime {
-  plugins: Record<string, Plugin>;
+export class PluginRuntime implements IPluginRuntime {
+  plugins: PluginRecord;
   pluginNames: string[];
   commandNames: string[];
   assetNames: string[];
   assets: Assets;
   commands: Commands;
-  private context: Record<string, unknown[]> = {};
 
-  constructor(plugins: Plugin[]) {
-    super();
-    this.plugins = Object.fromEntries(plugins.map((p) => [p.name, p]));
-    this.pluginNames = plugins.map((p) => p.name);
-    this.assets = resolveRecord(plugins, 'assets', true);
+  private emitter: EventEmitter = new EventEmitter();
+  private pluginsArray: Plugin[];
+  private context: Contexts = {};
+
+  constructor(pluginsArray: Plugin[], context: Contexts = {}) {
+    this.pluginsArray = pluginsArray;
+    this.context = context;
+    this.plugins = Object.fromEntries(pluginsArray.map((p) => [p.name, p]));
+    this.pluginNames = pluginsArray.map((p) => p.name);
+    this.assets = resolveRecord(pluginsArray, 'assets', true);
     this.assetNames = Object.keys(this.assets);
-    this.commands = resolveRecord(plugins, 'commands');
+    this.commands = resolveRecord(pluginsArray, 'commands');
     this.commandNames = Object.keys(this.commands);
 
-    for (const plugin of plugins) {
+    for (const plugin of pluginsArray) {
       if (plugin.eventListeners) {
         for (const [eventName, listener] of Object.entries(plugin.eventListeners)) {
-          this.on(eventName, listener);
+          this.emitter.on(eventName, listener);
         }
       }
     }
+  }
+
+  clone(): IPluginRuntime {
+    const child = new PluginRuntime(
+      this.pluginsArray,
+      JSON.parse(JSON.stringify(this.context)) // Lazy. Do a proper deep copy
+    );
+    this.emit<RuntimeCloneParentEvent>(runtimeCloneParentEventName, { source: pkg.name, parent: this, child });
+    child.emit<RuntimeCloneChildEvent>(runtimeCloneChildEventName, { source: pkg.name, parent: this, child });
+    return child;
   }
 
   static async fromNodeModules(): Promise<PluginRuntime> {
@@ -86,13 +112,9 @@ export class PluginRuntime extends EventEmitter implements IPluginRuntime {
     return `Available commands: ${this.commandNames.join(', ')}`;
   }
 
-  on<T extends IPluginRuntimeEventListener>(eventName: string, listener: T) {
-    super.on(eventName, listener);
-    return this;
-  }
-
+  // Lazy. Tighten up generic so event and eventName are closely related.
   emit<E extends IPluginRuntimeEvent>(eventName: string, event: E): boolean {
-    return super.emit(eventName, event);
+    return this.emitter.emit(eventName, event);
   }
 
   pushContext<T>(id: string, data: T): void {

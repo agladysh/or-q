@@ -61,6 +61,20 @@ export interface LoggingEvent extends IPluginRuntimeEvent {
 }
 export type LoggingEventListener = IPluginRuntimeEventListener<LoggingEvent>;
 
+export const runtimeCloneParentEventName = 'runtime-clone-parent';
+export interface RuntimeCloneParentEvent extends IPluginRuntimeEvent {
+  parent: IPluginRuntime;
+  child: IPluginRuntime;
+}
+export type RuntimeCloneParentEventListener = IPluginRuntimeEventListener<RuntimeCloneParentEvent>;
+
+export const runtimeCloneChildEventName = 'runtime-clone-child';
+export interface RuntimeCloneChildEvent extends IPluginRuntimeEvent {
+  parent: IPluginRuntime;
+  child: IPluginRuntime;
+}
+export type RuntimeCloneChildEventListener = IPluginRuntimeEventListener<RuntimeCloneChildEvent>;
+
 export interface Plugin<E extends IPluginRuntimeEvent = IPluginRuntimeEvent> {
   name: string;
   eventListeners?: IPluginRuntimeEventListeners<E>;
@@ -68,14 +82,16 @@ export interface Plugin<E extends IPluginRuntimeEvent = IPluginRuntimeEvent> {
   commands?: Commands;
 }
 
+export type PluginRecord = Record<string, Plugin>;
+
 export interface IPluginRuntime {
-  plugins: Record<string, Plugin>;
+  plugins: PluginRecord;
   pluginNames: string[];
   commandNames: string[];
   assetNames: string[];
   commands: Commands;
   assets: Assets;
-  on: <T extends IPluginRuntimeEventListener>(eventName: string, listener: T) => void;
+  clone: () => IPluginRuntime;
   emit: <E extends IPluginRuntimeEvent>(eventName: string, event: E) => boolean;
   pushContext: <T>(id: string, data: T) => void;
   popContext: <T>(id: string) => T | undefined;

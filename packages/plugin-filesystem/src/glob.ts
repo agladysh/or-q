@@ -31,7 +31,7 @@ const commands: Commands = {
         ...options,
         ignore: ignores,
         cwd: process.cwd(),
-        nodir: true,
+        nodir: options.nodir ?? true,
       });
       return JSON.stringify(entries, null, 2);
     },

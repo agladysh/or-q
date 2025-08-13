@@ -1,20 +1,20 @@
 import {
+  type Arguments,
+  type IPluginRuntime,
   type IPluginRuntimeEventListener,
   type LoggingEvent,
-  loggingEventName,
-  logLevelOrds,
-  logLevels,
   type LogLevelOrd,
   type Plugin,
   commandArgument,
-  type Arguments,
-  type IPluginRuntime,
-  logLevelNames,
   fail,
+  loggingEventName,
+  logLevelNames,
+  logLevelOrds,
+  logLevels,
 } from '@or-q/lib';
-import pkg from '../package.json' with { type: 'json' };
-import type { Readable } from 'stream';
 import { Console } from 'node:console';
+import type { Readable } from 'stream';
+import pkg from '../package.json' with { type: 'json' };
 
 export class LoggingPlugin implements Plugin {
   name: string = pkg.name;

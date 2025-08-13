@@ -45,11 +45,11 @@ const commands: Commands = {
       return JSON.stringify(result, null, 2);
     },
   },
-  mapN: {
+  ['map-n']: {
     description:
       'applies programs from the argument to each entry of the input array, returns resulting array of arrays',
     run: async (input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
-      const usage = 'usage: mapN N [program1] ... [programN]';
+      const usage = 'usage: map-n N [program1] ... [programN]';
       const nStr = await commandArgument(runtime, args.shift(), usage);
       const n = Number(nStr);
       if (!Number.isInteger(n) || n < 1 || n > args.length) {

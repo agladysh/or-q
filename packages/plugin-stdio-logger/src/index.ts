@@ -28,7 +28,7 @@ export class LoggingPlugin implements Plugin {
         return;
       }
 
-      const prefix = `${event.level}\t${event.source}`;
+      const prefix = `${event.level}\t${event.source.replace(/^.*?plugin-/, '')}\t`;
 
       if (Array.isArray(event.value)) {
         this.console.log(prefix, ...event.value);

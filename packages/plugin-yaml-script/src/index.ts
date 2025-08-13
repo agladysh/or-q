@@ -133,13 +133,6 @@ async function runYAMLScript(
 const plugin: Plugin = {
   name: pkg.name,
   commands: {
-    fail: {
-      description: 'fails with an error message',
-      run: async (_input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
-        const text = await commandArgument(runtime, args.shift(), 'usage: fail "<text>"');
-        return fail(text);
-      },
-    },
     exec: {
       description: 'executes YAML script from argument',
       run: async (input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {

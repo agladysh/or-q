@@ -193,14 +193,36 @@ export class PluginRuntime implements IPluginRuntime {
       } as LoggingEvent);
     };
 
+    const error = (...args: unknown[]) => {
+      this.emit(loggingEventName, {
+        source: pkg.name,
+        level: logLevels.error,
+        value: args,
+      } as LoggingEvent);
+    };
+
     dbg('runCommands: executing', program);
+
+    // Lazy. Reuse something?
+    function truncate(str: string, maxlen: number, suffix: string = '...') {
+      if (str.length <= maxlen) {
+        return str;
+      }
+      return `${str.substring(0, maxlen)}${suffix}`;
+    }
 
     const args = program.slice();
     while (args.length > 0) {
       const command = await commandArgument(this, args.shift(), 'Internal error: unreachable');
       if (!(command in this.commands)) {
-        dbg('failed while executing', program);
-        dbg('remaining program', args);
+        // Lazy. DRY with below
+        const failedAt = program.length - args.length - 1;
+        for (let i = 0; i < program.length; ++i) {
+          const open = i === failedAt ? '> ' : '  ';
+          const close = i === failedAt ? ' <' : '';
+          // Lazy, compute maximum padding.
+          error(`${i.toString().padStart(3)}: ${open}${truncate(String(program[i]).trim(), 60)}${close}`);
+        }
         fail(`Unknown command "${command}"`);
       }
       dbg('runCommands: running', command);
@@ -208,7 +230,15 @@ export class PluginRuntime implements IPluginRuntime {
         input = await this.commands[command].run(input, args, this);
       } catch (e: unknown) {
         // Lazy. Improve diagnostics.
-        console.error(`command ${command} failed`);
+        const failedAt = program.length - args.length - 1;
+        for (let i = 0; i < program.length; ++i) {
+          const open = i === failedAt ? '> ' : '  ';
+          const close = i === failedAt ? ' <' : '';
+          // Lazy, compute maximum padding.
+          // Lazy, must ellipsis-trim to max length, since "commands" may actually be long text arguments
+          error(`${i.toString().padStart(3)}: ${open}${truncate(String(program[i]).trim(), 60)}${close}`);
+        }
+        process.stderr.write(`command ${command} failed\n`);
         throw e;
       }
       spam('runCommands: done running', command);

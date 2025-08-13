@@ -1,5 +1,6 @@
 # TODO
 
+- [ ] Implement exponential backoffs on 429 etc on all fetch() calls
 - [ ] Replace JSON.parse(JSON.stringify()) with modern structuredClone() calls.
 - [ ] Move fail() to IPluginRuntime interface, add fail logging level, add cli logger plugin which logs to stderr (error
       and fail only) and stdout (other events) replace stdio logger with file logger, which does not log at all unless

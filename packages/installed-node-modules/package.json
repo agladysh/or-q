@@ -1,6 +1,6 @@
 {
   "name": "installed-node-modules",
-  "description": "TODO",
+  "description": "Discover all importable Node.js modules including built-ins, installed packages, and workspace packages",
   "version": "1.0.0",
   "author": "Alexander Gladysh <agladysh@gmail.com>",
   "license": "MIT",

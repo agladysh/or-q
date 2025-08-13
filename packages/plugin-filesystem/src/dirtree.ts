@@ -6,9 +6,10 @@ import treeify, { type TreeObject } from 'treeify';
 
 type Dirs = { [dir: string]: Dirs | string | null };
 
-function paths2object(paths: string[]) {
+function paths2object(paths: string[], annotations?: string[]) {
   const root: Dirs = {};
-  for (const filepath of paths) {
+  for (let i = 0; i < paths.length; ++i) {
+    const filepath = paths[i];
     const parsed = path.parse(filepath);
     let base = root;
     if (parsed.dir !== '') {
@@ -22,22 +23,41 @@ function paths2object(paths: string[]) {
         base = base[dir] as Dirs;
       }
     }
-    base[parsed.base] = null;
+    base[parsed.base] = annotations && annotations[i] ? annotations[i] : null;
   }
   return root;
 }
+
+type AnnotatedPathList = [string, string][];
 
 const commands: Commands = {
   ['dirtree-json']: {
     description: 'consumes list of paths, returns hierarchy as JSON',
     run: async (input: string | Readable, _args: Arguments, _runtime: IPluginRuntime): Promise<string | Readable> => {
       input = await readableToString(input);
+      // Lazy. Should validate schema.
       const paths = yaml.parse(input).sort();
       return JSON.stringify(paths2object(paths), null, 2);
     },
   },
+  ['dirtree-annotated-json']: {
+    description: 'consumes list of path - annotation pairs, returns hierarchy as JSON',
+    run: async (input: string | Readable, _args: Arguments, _runtime: IPluginRuntime): Promise<string | Readable> => {
+      input = await readableToString(input);
+      // Lazy. Should validate schema.
+      console.log('xxx', input);
+      const annotatedPaths = (yaml.parse(input) as AnnotatedPathList).sort((lhs, rhs) => lhs[0].localeCompare(rhs[0]));
+      const paths = [];
+      const annotations = [];
+      for (const [path, annotation] of annotatedPaths) {
+        paths.push(path);
+        annotations.push(annotation);
+      }
+      return JSON.stringify(paths2object(paths, annotations), null, 2);
+    },
+  },
   ['dirtree']: {
-    description: 'consumes list of path or dirtree-json output, returns hierarchy as text',
+    description: 'consumes list of paths or dirtree-json output, returns hierarchy as text',
     run: async (input: string | Readable, _args: Arguments, _runtime: IPluginRuntime): Promise<string | Readable> => {
       input = await readableToString(input);
       let dirtree = yaml.parse(input);

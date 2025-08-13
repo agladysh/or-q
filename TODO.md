@@ -1,7 +1,7 @@
 # TODO
 
 - [ ] Implement initial task and decision tracking processes.
-- [ ] Support markdownlint in lint and fix modes.
+- [x] Support markdownlint in lint and fix modes.
 - [ ] Add ollama connector for gpt-oss:20b
 - [ ] Fill in (and update) nicely descriptions, keywords and other fields in all package.json files
 - [ ] Move installed-node-modules to a standalone repo and publish (perhaps under a better name) it in npm.

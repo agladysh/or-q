@@ -1,10 +1,4 @@
-import type {
-  Arguments,
-  Assets,
-  IPluginRuntimeEvent,
-  IPluginRuntimeEventListener,
-  LoggingEvent,
-} from '@or-q/lib';
+import type { Arguments, Assets, IPluginRuntimeEvent, IPluginRuntimeEventListener, LoggingEvent } from '@or-q/lib';
 import {
   commandArgument,
   type Commands,
@@ -19,9 +13,7 @@ import { type Readable } from 'node:stream';
 import { EventEmitter } from 'node:events';
 import pkg from '../package.json' with { type: 'json' };
 
-export function listAllPluginModules(
-  re: RegExp = /((^@or-q\/plugin-)|(or-q-plugin))/
-) {
+export function listAllPluginModules(re: RegExp = /((^@or-q\/plugin-)|(or-q-plugin))/) {
   const allPackages = installedNodeModules();
   const result = [...allPackages].filter((id) => !!re.test(id));
   return result;
@@ -29,10 +21,11 @@ export function listAllPluginModules(
 
 type UnknownRecord = Record<PropertyKey, unknown>;
 
-function resolveRecord<
-  Field extends keyof Plugin,
-  Result extends Extract<Plugin, UnknownRecord>[Field],
->(plugins: Plugin[], field: Field, prefix: boolean = false): Result {
+function resolveRecord<Field extends keyof Plugin, Result extends Extract<Plugin, UnknownRecord>[Field]>(
+  plugins: Plugin[],
+  field: Field,
+  prefix: boolean = false
+): Result {
   const result: UnknownRecord = {};
   for (const plugin of plugins) {
     if (plugin[field] !== undefined) {
@@ -43,9 +36,7 @@ function resolveRecord<
         }
         if (result[key] !== undefined) {
           // Lazy. We should capture original setter for more user-friendly error messages.
-          process.emitWarning(
-            `plugin ${plugin.name} overrode previously set ${field} value ${key}`
-          );
+          process.emitWarning(`plugin ${plugin.name} overrode previously set ${field} value ${key}`);
         }
         result[key] = v;
       }
@@ -75,9 +66,7 @@ export class PluginRuntime extends EventEmitter implements IPluginRuntime {
 
     for (const plugin of plugins) {
       if (plugin.eventListeners) {
-        for (const [eventName, listener] of Object.entries(
-          plugin.eventListeners
-        )) {
+        for (const [eventName, listener] of Object.entries(plugin.eventListeners)) {
           this.on(eventName, listener);
         }
       }
@@ -86,9 +75,9 @@ export class PluginRuntime extends EventEmitter implements IPluginRuntime {
 
   static async fromNodeModules(): Promise<PluginRuntime> {
     const pluginNames = listAllPluginModules();
-    const plugins = (
-      await Promise.all(pluginNames.map((name) => import(name)))
-    ).map((module) => module.default as Plugin);
+    const plugins = (await Promise.all(pluginNames.map((name) => import(name)))).map(
+      (module) => module.default as Plugin
+    );
     return new PluginRuntime(plugins);
   }
 
@@ -163,10 +152,7 @@ export class PluginRuntime extends EventEmitter implements IPluginRuntime {
   }
 
   // Lazy. This should be in IORQPluginRuntime
-  async runCommands(
-    input: string | Readable,
-    program: Arguments
-  ): Promise<string | Readable> {
+  async runCommands(input: string | Readable, program: Arguments): Promise<string | Readable> {
     // Lazy. Generalize so it is reusable.
     const spam = (...args: unknown[]) => {
       this.emit(loggingEventName, {
@@ -188,11 +174,7 @@ export class PluginRuntime extends EventEmitter implements IPluginRuntime {
 
     const args = program.slice();
     while (args.length > 0) {
-      const command = await commandArgument(
-        this,
-        args.shift(),
-        'Internal error: unreachable'
-      );
+      const command = await commandArgument(this, args.shift(), 'Internal error: unreachable');
       if (!(command in this.commands)) {
         dbg('failed while executing', program);
         dbg('remaining program', args);

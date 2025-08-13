@@ -25,11 +25,7 @@ interface Script {
   commands: CommandList;
 }
 
-function loadCommandsImpl(
-  parent: Arguments,
-  root: Arguments,
-  commands: CommandList
-): Arguments | string {
+function loadCommandsImpl(parent: Arguments, root: Arguments, commands: CommandList): Arguments | string {
   if (typeof commands === 'string' || Number.isFinite(commands)) {
     root.push(String(commands)); // Lazy. Push numbers as is, accept any number.
     return root;
@@ -104,9 +100,7 @@ async function runYAMLScript(
   if (!isArray && data.requires?.length > 0) {
     for (const name of data.requires) {
       if (!runtime.plugins[name]) {
-        return fail(
-          `required dependency ${name} not installed, try installing this node package`
-        );
+        return fail(`required dependency ${name} not installed, try installing this node package`);
       }
     }
   }
@@ -141,26 +135,14 @@ const plugin: Plugin = {
   commands: {
     fail: {
       description: 'fails with an error message',
-      run: async (
-        _input: string | Readable,
-        args: Arguments,
-        runtime: IPluginRuntime
-      ): Promise<string | Readable> => {
-        const text = await commandArgument(
-          runtime,
-          args.shift(),
-          'usage: fail "<text>"'
-        );
+      run: async (_input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
+        const text = await commandArgument(runtime, args.shift(), 'usage: fail "<text>"');
         return fail(text);
       },
     },
     exec: {
       description: 'executes YAML script from argument',
-      run: async (
-        input: string | Readable,
-        args: Arguments,
-        runtime: IPluginRuntime
-      ): Promise<string | Readable> => {
+      run: async (input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
         const yamlString = await commandArgument(
           runtime,
           args.shift(),
@@ -170,13 +152,8 @@ const plugin: Plugin = {
       },
     },
     ['list-script-assets']: {
-      description:
-        'prints the list of available builtin scripts to stdout, passes input along',
-      run: async (
-        input: string | Readable,
-        _args: Arguments,
-        runtime: IPluginRuntime
-      ): Promise<string | Readable> => {
+      description: 'prints the list of available builtin scripts to stdout, passes input along',
+      run: async (input: string | Readable, _args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
         // Lazy. Sort by name, so duplicates are clearly visible.
         const assetNames = assetGlob(runtime, `**/scripts/**/*.yaml`).sort();
         process.stdout.write(
@@ -187,26 +164,15 @@ const plugin: Plugin = {
     },
     run: {
       description: 'runs YAML script file from file: or plugin:',
-      run: async (
-        input: string | Readable,
-        args: Arguments,
-        runtime: IPluginRuntime
-      ): Promise<string | Readable> => {
-        const uri = await commandArgument(
-          runtime,
-          args.shift(),
-          'usage: run "<file>"'
-        );
+      run: async (input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
+        const uri = await commandArgument(runtime, args.shift(), 'usage: run "<file>"');
 
         let yamlString = resolveAsset(runtime, uri);
         if (yamlString === undefined) {
           // Unqualified URIs are loaded from plugins.
           // Use dot notation (./dir/filename.yaml) or an absolute path (/path/to/filename.yaml) to load from filesystem
           // Lazy. This will likely fail on Windows. Normalize plugin path separators on ingestion.
-          const assetNames = assetGlob(
-            runtime,
-            `plugin:*/**/scripts/**/${uri}.yaml`
-          ).sort();
+          const assetNames = assetGlob(runtime, `plugin:*/**/scripts/**/${uri}.yaml`).sort();
           const assetName = assetNames[0]; // We handle not found below.
           yamlString = runtime.assets[assetName];
           if (assetNames.length > 1) {
@@ -226,11 +192,7 @@ const plugin: Plugin = {
     // Lazy. Replace with proper control flow commands
     forever: {
       description: 'runs forever, interrupt to exit',
-      run: async (
-        input: string | Readable,
-        args: Arguments,
-        runtime: IPluginRuntime
-      ): Promise<string | Readable> => {
+      run: async (input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
         // Not using commandArgument() helper, since we do NOT want sub-command expansion here.
         let arg = args.shift();
         if (arg === undefined) {
@@ -247,11 +209,7 @@ const plugin: Plugin = {
     // See also special handling in loader.
     _DATA: {
       description: 'converts remaining program to JSON data in input',
-      run: async (
-        _input: string | Readable,
-        args: Arguments,
-        _runtime: IPluginRuntime
-      ): Promise<string | Readable> => {
+      run: async (_input: string | Readable, args: Arguments, _runtime: IPluginRuntime): Promise<string | Readable> => {
         return JSON.stringify(args.splice(0, args.length));
       },
     },

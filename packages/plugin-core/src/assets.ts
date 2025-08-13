@@ -12,13 +12,8 @@ import type { Readable } from 'node:stream';
 
 const commands: Commands = {
   ['list-assets']: {
-    description:
-      'prints the list of available assets to stdout, passes input along',
-    run: async (
-      input: string | Readable,
-      _args: Arguments,
-      runtime: IPluginRuntime
-    ): Promise<string | Readable> => {
+    description: 'prints the list of available assets to stdout, passes input along',
+    run: async (input: string | Readable, _args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
       // Lazy. Sort by name, so duplicates are clearly visible.
       process.stdout.write(
         `Available assets:\n\n${runtime.assetNames.map((a) => `* ${basename(a)}\t${a}`).join('\n')}\n\n`
@@ -28,16 +23,8 @@ const commands: Commands = {
   },
   cat: {
     description: 'replaces input with file or asset',
-    run: async (
-      _input: string | Readable,
-      args: Arguments,
-      runtime: IPluginRuntime
-    ): Promise<string | Readable> => {
-      const uri = await commandArgument(
-        runtime,
-        args.shift(),
-        'usage: cat "<file>"'
-      );
+    run: async (_input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
+      const uri = await commandArgument(runtime, args.shift(), 'usage: cat "<file>"');
 
       let text = resolveAsset(runtime, uri);
       if (text === undefined) {
@@ -49,9 +36,7 @@ const commands: Commands = {
         text = runtime.assets[assetName];
         if (assetNames.length > 1) {
           process.emitWarning(
-            `cat: several assets found for "${uri}":\n* ${assetNames.join(
-              '\n* '
-            )}\nUsing "${assetName}"`
+            `cat: several assets found for "${uri}":\n* ${assetNames.join('\n* ')}\nUsing "${assetName}"`
           );
         }
       }

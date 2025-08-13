@@ -43,16 +43,8 @@ export class LoggingPlugin implements Plugin {
     // Lazy. Should be named
     ['stdio-loglevel']: {
       description: 'changes loglevel, useful for debugging',
-      run: async (
-        input: string | Readable,
-        args: Arguments,
-        runtime: IPluginRuntime
-      ): Promise<string | Readable> => {
-        const level = await commandArgument(
-          runtime,
-          args.shift(),
-          `usage: loglevel "${logLevelNames.join('|')}"`
-        );
+      run: async (input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
+        const level = await commandArgument(runtime, args.shift(), `usage: loglevel "${logLevelNames.join('|')}"`);
         if (!(level in logLevelOrds)) {
           return fail(`unknown log level ${level}`);
         }

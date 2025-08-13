@@ -36,8 +36,7 @@ async function renderTemplate(src: string, h: Handler): Promise<string> {
 
         // 2a.  Escape inside expression
         if (ch === '\\') {
-          if (i + 1 === len)
-            throw new SyntaxError('Unbalanced template expression');
+          if (i + 1 === len) throw new SyntaxError('Unbalanced template expression');
           expr += src[i + 1];
           i += 2;
           continue;
@@ -69,17 +68,11 @@ async function renderTemplate(src: string, h: Handler): Promise<string> {
   return out;
 }
 
-async function renderORQ(
-  runtime: IPluginRuntime,
-  template: string,
-  input: string | Readable = ''
-): Promise<string> {
+async function renderORQ(runtime: IPluginRuntime, template: string, input: string | Readable = ''): Promise<string> {
   return renderTemplate(
     template,
     async (raw: string): Promise<string> =>
-      readableToString(
-        await runtime.runCommands(input, parseArgsStringToArgv(raw))
-      )
+      readableToString(await runtime.runCommands(input, parseArgsStringToArgv(raw)))
   );
 }
 
@@ -87,30 +80,16 @@ const plugin: Plugin = {
   name: pkg.name,
   commands: {
     t: {
-      description:
-        'replaces input with eta template instantiated from @orq/store',
-      run: async (
-        _input: string | Readable,
-        args: Arguments,
-        runtime: IPluginRuntime
-      ): Promise<string | Readable> => {
-        const template = await commandArgument(
-          runtime,
-          args.shift(),
-          'usage: t "[template]"'
-        );
+      description: 'replaces input with eta template instantiated from @orq/store',
+      run: async (_input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
+        const template = await commandArgument(runtime, args.shift(), 'usage: t "[template]"');
 
         return renderORQ(runtime, template);
       },
     },
     render: {
-      description:
-        'treats input as a template and instantiates it from @orq/store',
-      run: async (
-        input: string | Readable,
-        _args: Arguments,
-        runtime: IPluginRuntime
-      ): Promise<string | Readable> => {
+      description: 'treats input as a template and instantiates it from @orq/store',
+      run: async (input: string | Readable, _args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
         return renderORQ(runtime, await readableToString(input));
       },
     },

@@ -27,7 +27,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Architecture Overview
 
-OR-Q is a plugin-based CLI tool for OpenRouter API interactions built with TypeScript and Node.js. The architecture follows a modular plugin system where each plugin provides commands and assets.
+OR-Q is a plugin-based CLI tool for OpenRouter API interactions built with TypeScript and Node.js. The architecture
+follows a modular plugin system where each plugin provides commands and assets.
 
 ### Core Components
 
@@ -55,7 +56,8 @@ OR-Q is a plugin-based CLI tool for OpenRouter API interactions built with TypeS
 
 ### Plugin System
 
-**Plugin Structure**
+#### Plugin Structure
+
 Each plugin exports a default object with:
 
 - `name`: Package name from package.json
@@ -63,7 +65,7 @@ Each plugin exports a default object with:
 - `assets`: Optional assets loaded from `../assets` directory (typically YAML scripts)
 - `eventListeners`: Optional event handlers for runtime events
 
-**Key Plugins**
+#### Key Plugins
 
 - `plugin-core`: Essential commands (assets, debug, formats, input, io, log, plugins, string)
 - `plugin-openrouter-api`: OpenRouter API integration (completions, conversation, models)
@@ -72,7 +74,7 @@ Each plugin exports a default object with:
 - `plugin-macro`: Macro functionality
 - `plugin-template`, `plugin-format`, `plugin-jp`: Data processing utilities
 
-**YAML Script System (`packages/plugin-yaml-script/`)**
+#### YAML Script System (`packages/plugin-yaml-script/`)
 
 - Declarative command execution using YAML files
 - Scripts can specify `requires` for plugin dependencies
@@ -82,14 +84,14 @@ Each plugin exports a default object with:
 
 ### Code Conventions
 
-**TypeScript Configuration**
+#### TypeScript Configuration
 
 - Uses modern ES2022 target with ESNext modules
 - Bundler module resolution with path mapping for `@or-q/*` packages
 - Strict mode enabled with comprehensive type checking
 - Declaration files generated to `dist/` directory
 
-**ESLint Configuration**
+#### ESLint Configuration
 
 - Based on recommended TypeScript ESLint config
 - Treats warnings as errors
@@ -97,16 +99,16 @@ Each plugin exports a default object with:
 - Enforces consistent type imports
 - Comprehensive unused variable detection with underscore prefix ignore pattern
 
-**File Structure Patterns**
+#### File Structure Patterns
 
 - Each package has `src/` directory with TypeScript source
 - Assets (YAML scripts) in `assets/` subdirectories
 - Plugin index files import and merge sub-modules using `mergeCommands()`
 - Package.json imports use `with { type: 'json' }` syntax
 
-**Development Notes**
+#### Development Notes
 
-- Comments marked with "Lazy" indicate areas needing improvement
+- Comments marked with "Lazy" indicate areas that may potentially need improvement in the future
 - Command-line tools should use `commandArgument()` helper for parameter validation
 - Asset resolution supports `plugin:`, `file:///`, and relative path schemes
 - Logging system uses structured events with configurable levels (spam, debug, info, log, warn, error, none)
@@ -114,4 +116,5 @@ Each plugin exports a default object with:
 
 ### Testing Strategy
 
-The project plans to implement declarative black-box tests using YAML files in `packages/**/tests/**/*.yaml` format, specifying environment, arguments, stdin, and expected stdout/stderr.
+The project plans to implement declarative black-box tests using YAML files in `packages/**/tests/**/*.yaml` format,
+specifying environment, arguments, stdin, and expected stdout/stderr.

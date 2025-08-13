@@ -19,16 +19,8 @@ function logCommandEntry(level: LogLevel): [string, Command] {
     level,
     {
       description: `logs text with ${level} level, forwards input`,
-      run: async (
-        input: string | Readable,
-        args: Arguments,
-        runtime: IPluginRuntime
-      ) => {
-        const text = await commandArgument(
-          runtime,
-          args.shift(),
-          `usage: ${level} "<text>"`
-        );
+      run: async (input: string | Readable, args: Arguments, runtime: IPluginRuntime) => {
+        const text = await commandArgument(runtime, args.shift(), `usage: ${level} "<text>"`);
         runtime.emit(loggingEventName, {
           source: pkg.name,
           level: level,
@@ -40,8 +32,6 @@ function logCommandEntry(level: LogLevel): [string, Command] {
   ];
 }
 
-const commands: Commands = Object.fromEntries(
-  logLevelNames.map(logCommandEntry)
-);
+const commands: Commands = Object.fromEntries(logLevelNames.map(logCommandEntry));
 
 export default commands;

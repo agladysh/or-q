@@ -8,16 +8,8 @@ const plugin: Plugin = {
   commands: {
     shell: {
       description: 'run a shell command (use with caution)',
-      run: async (
-        input: string | Readable,
-        args: Arguments,
-        runtime: IPluginRuntime
-      ): Promise<string | Readable> => {
-        const command = await commandArgument(
-          runtime,
-          args.shift(),
-          'usage: shell "[shell command]"'
-        );
+      run: async (input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
+        const command = await commandArgument(runtime, args.shift(), 'usage: shell "[shell command]"');
         return spawnText(command, input, { shell: true });
       },
     },

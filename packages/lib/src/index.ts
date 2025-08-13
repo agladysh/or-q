@@ -1,16 +1,11 @@
 import { globSync, type GlobOptions } from 'glob';
 
-export function mergeCommands(
-  pluginName: string,
-  commands: Commands[]
-): Commands {
+export function mergeCommands(pluginName: string, commands: Commands[]): Commands {
   const merged: Commands = {};
   for (const cmd of commands) {
     for (const [name, command] of Object.entries(cmd)) {
       if (merged[name]) {
-        process.emitWarning(
-          `Command "${name}" from plugin "${pluginName}" overrides a previously registered command.`
-        );
+        process.emitWarning(`Command "${name}" from plugin "${pluginName}" overrides a previously registered command.`);
       }
       merged[name] = command;
     }
@@ -29,33 +24,19 @@ export type Arguments = (string | Arguments)[];
 
 export interface Command {
   description: string;
-  run: (
-    input: string | Readable,
-    args: Arguments,
-    runtime: IPluginRuntime
-  ) => Promise<string | Readable>;
+  run: (input: string | Readable, args: Arguments, runtime: IPluginRuntime) => Promise<string | Readable>;
 }
 
 export type Commands = Record<string, Command>;
 export type Assets = Record<string, string>;
 
-export const logLevelNames = [
-  'spam',
-  'debug',
-  'info',
-  'log',
-  'warn',
-  'error',
-  'none',
-] as const;
+export const logLevelNames = ['spam', 'debug', 'info', 'log', 'warn', 'error', 'none'] as const;
 
 export type LogLevel = (typeof logLevelNames)[number];
 export type LogLevelOrd = number;
 export type LogLevels = Record<LogLevel, LogLevel>;
 
-export const logLevels: LogLevels = Object.fromEntries(
-  logLevelNames.map((name) => [name, name])
-) as LogLevels;
+export const logLevels: LogLevels = Object.fromEntries(logLevelNames.map((name) => [name, name])) as LogLevels;
 
 type LogLevelOrds = Record<string, LogLevelOrd>;
 export const logLevelOrds: LogLevelOrds = Object.fromEntries(
@@ -66,13 +47,12 @@ export interface IPluginRuntimeEvent {
   source: string;
 }
 
-export type IPluginRuntimeEventListener<
-  E extends IPluginRuntimeEvent = IPluginRuntimeEvent,
-> = (event: E) => void;
+export type IPluginRuntimeEventListener<E extends IPluginRuntimeEvent = IPluginRuntimeEvent> = (event: E) => void;
 
-export type IPluginRuntimeEventListeners<
-  E extends IPluginRuntimeEvent = IPluginRuntimeEvent,
-> = Record<string, IPluginRuntimeEventListener<E>>;
+export type IPluginRuntimeEventListeners<E extends IPluginRuntimeEvent = IPluginRuntimeEvent> = Record<
+  string,
+  IPluginRuntimeEventListener<E>
+>;
 
 export const loggingEventName = 'log';
 export interface LoggingEvent extends IPluginRuntimeEvent {
@@ -95,18 +75,12 @@ export interface IPluginRuntime {
   assetNames: string[];
   commands: Commands;
   assets: Assets;
-  on: <T extends IPluginRuntimeEventListener>(
-    eventName: string,
-    listener: T
-  ) => void;
+  on: <T extends IPluginRuntimeEventListener>(eventName: string, listener: T) => void;
   emit: <E extends IPluginRuntimeEvent>(eventName: string, event: E) => boolean;
   pushContext: <T>(id: string, data: T) => void;
   popContext: <T>(id: string) => T | undefined;
   getContext: <T>(id: string) => T | undefined;
-  runCommands: (
-    input: string | Readable,
-    args: Arguments
-  ) => Promise<string | Readable>;
+  runCommands: (input: string | Readable, args: Arguments) => Promise<string | Readable>;
 }
 
 export async function runCommandsInContext<T>(
@@ -152,11 +126,7 @@ export type SpawnOptions = {
  * Run an arbitrary command, streaming `input` into its stdin.
  * Resolves with the trimmed stdout or rejects on non-zero exit / timeout.
  */
-export async function spawnText(
-  cmd: string,
-  input: Readable | string,
-  opts: SpawnOptions = {}
-): Promise<string> {
+export async function spawnText(cmd: string, input: Readable | string, opts: SpawnOptions = {}): Promise<string> {
   const { args = [], timeout } = opts;
 
   const child = spawn(cmd, args, {
@@ -171,10 +141,7 @@ export async function spawnText(
 
   // Feed stdin
   if (input) {
-    await pipeline(
-      typeof input === 'string' ? Readable.from(input) : input,
-      child.stdin!
-    );
+    await pipeline(typeof input === 'string' ? Readable.from(input) : input, child.stdin!);
   } else {
     child.stdin!.end();
   }
@@ -203,9 +170,7 @@ export function fail(message: string): never {
   process.exit(1);
 }
 
-export async function readableToString(
-  readable: Readable | string
-): Promise<string> {
+export async function readableToString(readable: Readable | string): Promise<string> {
   if (!(readable instanceof Readable)) {
     return String(readable);
   }
@@ -223,28 +188,15 @@ export async function readableToString(
 export function loadAssets(dirname: string, options?: GlobOptions) {
   // Lazy. Should support ignores etc.
   const filenames = globSync('**/*', { ...options, cwd: dirname, nodir: true });
-  return Object.fromEntries(
-    filenames.map((f) => [
-      f,
-      readFileSync(resolve(dirname, String(f)), 'utf-8'),
-    ])
-  );
+  return Object.fromEntries(filenames.map((f) => [f, readFileSync(resolve(dirname, String(f)), 'utf-8')]));
 }
 
-export function loadModuleAssets(
-  importMetaUrl: string,
-  options?: GlobOptions,
-  subdir: string = '../assets'
-) {
+export function loadModuleAssets(importMetaUrl: string, options?: GlobOptions, subdir: string = '../assets') {
   const dir = dirname(fileURLToPath(importMetaUrl));
   return loadAssets(resolve(dir, subdir), options);
 }
 
-export function assetGlob(
-  runtime: IPluginRuntime,
-  pattern: string,
-  options?: MinimatchOptions
-): string[] {
+export function assetGlob(runtime: IPluginRuntime, pattern: string, options?: MinimatchOptions): string[] {
   const filter = minimatch.filter(pattern, options);
   return runtime.assetNames.filter(filter);
 }
@@ -259,10 +211,7 @@ export function arrayWrap<T>(item: T): Array<T> {
   return [item];
 }
 
-export function resolveAsset(
-  runtime: IPluginRuntime,
-  uri: string
-): string | undefined {
+export function resolveAsset(runtime: IPluginRuntime, uri: string): string | undefined {
   if (uri.startsWith('plugin:')) {
     return runtime.assets[uri];
   }
@@ -280,15 +229,10 @@ export function resolveAsset(
   return undefined; // You may want to use assetGlob next.
 }
 
-export function getPlugin<T extends Plugin>(
-  runtime: IPluginRuntime,
-  name: string
-): T {
+export function getPlugin<T extends Plugin>(runtime: IPluginRuntime, name: string): T {
   const plugin = runtime.plugins[name];
   if (!plugin) {
-    return fail(
-      `getPlugin: plugin "${name}" not available, try installing it as the node package`
-    );
+    return fail(`getPlugin: plugin "${name}" not available, try installing it as the node package`);
   }
   return plugin as T;
 }

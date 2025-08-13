@@ -9,16 +9,8 @@ const plugin: Plugin = {
   commands: {
     jp: {
       description: "run JMSEPath's jp command",
-      run: async (
-        input: string | Readable,
-        args: Arguments,
-        runtime: IPluginRuntime
-      ): Promise<string | Readable> => {
-        const query = await commandArgument(
-          runtime,
-          args.shift(),
-          'usage: jp "[JMSEPath query string]"'
-        );
+      run: async (input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
+        const query = await commandArgument(runtime, args.shift(), 'usage: jp "[JMSEPath query string]"');
         return spawnText('jp', input, { args: [query] });
       },
     },

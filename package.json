@@ -25,17 +25,17 @@
   "packageManager": "pnpm@10.13.1",
   "dependencies": {
     "@or-q/cli": "workspace:*",
-    "@or-q/plugin-jp": "workspace:*",
     "@or-q/plugin-core": "workspace:*",
-    "@or-q/plugin-openrouter-api": "workspace:*",
+    "@or-q/plugin-filesystem": "workspace:*",
     "@or-q/plugin-format": "workspace:*",
-    "@or-q/plugin-yaml-script": "workspace:*",
+    "@or-q/plugin-jp": "workspace:*",
+    "@or-q/plugin-macro": "workspace:*",
+    "@or-q/plugin-openrouter-api": "workspace:*",
     "@or-q/plugin-shell": "workspace:*",
+    "@or-q/plugin-stdio-logger": "workspace:*",
     "@or-q/plugin-store": "workspace:*",
     "@or-q/plugin-template": "workspace:*",
-    "@or-q/plugin-stdio-logger": "workspace:*",
-    "@or-q/plugin-filesystem": "workspace:*",
-    "@or-q/plugin-macro": "workspace:*"
+    "@or-q/plugin-yaml-script": "workspace:*"
   },
   "devDependencies": {
     "@eslint/js": "^9.32.0",

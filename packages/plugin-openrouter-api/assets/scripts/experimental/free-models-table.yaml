@@ -3,7 +3,8 @@ commands:
   - - run
     - list-free-models-full
   - - jp
-    - "[].[id, context_length, contains(supported_parameters, 'tools') && '✅' || '❌', contains(supported_parameters, 'tool_choice') && '✅' || '❌', contains(supported_parameters, 'temperature') && '✅' || '❌']"
+    - "[].[id, context_length, contains(supported_parameters, 'tools') && '✅' || '❌', contains(supported_parameters,
+      'tool_choice') && '✅' || '❌', contains(supported_parameters, 'temperature') && '✅' || '❌']"
   - - tsv
   - - shell
     - sort -t $'\t' -k2 -n -r # Sort by context length

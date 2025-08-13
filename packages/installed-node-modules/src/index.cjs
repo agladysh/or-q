@@ -103,16 +103,12 @@ function workspacePackages() {
     const doc = yaml.parse(fs.readFileSync(wsFile, 'utf8'));
     globs = doc.packages || [];
   } else {
-    const pj = JSON.parse(
-      fs.readFileSync(path.join(root, 'package.json'), 'utf8')
-    );
+    const pj = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
     globs = pj.workspaces || [];
   }
 
   // 2. expand globs synchronously
-  const dirs = globs.flatMap((g) =>
-    globSync(g, { cwd: root, absolute: true, onlyDirectories: true })
-  );
+  const dirs = globs.flatMap((g) => globSync(g, { cwd: root, absolute: true, onlyDirectories: true }));
 
   // 3. read package.json in each dir and extract name
   const names = [];
@@ -132,13 +128,7 @@ function workspacePackages() {
 
 function installedNodeModules(withWorkspace = true) {
   const fromWorkspace = withWorkspace ? workspacePackages() : [];
-  return [
-    ...new Set([
-      ...builtinModules,
-      ...allNodeModulesPaths().flatMap(listModulesIn),
-      ...fromWorkspace,
-    ]),
-  ];
+  return [...new Set([...builtinModules, ...allNodeModulesPaths().flatMap(listModulesIn), ...fromWorkspace])];
 }
 
 module.exports = installedNodeModules;

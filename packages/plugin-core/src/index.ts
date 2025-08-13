@@ -11,16 +11,7 @@ import string from './string.ts';
 
 const plugin: Plugin = {
   name: pkg.name,
-  commands: mergeCommands(pkg.name, [
-    assets,
-    debug,
-    formats,
-    input,
-    io,
-    log,
-    plugins,
-    string,
-  ]),
+  commands: mergeCommands(pkg.name, [assets, debug, formats, input, io, log, plugins, string]),
 };
 
 export default plugin;

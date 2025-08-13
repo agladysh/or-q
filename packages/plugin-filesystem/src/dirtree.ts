@@ -1,9 +1,4 @@
-import {
-  readableToString,
-  type Arguments,
-  type Commands,
-  type IPluginRuntime,
-} from '@or-q/lib';
+import { readableToString, type Arguments, type Commands, type IPluginRuntime } from '@or-q/lib';
 import yaml from 'yaml';
 import type { Readable } from 'node:stream';
 import path from 'node:path';
@@ -35,24 +30,15 @@ function paths2object(paths: string[]) {
 const commands: Commands = {
   ['dirtree-json']: {
     description: 'consumes list of paths, returns hierarchy as JSON',
-    run: async (
-      input: string | Readable,
-      _args: Arguments,
-      _runtime: IPluginRuntime
-    ): Promise<string | Readable> => {
+    run: async (input: string | Readable, _args: Arguments, _runtime: IPluginRuntime): Promise<string | Readable> => {
       input = await readableToString(input);
       const paths = yaml.parse(input).sort();
       return JSON.stringify(paths2object(paths), null, 2);
     },
   },
   ['dirtree']: {
-    description:
-      'consumes list of path or dirtree-json output, returns hierarchy as text',
-    run: async (
-      input: string | Readable,
-      _args: Arguments,
-      _runtime: IPluginRuntime
-    ): Promise<string | Readable> => {
+    description: 'consumes list of path or dirtree-json output, returns hierarchy as text',
+    run: async (input: string | Readable, _args: Arguments, _runtime: IPluginRuntime): Promise<string | Readable> => {
       input = await readableToString(input);
       let dirtree = yaml.parse(input);
       // Lazy. Should validate schema.

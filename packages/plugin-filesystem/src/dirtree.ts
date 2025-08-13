@@ -1,4 +1,4 @@
-import { readableToString, type Arguments, type Commands, type IPluginRuntime } from '@or-q/lib';
+import { fail, readableToString, type Arguments, type Commands, type IPluginRuntime } from '@or-q/lib';
 import yaml from 'yaml';
 import type { Readable } from 'node:stream';
 import path from 'node:path';
@@ -45,7 +45,12 @@ const commands: Commands = {
     run: async (input: string | Readable, _args: Arguments, _runtime: IPluginRuntime): Promise<string | Readable> => {
       input = await readableToString(input);
       // Lazy. Should validate schema.
-      const annotatedPaths = (yaml.parse(input) as AnnotatedPathList).sort((lhs, rhs) => lhs[0].localeCompare(rhs[0]));
+      const list = yaml.parse(input) as AnnotatedPathList;
+      if (!Array.isArray(list)) {
+        console.error('Input:\n', input);
+        return fail('dirtree-annotated-json: input is not an array');
+      }
+      const annotatedPaths = list.sort((lhs, rhs) => lhs[0].localeCompare(rhs[0]));
       const paths = [];
       const annotations = [];
       for (const [path, annotation] of annotatedPaths) {

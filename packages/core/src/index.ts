@@ -20,7 +20,7 @@ import {
 } from '@or-q/lib';
 import installedNodeModules from 'installed-node-modules';
 import { EventEmitter } from 'node:events';
-import { type Readable } from 'node:stream';
+import { Readable } from 'node:stream';
 import pkg from '../package.json' with { type: 'json' };
 
 export function listAllPluginModules(re: RegExp = /((^@or-q\/plugin-)|(or-q-plugin))/) {
@@ -245,6 +245,11 @@ export class PluginRuntime implements IPluginRuntime {
     }
 
     spam('runCommands: done executing', program);
+
+    if (!(input instanceof Readable || typeof input === 'string')) {
+      console.error('after execution of', program);
+      return fail('runCommands: internal error, invalid resulting input type');
+    }
 
     return input;
   }

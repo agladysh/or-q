@@ -93,7 +93,7 @@ export interface IPluginRuntime {
   assets: Assets;
   clone: () => IPluginRuntime;
   emit: <E extends IPluginRuntimeEvent>(eventName: string, event: E) => boolean;
-  pushContext: <T>(id: string, data: T) => void;
+  pushContext: <T>(id: string, data: T) => T;
   popContext: <T>(id: string) => T | undefined;
   getContext: <T>(id: string) => T | undefined;
   runCommands: (input: string | Readable, args: Arguments) => Promise<string | Readable>;

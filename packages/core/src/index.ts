@@ -117,7 +117,7 @@ export class PluginRuntime implements IPluginRuntime {
     return this.emitter.emit(eventName, event);
   }
 
-  pushContext<T>(id: string, data: T): void {
+  pushContext<T>(id: string, data: T): T {
     this.emit(loggingEventName, {
       source: pkg.name,
       level: logLevels.spam,
@@ -130,6 +130,7 @@ export class PluginRuntime implements IPluginRuntime {
       this.context[id] = ctx;
     }
     ctx.push(data);
+    return data;
   }
 
   popContext<T>(id: string): T | undefined {

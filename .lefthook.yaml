@@ -6,7 +6,10 @@ pre-commit:
       run: pnpm exec prettier --check {staged_files} # We call prettier directly as package.json scripts feed . as path
     eslint:
       glob: '*.{js,cjs,mjs,ts,tsx,cts,mts,mts}'
-      run: pnpm lint:eslint {staged_files}
+      run: pnpm run lint:eslint {staged_files}
+    markdownlint:
+      glob: '*.{md}'
+      run: pnpm run lint:markdownlint
     tsc:
       exclude:
         - 'eslint.config.mjs'

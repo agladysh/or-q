@@ -5,10 +5,8 @@ requires:
   - '@or-q/plugin-jp'
 
 commands:
-  - conversation: gpt-oss:20b
-  - temperature: 0
-  - system: You speak only in Pirate
-  - user: Who are you?
-  - ollama
-  - jp: 'choices[0].message.content'
-  - unquote
+  - run: ollama-gpt-oss-instruct
+  - $macro:
+      - - $ollama-gpt-oss-instruct
+        - You speak only in Pirate
+        - Who are you?

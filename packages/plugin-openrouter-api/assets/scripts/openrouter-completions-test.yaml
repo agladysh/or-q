@@ -1,0 +1,12 @@
+requires:
+  - '@or-q/plugin-openrouter-api' # TODO: Migrate general openai conversation stuff from there and update this dependency
+  - '@or-q/plugin-ollama'
+  - '@or-q/plugin-store'
+  - '@or-q/plugin-jp'
+
+commands:
+  - run: openrouter-gpt-oss-free-instruct
+  - $macro:
+      - - $openrouter-gpt-oss-free-instruct
+        - You speak only in Pirate
+        - Who are you?

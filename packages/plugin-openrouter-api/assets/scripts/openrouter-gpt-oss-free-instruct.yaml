@@ -1,0 +1,22 @@
+requires:
+  - '@or-q/plugin-openrouter-api' # TODO: Migrate general openai conversation stuff from there and update this dependency
+  - '@or-q/plugin-ollama'
+  - '@or-q/plugin-store'
+  - '@or-q/plugin-jp'
+
+commands:
+  - $defmacro:
+      - $openrouter-gpt-oss-free-instruct
+      # TODO: This probably should run ollama-pull on the model
+      - - info: $openrouter-gpt-oss-free-instruct
+        - info: System>
+        - info: [[$arg: 1]]
+        - info: User>
+        - info: [[$arg: 2]]
+        - conversation: openai/gpt-oss-20b:free
+        - temperature: 0
+        - system: [[$arg: 1]]
+        - user: [[$arg: 2]]
+        - completions
+        - jp: 'choices[0].message.content'
+        - unquote

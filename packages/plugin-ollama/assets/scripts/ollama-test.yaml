@@ -1,0 +1,14 @@
+requires:
+  - '@or-q/plugin-openrouter-api' # TODO: Migrate general openai conversation stuff from there and update this dependency
+  - '@or-q/plugin-ollama'
+  - '@or-q/plugin-store'
+  - '@or-q/plugin-jp'
+
+commands:
+  - conversation: gpt-oss:20b
+  - temperature: 0
+  - system: You speak only in Pirate
+  - user: Who are you?
+  - ollama
+  - jp: 'choices[0].message.content'
+  - unquote

@@ -31,6 +31,7 @@
     "@or-q/plugin-jp": "workspace:*",
     "@or-q/plugin-macro": "workspace:*",
     "@or-q/plugin-openrouter-api": "workspace:*",
+    "@or-q/plugin-ollama": "workspace:*",
     "@or-q/plugin-shell": "workspace:*",
     "@or-q/plugin-stdio-logger": "workspace:*",
     "@or-q/plugin-store": "workspace:*",

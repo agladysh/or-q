@@ -26,6 +26,9 @@ importers:
       '@or-q/plugin-macro':
         specifier: workspace:*
         version: link:packages/plugin-macro
+      '@or-q/plugin-ollama':
+        specifier: workspace:*
+        version: link:packages/plugin-ollama
       '@or-q/plugin-openrouter-api':
         specifier: workspace:*
         version: link:packages/plugin-openrouter-api
@@ -198,6 +201,19 @@ importers:
         version: 5.9.2
 
   packages/plugin-macro:
+    dependencies:
+      '@or-q/lib':
+        specifier: workspace:*
+        version: link:../lib
+    devDependencies:
+      '@types/node':
+        specifier: ^24.2.0
+        version: 24.2.0
+      typescript:
+        specifier: ^5.9.2
+        version: 5.9.2
+
+  packages/plugin-ollama:
     dependencies:
       '@or-q/lib':
         specifier: workspace:*

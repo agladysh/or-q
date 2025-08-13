@@ -1,4 +1,11 @@
 import { globSync, type GlobOptions } from 'glob';
+import { minimatch, type MinimatchOptions } from 'minimatch';
+import { spawn } from 'node:child_process';
+import { readFileSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
+import { Readable } from 'node:stream';
+import { pipeline } from 'node:stream/promises';
+import { fileURLToPath } from 'node:url';
 
 export function mergeCommands(pluginName: string, commands: Commands[]): Commands {
   const merged: Commands = {};
@@ -12,13 +19,6 @@ export function mergeCommands(pluginName: string, commands: Commands[]): Command
   }
   return merged;
 }
-import { spawn } from 'node:child_process';
-import { readFileSync } from 'node:fs';
-import { dirname, resolve } from 'node:path';
-import { Readable } from 'node:stream';
-import { pipeline } from 'node:stream/promises';
-import { fileURLToPath } from 'node:url';
-import { minimatch, type MinimatchOptions } from 'minimatch';
 
 export type Arguments = (string | Arguments)[];
 

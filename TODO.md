@@ -6,7 +6,12 @@ Keep sections in decreasing order of priority.
 
 - [ ] Provide a `help` plugin and command. CLI on no arguments should see if a help command is available, and run it,
       or, if not, print a generic usage string and recommend installing @or-q/help or another plugin with the command.
-      The `help` command should nicely print available commands, assets and installed plugins, etc.
+      The `help` command should nicely print available commands, assets and installed plugins, etc. As well: add
+      help-command, help-plugin, and help-run (this one to be provided by the yaml-script, and display script's
+      description field, if present as well as plural versions (e.g. help-commands), that show lists. Current `*list*`
+      and `*dump*` commands are to be triaged, and, if similar to help commands above, removed; instead of them we
+      should add similar `*show*` commands, which replace input with machine-readable dumps (if that does not yield a
+      full set, add more)
 
 ## Low Hanging Fruits
 

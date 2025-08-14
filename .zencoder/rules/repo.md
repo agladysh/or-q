@@ -513,6 +513,82 @@ const commands: Commands = {
 - Verify asset resolution with `assets` command
 - Monitor event flow through logging system
 - Test command chains with various input types
+- **To find a script for `run foo` command**: Search repository files for `foo.yaml`
+
+### fetch-test Script Analysis
+
+**Script Location**: `/packages/plugin-fetch/assets/scripts/fetch-test.yaml`
+
+**Script Flow**:
+
+1. Calls `run: fetch-openai-instruct` to define a macro
+2. Invokes `$macro` with `$fetch-openai-instruct` and parameters:
+   - URL: `http://localhost:11434/v1/chat/completions` (Ollama endpoint)
+   - Model: `gpt-oss:20b`
+   - System message: "Reasoning: low\n\nYou speak only in Pirate"
+   - User message: "Who are you?"
+
+**fetch-openai-instruct Macro** (`/packages/plugin-fetch/assets/scripts/fetch-openai-instruct.yaml`):
+
+1. `_JSON` - Creates JSON request body with OpenAI chat completion format
+2. `fetch` - Makes HTTP POST request to the URL
+3. `tee` - Outputs response to stdout while preserving pipeline
+4. `jp` - Extracts `choices[0].message.content` from JSON response using JSONPath
+5. `unquote` - Removes JSON quotes from the extracted content
+
+**Command Implementations**:
+
+- **`run`** (`plugin-yaml-script/src/index.ts:279`): Loads and executes YAML scripts from plugin assets or filesystem,
+  with asset resolution hierarchy
+- **`$defmacro`** (`plugin-macro/src/index.ts:23`): Stores macro definitions in global registry, forwards input
+  unchanged
+- **`$macro`** (`plugin-macro/src/index.ts:43`): Invokes stored macros with argument substitution via context system
+- **`$arg`** (`plugin-macro/src/index.ts:72`): Macro argument placeholder that resolves to macro invocation arguments by
+  index
+- **`_JSON`** (`plugin-yaml-script/src/index.ts:331`): **Special directive** - converts YAML objects to JSON via
+  `loadInputFromJSONCommand()` during script compilation
+- **`fetch`** (`plugin-fetch/src/fetch.ts:19`): Makes HTTP requests using `fetch()` API, parses input as YAML config,
+  returns response body as `Readable` stream
+- **`tee`** (`plugin-core/src/io.ts:22`): Outputs trimmed input to stdout, passes untrimmed input forward in pipeline
+- **`jp`** (`plugin-jp/src/index.ts:10`): Runs external `jp` command (JMESPath) for JSONPath queries on input
+- **`unquote`** (`plugin-core/src/string.ts:5`): Parses input as JSON string using `JSON.parse()` to remove quotes
+
+**Script Loading Mechanism**:
+
+1. **Asset Resolution** (`run` command):
+   - Direct URI resolution via `resolveAsset(runtime, uri)`
+   - Plugin glob search: `plugin:*/**/scripts/**/${uri}.yaml`
+   - Filesystem fallback for qualified paths (./file.yaml, /abs/path.yaml)
+   - Multiple matches generate warnings, first match wins
+
+2. **YAML Parsing** (`runYAMLScript`):
+   - Parse YAML into `Script` object with `requires` and `commands` properties
+   - Validate required plugin dependencies via `runtime.plugins[name]`
+   - Handle `on-empty-stdin` conditional execution
+   - Convert to command arguments via `loadCommands()`
+
+3. **Command Compilation** (`loadCommands` → `loadCommandsImpl`):
+   - **Strings/Numbers**: Push directly as command arguments
+   - **Arrays**: Create nested command sequences
+   - **Objects**: Process key-value pairs as command-argument pairs
+   - **Special Directives**: Handle `_JSON` and `_DATA` during compilation
+
+4. **`_JSON` Special Processing**:
+   - **Compilation Phase**: `loadYAMLAsJSONCommand()` converts YAML objects to argument streams
+   - **Execution Phase**: `loadInputFromJSONCommand()` reconstructs JSON from argument streams
+   - **Stream Format**: `['object', 'key1', 'string', 'value1', 'key2', 'number', '42', 'end-object']`
+   - **`_RAW` Handling**: Inlines command sequences during compilation for parameter substitution
+
+5. **Macro System**:
+   - **Definition**: `$defmacro` stores command templates in global registry
+   - **Invocation**: `$macro` creates execution context with arguments
+   - **Parameter Substitution**: `$arg N` resolves to Nth macro argument via context system
+   - **Context Management**: Stack-based contexts with automatic cleanup
+
+**Error Analysis**: The error shows the API returned an error response:
+`{"error":{"message":"invalid character 'o' looking for beginning of value",...}}`. The `jp` command extracted
+`choices[0].message.content` which returned `null` (since the response has `error` instead of `choices`), causing
+`unquote` to fail with "input is null" when trying to `JSON.parse(null)`.
 
 ## Module System
 

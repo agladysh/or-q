@@ -14,7 +14,7 @@ const commands: Commands = {
       const response = await fetch(url, options);
       if (!response.body) {
         console.error(response);
-        fail(`${name}: response body is null`);
+        return fail(`${name}: response body is null`);
       }
       return Readable.fromWeb(response.body as ReadableStream);
     },

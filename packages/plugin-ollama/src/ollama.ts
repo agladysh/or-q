@@ -29,7 +29,7 @@ const commands: Commands = {
       });
       if (!response.body) {
         console.error(response);
-        fail(`ollama-generate: response body is null`);
+        return fail(`ollama-generate: response body is null`);
       }
       // Lazy. Must handle HTTP code (esp. 429), in this handler and in others
       runtime.emit(loggingEventName, {
@@ -52,7 +52,7 @@ const commands: Commands = {
       });
       if (!response.body) {
         console.error(response);
-        fail(`ollama-generate: response body is null`);
+        return fail(`ollama-generate: response body is null`);
       }
       // Lazy. Must handle HTTP code (esp. 429), in this handler and in others
       runtime.emit(loggingEventName, {

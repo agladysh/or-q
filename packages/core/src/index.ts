@@ -223,7 +223,7 @@ export class PluginRuntime implements IPluginRuntime {
           // Lazy, compute maximum padding.
           error(`${i.toString().padStart(3)}: ${open}${truncate(String(program[i]).trim(), 60)}${close}`);
         }
-        fail(`Unknown command "${command}"`);
+        return fail(`Unknown command "${command}"`);
       }
       dbg('runCommands: running', command);
       try {

@@ -20,7 +20,7 @@ const commands: Commands = {
     run: async (input: string | Readable, _args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
       const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
       if (!OPENROUTER_API_KEY) {
-        fail('OPENROUTER_API_KEY environment variable is not set');
+        return fail('OPENROUTER_API_KEY environment variable is not set');
       }
 
       const response = await fetch(url, {
@@ -36,7 +36,7 @@ const commands: Commands = {
       });
       if (!response.body) {
         console.error(response);
-        fail(`completions: response body is null`);
+        return fail(`completions: response body is null`);
       }
       // Lazy. Must handle HTTP code (esp. 429), in this handler and in others
       runtime.emit(loggingEventName, {

@@ -118,3 +118,127 @@ Each plugin exports a default object with:
 
 The project plans to implement declarative black-box tests using YAML files in `packages/**/tests/**/*.yaml` format,
 specifying environment, arguments, stdin, and expected stdout/stderr.
+
+### Output and Logging Architecture
+
+**Event-Driven Logging System**:
+
+- Plugins emit structured logging events via `runtime.emit(loggingEventName, event)`
+- Events contain `source`, `level` (spam/debug/info/log/warn/error/none), and `value` fields
+- Event listeners are registered during plugin initialization and executed synchronously
+- Multiple logging plugins can listen to the same events simultaneously
+
+**stdio-logger Plugin Behavior**:
+
+- Registers event listener for `loggingEventName` events during plugin loading
+- Filters events by configurable log level (`logLevelOrd`)
+- Writes immediately to `process.stdout` (via `Console.log`) when events are received
+- Uses tab-separated format: `${level}\t${plugin-name}\t${message}`
+- Event processing is synchronous - no buffering or deferral
+
+**CLI Output Flow**:
+
+- Main CLI (`packages/cli/src/main.ts`) awaits complete `runtime.runCommands()` execution
+- Only writes final command chain result to `process.stdout` after full completion
+- Exception: `PluginRuntimeFailure` errors are caught and written to `process.stderr`
+
+**Output Ordering Implications**:
+
+- Event logs appear immediately during command execution (synchronous)
+- CLI result output appears after all commands complete (post-async)
+- Commands that produce both intermediate output and final results may have interleaved timing
+- No coordination between event-driven logging and CLI result output streams
+
+### Development Guide
+
+#### Plugin System Architecture
+
+**Runtime Initialization** (`packages/core/src/index.ts:102-108`):
+
+- `PluginRuntime.fromNodeModules()` uses `installed-node-modules` to discover packages
+- Plugin discovery via regex `/((^@or-q\/plugin-)|(or-q-plugin))/` against all installed packages
+- Dynamic imports of discovered plugins: `(await Promise.all(pluginNames.map((name) => import(name))))`
+- Each plugin module must export default object conforming to `Plugin` interface
+
+**Plugin Loading Process** (`packages/core/src/index.ts:76-89`):
+
+- Constructor receives array of Plugin objects
+- `resolveRecord(pluginsArray, 'commands')` flattens all plugin commands into single registry
+- Commands can be overridden (with process warning): "plugin X overrode previously set commands value Y"
+- `resolveRecord(pluginsArray, 'assets', true)` creates prefixed asset registry: `plugin:package-name/path`
+- Event listeners from all plugins registered on shared EventEmitter
+
+**Command Resolution and Execution** (`packages/core/src/index.ts:209-268`):
+
+- `runCommands(input, program)` processes argument array sequentially
+- Each command lookup: `this.commands[command]` from merged registry
+- Command execution: `await this.commands[command].run(input, args, this)`
+- Input type validation after each command: must be `string | Readable`
+- Error context generation with command stack trace and failure point marking
+
+#### Command Implementation Patterns
+
+**Standard Command Structure** (see `packages/plugin-core/src/*.ts`):
+
+```typescript
+const commands: Commands = {
+  commandName: {
+    description: 'human readable description',
+    run: async (input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
+      // Command implementation
+    },
+  },
+};
+```
+
+**Argument Processing**:
+
+- `commandArgument(runtime, args.shift(), usage)` - validates and consumes next argument
+- Usage pattern: provides error message if argument missing
+- Arguments consumed via `args.shift()` - modifies array in place
+
+**Input/Output Handling**:
+
+- Input is either `string` or Node.js `Readable` stream
+- `readableToString(input)` converts Readable to string when needed
+- Commands must return `string | Readable` - enforced by runtime validation
+- Stream processing via Node.js Readable: `Readable.fromWeb()`, `process.stdin`, etc.
+
+#### Script Execution System
+
+**YAML Script Loading** (`packages/plugin-yaml-script/src/index.ts:281-303`):
+
+- `run` command accepts URI argument: filesystem path or plugin asset reference
+- Asset resolution priority: 1) Direct URI via `resolveAsset()`, 2) Plugin glob search, 3) Filesystem
+- Plugin script search: `assetGlob(runtime, 'plugin:*/**/scripts/**/${uri}.yaml')`
+- Multiple matches generate process warning, uses first match
+- Filesystem paths: `./relative` or `/absolute` - anything not starting with plugin:
+
+**YAML to Command Translation** (`packages/plugin-yaml-script/src/index.ts:195-206`):
+
+- `loadCommands(commands)` recursively processes YAML structure
+- Supports nested arrays: `[[cmd1, arg1], [cmd2, arg2]]`
+- Object syntax: `{command: args}` where args can be string, array, or nested structure
+- Special `_RAW` directive: `{_RAW: [command_list]}` inlines command sequence
+- `_JSON` directive: converts structured data to JSON command arguments
+
+**Script Format** (example analysis of `fetch-test.yaml`):
+
+- `requires:` array - declares plugin dependencies (validation only)
+- `commands:` array - command sequence to execute
+- Macro system: `$defmacro` defines reusable command templates with parameter substitution
+
+#### Testing and Debugging
+
+**CLI Execution Modes**:
+
+- Single command: `pnpm or-q command arg1 arg2`
+- Pipeline: `echo input | pnpm or-q command | pnpm or-q another`
+- Script execution: `pnpm or-q run script-name`
+
+**Error Handling Architecture**:
+
+- Commands throw `PluginRuntimeFailure` via `fail(message)` function
+- CLI catches and outputs to stderr: `process.stderr.write(e.message)`
+- Uncaught exceptions logged via `console.error('Unexpected error:', e)`
+- Command failures generate detailed stack trace with numbered command list and failure point marking

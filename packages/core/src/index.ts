@@ -228,6 +228,18 @@ export class PluginRuntime implements IPluginRuntime {
       dbg('runCommands: running', command);
       try {
         input = await this.commands[command].run(input, args, this);
+        if (!(input instanceof Readable || typeof input === 'string')) {
+          error('input is', input);
+          // Lazy. DRY with below
+          const failedAt = program.length - args.length - 1;
+          for (let i = 0; i < program.length; ++i) {
+            const open = i === failedAt ? '> ' : '  ';
+            const close = i === failedAt ? ' <' : '';
+            // Lazy, compute maximum padding.
+            error(`${i.toString().padStart(3)}: ${open}${truncate(String(program[i]).trim(), 60)}${close}`);
+          }
+          return fail(`runCommands: internal error, invalid resulting input type; ${typeof input}`);
+        }
       } catch (e: unknown) {
         // Lazy. Improve diagnostics.
         const failedAt = program.length - args.length - 1;
@@ -238,7 +250,7 @@ export class PluginRuntime implements IPluginRuntime {
           // Lazy, must ellipsis-trim to max length, since "commands" may actually be long text arguments
           error(`${i.toString().padStart(3)}: ${open}${truncate(String(program[i]).trim(), 60)}${close}`);
         }
-        process.stderr.write(`command ${command} failed\n`);
+        error(`command ${command} failed`);
         throw e;
       }
       spam('runCommands: done running', command);
@@ -247,8 +259,9 @@ export class PluginRuntime implements IPluginRuntime {
     spam('runCommands: done executing', program);
 
     if (!(input instanceof Readable || typeof input === 'string')) {
-      console.error('after execution of', program);
-      return fail('runCommands: internal error, invalid resulting input type');
+      error('input is', input);
+      error('after execution of\n', program.join('\n'));
+      return fail(`runCommands: internal error, invalid resulting input type; ${typeof input}`);
     }
 
     return input;

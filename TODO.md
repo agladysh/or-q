@@ -1,5 +1,7 @@
 # TODO
 
+- [ ] Implement declaratuve black-box tests: per plugin, `packages/**/tests/**/.yaml` (env, args, stdin, stdout,
+      stderr), add a test-plugin and test-all-plugins commands
 - [ ] Design and implement proper CS-rigorous raw program form, for nestable command/argument chains (which are
       essentially a weird form of dags or something). First class arguments, invocation form is always the (command,
       arguments) tuple. Support raw form as js arrays.
@@ -11,8 +13,9 @@
       at all unless provided with a filename via command
 - [ ] Add loglevel event and core command, let logging plugins deviate (until next loglevel command)
 - [ ] Do not rethrow on command failures, instead, log JS stacktrace nicely to fail.
+- [ ] Implement repository description generation script
 - [ ] Implement initial task and decision tracking processes.
-- [ ] Implement nice logger systems
+- [x] Implement nice logger systems
 - [ ] Forbid console.\* in eslint, emit logging events instead.
 - [x] Support markdownlint in lint and fix modes.
 - [x] Add ollama connector for gpt-oss:20b
@@ -28,13 +31,12 @@
 - [ ] Implement more OpenRouter endpoints
 - [ ] Write a README.md file
 - [ ] Cleanup `Lazy` comments.
-- [ ] Implement declaratuve black-box tests: per plugin, `packages/**/tests/**/.yaml` (env, args, stdin, stdout,
-      stderr), add a test-plugin and test-all-plugins commands
 - [x] Provide a `shell` command to spawn arbitrary shell process
 - [ ] Implement the bi-system.
-- [ ] Support YAML string passing as input
+- [ ] Support YAML string passing as input somehow?
 - [ ] Support JSON-like data object passing as input to save on serialization / deserialization
-- [ ] Emit operations on input pipeline? We are kinda doing this anyway, might make it official as well
 - [ ] Cleanup plugin-openrouter-api/assets/scripts
 - [ ] Move conversation commands to new @or-q/plugin-openai-chat and rename to openai-\*
 - [ ] Rename openrouter-specific commands to openrouter-\*
+- [ ] Implement driver as an MCP server in addition to cli
+- [ ] Implement a visual no/low-code editor

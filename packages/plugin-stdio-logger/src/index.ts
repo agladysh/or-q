@@ -19,7 +19,7 @@ import pkg from '../package.json' with { type: 'json' };
 export class LoggingPlugin implements Plugin {
   name: string = pkg.name;
 
-  console = new Console(process.stdin, process.stderr);
+  console = new Console(process.stdout, process.stderr);
   private logLevelOrd: LogLevelOrd = logLevelOrds[logLevels.log];
 
   eventListeners = {

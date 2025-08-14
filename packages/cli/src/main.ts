@@ -1,6 +1,6 @@
 #! /usr/bin/env node --env-file-if-exists=.env --experimental-strip-types --disable-warning=ExperimentalWarning
 import { PluginRuntime } from '@or-q/core';
-import { readableToString } from '@or-q/lib';
+import { PluginRuntimeFailure, readableToString } from '@or-q/lib';
 import type { Readable } from 'node:stream';
 
 async function main() {
@@ -15,7 +15,14 @@ async function main() {
 
   let input: string | Readable = '';
 
-  input = await readableToString(await runtime.runCommands(input, args));
+  try {
+    input = await readableToString(await runtime.runCommands(input, args));
+  } catch (e: unknown) {
+    if (e instanceof PluginRuntimeFailure) {
+      process.stderr.write(`${e.message.trimEnd()}\n`);
+      return;
+    }
+  }
 
   input = input.trimEnd();
   if (input !== '') {

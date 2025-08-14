@@ -181,9 +181,12 @@ export async function spawnText(cmd: string, input: Readable | string, opts: Spa
   });
 }
 
+export class PluginError extends Error {}
+
+export class PluginRuntimeFailure extends PluginError {}
+
 export function fail(message: string): never {
-  process.stderr.write(message.endsWith('\n') ? message : `${message}\n`);
-  process.exit(1);
+  throw new PluginRuntimeFailure(message);
 }
 
 export async function readableToString(readable: Readable | string): Promise<string> {
@@ -248,7 +251,7 @@ export function resolveAsset(runtime: IPluginRuntime, uri: string): string | und
 export function getPlugin<T extends Plugin>(runtime: IPluginRuntime, name: string): T {
   const plugin = runtime.plugins[name];
   if (!plugin) {
-    return fail(`getPlugin: plugin "${name}" not available, try installing it as the node package`);
+    fail(`getPlugin: plugin "${name}" not available, try installing it as the node package`);
   }
   return plugin as T;
 }

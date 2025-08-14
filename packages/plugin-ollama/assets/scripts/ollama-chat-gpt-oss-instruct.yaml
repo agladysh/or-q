@@ -1,0 +1,27 @@
+requires:
+  - '@or-q/plugin-openrouter-api' # TODO: Migrate general openai conversation stuff from there and update this dependency
+  - '@or-q/plugin-ollama'
+  - '@or-q/plugin-store'
+  - '@or-q/plugin-jp'
+
+commands:
+  - $defmacro:
+      - $ollama-chat-gpt-oss-instruct
+      # TODO: This probably should run ollama-pull on the model
+      - - _JSON:
+            model: gpt-oss:20b
+            keep_alive: 1h # TODO: Not polite to the user, make it configurable!
+            stream: false
+            think: low
+            options:
+              temperature: 0
+            messages:
+              - role: system
+                content:
+                  _RAW: [$arg: 1]
+              - role: user
+                content:
+                  _RAW: [$arg: 2]
+        - ollama-chat
+        - jp: 'message.content'
+        - unquote

@@ -296,6 +296,171 @@ The system includes multiple plugins:
 - **Event-driven integration**: Register listeners for cross-plugin communication
 - **Context sharing**: Use namespaced context IDs for plugin-specific state management
 
+## Fundamental Architectural Constraints
+
+### Why Optional Arguments Are Impossible
+
+The OR-Q pipeline architecture has a fundamental constraint that makes optional arguments impossible in the current
+design. This is not a limitation but an intentional architectural decision that emerges from the pipeline execution
+model.
+
+#### The Sequential Consumption Model
+
+**Pipeline Execution Flow**:
+
+```typescript
+// In PluginRuntime.runCommands()
+const args = program.slice();
+while (args.length > 0) {
+  const command = await commandArgument(this, args.shift(), 'Internal error: unreachable');
+  // Execute command with remaining args
+  input = await this.commands[command].run(input, args, this);
+}
+```
+
+**Key Insight**: The runtime consumes the first element as a command name, then passes the **entire remaining args
+array** to that command. The command is responsible for consuming its own arguments via `args.shift()`.
+
+#### The args.shift() Pattern
+
+**Universal Argument Consumption**:
+
+```typescript
+// Every command follows this pattern:
+const myArg = await commandArgument(runtime, args.shift(), 'usage: command "<required-arg>"');
+```
+
+**Critical Properties**:
+
+1. **Destructive consumption**: `args.shift()` mutates the array, removing the consumed argument
+2. **Sequential processing**: Arguments are consumed in strict left-to-right order
+3. **No lookahead**: Commands cannot inspect upcoming arguments without consuming them
+4. **No backtracking**: Once consumed, arguments cannot be "put back"
+
+#### The Impossibility Proof
+
+**Why Optional Arguments Cannot Work (Generally)**:
+
+1. **No argument count negotiation**: Commands cannot know how many arguments they should consume
+2. **No argument type inspection**: Commands cannot peek at argument types without consuming them
+3. **No command-to-command communication**: Each command runs in isolation with no knowledge of subsequent commands
+4. **Greedy consumption problem**: If a command has optional arguments, it cannot know whether to consume the next
+   argument or leave it for the next command
+
+**Example of the Problem**:
+
+```bash
+# Hypothetical command with optional argument:
+or-q command-with-optional-arg [optional] next-command required-arg
+
+# The pipeline cannot determine:
+# - Should "next-command" be consumed as the optional argument?
+# - Or should it be left as the next command in the pipeline?
+# - There's no way to distinguish without complex lookahead parsing
+```
+
+#### The Command Name Collision Workaround
+
+**Limited Optional Arguments Are Possible**:
+
+There is one exception to the impossibility of optional arguments: **command name collision detection**. A command can
+peek at `args[0]` without consuming it and check if it matches a known command name:
+
+```typescript
+// Pseudo-optional argument pattern:
+let topic: string | undefined;
+if (args.length > 0 && !(args[0] in runtime.commands)) {
+  // args[0] is not a command, so it's safe to consume as our optional argument
+  topic = await commandArgument(runtime, args.shift(), 'usage: help [topic]');
+}
+// If args[0] IS a command, we leave it alone for the next command in the pipeline
+```
+
+**Constraints of This Workaround**:
+
+1. **Optional arguments cannot match command names**: The argument value space is constrained by the global command
+   namespace
+2. **Namespace dependency**: The behavior depends on which plugins are loaded and their command names
+3. **Collision risk**: Adding new plugins with conflicting command names can break existing optional arguments
+4. **Limited to string arguments**: Only works for simple string arguments, not complex nested structures
+
+**Use Cases Where This Works**:
+
+- `help [command-name]` - command names are known and controlled
+- `log [level]` where levels don't conflict with commands
+- `format [type]` where format types are distinct from command names
+
+**Use Cases Where This Fails**:
+
+- Generic string arguments that might accidentally match command names
+- Numeric arguments (if commands can have numeric names)
+- Complex arguments that require parsing
+
+#### The Arguments Type Structure
+
+**Recursive Definition**:
+
+```typescript
+export type Arguments = (string | Arguments)[];
+```
+
+**Nested Command Execution**:
+
+- Arguments can contain nested command arrays: `['command', ['nested', 'commands'], 'more-args']`
+- The `commandArgument()` helper can execute nested commands: `await runtime.runCommands(input, arg)`
+- This enables dynamic argument generation but maintains the sequential consumption model
+
+#### Architectural Implications
+
+**Design Consequences**:
+
+1. **Most arguments must be required**: Commands must fail if required arguments are missing
+2. **Fixed arity commands**: Each command has a predetermined number of arguments (with collision detection exception)
+3. **No variadic arguments**: Commands cannot accept variable numbers of arguments
+4. **No flag-style arguments**: No `-f` or `--flag` style optional parameters
+5. **No argument parsing libraries**: Standard CLI argument parsing patterns don't apply
+6. **Command namespace constraints**: Optional arguments are constrained by the global command namespace
+
+**Workarounds Within the System**:
+
+1. **Command name collision detection**: Limited optional arguments possible via `!(args[0] in runtime.commands)`
+2. **Multiple command variants**: `glob` vs `glob-advanced` for different argument patterns
+3. **Default value commands**: Use `default` command to provide fallback values
+4. **Conditional execution**: Use YAML scripts with `on-empty-stdin` for conditional behavior
+5. **Context-based configuration**: Store optional parameters in the context system
+
+#### The Planned Solution
+
+**From TODO.md Architectural Debt**:
+
+> Design and implement proper CS-rigorous raw program form, for nestable command/argument chains... First class
+> arguments, invocation form is always the (command, arguments) tuple explicitly (in data)... Arguments are schema-typed
+> with arktype.
+
+**Future Architecture**:
+
+- **Explicit argument schemas**: Each command declares its argument structure
+- **Compile-time validation**: Argument validation before execution
+- **Structured argument passing**: Arguments as typed data structures, not sequential arrays
+- **Optional argument support**: Schema-driven optional parameter handling
+
+#### Current State Assessment
+
+**Why This Constraint Exists**:
+
+- **Rapid prototyping phase**: The current system prioritizes simplicity over flexibility
+- **Pipeline semantics**: The Unix pipe model doesn't naturally support optional arguments
+- **Type safety trade-offs**: The current system trades argument flexibility for runtime type safety
+
+**Development Implications**:
+
+- **Command design**: All commands must be designed with fixed, required arguments
+- **User experience**: Users must provide all arguments or use workaround patterns
+- **Plugin development**: Plugin authors cannot use familiar CLI argument patterns
+
+This constraint is fundamental to the current architecture and cannot be worked around without the planned architectural
+overhaul described in the TODO.md file.
+
 ## Strategic Architecture Direction
 
 ### Core Language Evolution

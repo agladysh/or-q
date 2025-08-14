@@ -4,12 +4,15 @@ Keep sections in decreasing order of priority.
 
 ## First Priority
 
-- [ ] Provide a `help` plugin and command
+- [ ] Provide a `help` plugin and command. CLI on no arguments should see if a help command is available, and run it,
+      or, if not, print a generic usage string and recommend installing @or-q/help or another plugin with the command.
+      The `help` command should nicely print available commands, assets and installed plugins, etc.
 
 ## Low Hanging Fruits
 
 - [ ] Replace JSON.parse(JSON.stringify()) with modern structuredClone() calls.
 - [ ] Forbid console.\* in eslint, emit logging events instead.
+- [ ] Split @or-q/lib/index.ts to files
 - [ ] Cleanup random files in plugin-openrouter-api/assets/scripts by moving them to `.or-q/asset/scripts`
 
 ## Testing
@@ -30,8 +33,11 @@ Keep sections in decreasing order of priority.
 ## Plugins
 
 - [ ] Move conversation commands to new @or-q/plugin-openai-chat and rename to openai-\*
+- [ ] Triage commands printing directly to stdout. Replace them with input-generating ones or remove altogether.
+- [ ] Triage
 - [ ] Rename openrouter-specific commands to openrouter-\*
-- [ ] Implement more OpenRouter endpoints
+- [ ] Implement all OpenRouter endpoints
+- [ ] Implement all Ollama endpoints
 
 ## Core
 
@@ -59,6 +65,7 @@ Keep sections in decreasing order of priority.
 ## Technical Debt
 
 - [ ] Implement exponential backoffs on 429 etc on all fetch() calls
+- [ ] Unify plugin structure so that commands are in separate files (ref.: core plugin)
 
 ## Product
 

@@ -242,3 +242,143 @@ const commands: Commands = {
 - CLI catches and outputs to stderr: `process.stderr.write(e.message)`
 - Uncaught exceptions logged via `console.error('Unexpected error:', e)`
 - Command failures generate detailed stack trace with numbered command list and failure point marking
+
+**Debugging Techniques**:
+
+- Use `tee` command to inspect intermediate pipeline values at any point
+- Check API responses directly with curl to verify expected vs actual response format
+- Examine command argument parsing with spam-level logging events
+- Validate `_JSON` directive output by testing individual components
+- Add debugging `tee` commands liberally during development, remove only after confirming fixes work
+
+**Common Error Patterns**:
+
+- `"input is null"`: JSONPath query returned no results (often due to API error responses)
+- `"invalid resulting input type; object"`: Command returned wrong type instead of `string | Readable`
+- Fetch errors: Usually body serialization issues (object vs string for JSON requests)
+- API error responses: Valid JSON with `{"error": {...}}` structure instead of expected data
+
+### Architectural Constraints
+
+#### Why Optional Arguments Are Impossible
+
+The OR-Q pipeline architecture has a fundamental constraint that makes optional arguments impossible in the current
+design. This emerges from the sequential consumption model:
+
+**The args.shift() Pattern**:
+
+- Commands use `args.shift()` to consume arguments destructively
+- No lookahead capability - commands cannot inspect upcoming arguments without consuming them
+- No backtracking - once consumed, arguments cannot be "put back"
+- Greedy consumption problem: optional arguments cannot know whether to consume the next argument
+
+**Limited Workaround - Command Name Collision Detection**:
+
+```typescript
+// Pseudo-optional argument pattern:
+if (args.length > 0 && !(args[0] in runtime.commands)) {
+  // args[0] is not a command, safe to consume as optional argument
+  topic = await commandArgument(runtime, args.shift(), 'usage: help [topic]');
+}
+```
+
+**Constraints**: Optional arguments cannot match command names, limited to simple string arguments, namespace-dependent
+behavior.
+
+**Future Solution**: Planned architectural evolution to schema-typed arguments with `(command, arguments)` tuple
+structure and compile-time validation.
+
+### Stream Processing Architecture
+
+**Type Contract Enforcement**:
+
+- Runtime validates `string | Readable` contracts after each command execution
+- Invalid types (objects, arrays, numbers) cause pipeline failure
+- Commands use `readableToString(input)` for string conversion when needed
+
+**Pipeline Data Flow**:
+
+- Sequential command execution with output piped to next command's input
+- `tee` command: outputs to stdout while preserving pipeline flow
+- Pass-through semantics: many commands perform side effects while maintaining pipeline integrity
+- Error transparency: API error responses flow through pipeline as valid data
+
+**HTTP Integration Patterns**:
+
+- `_JSON` directive: creates structured request configuration at compilation time
+- `fetch` command: parses input as YAML config, handles body serialization for JSON requests
+- Response processing: returns `Readable` stream via `Readable.fromWeb()`
+- Error handling: APIs return valid JSON for errors, pipeline continues processing
+
+### Advanced Plugin Patterns
+
+**Context-Based Communication**:
+
+- Stack-based contexts: `pushContext/popContext` for nested execution scopes
+- Namespaced context IDs: `context:${pkg.name}:${feature}` prevents collisions
+- Type-safe context retrieval: `getContext<T>()` with undefined fallback
+- Automatic cleanup: context popped in finally blocks for exception safety
+
+**Event-Driven Architecture**:
+
+- Plugins emit structured events via `runtime.emit(loggingEventName, event)`
+- Events contain `source`, `level`, and `value` fields
+- Synchronous event processing for immediate feedback
+- Multiple plugins can listen to the same events simultaneously
+
+**Asset Resolution Hierarchy**:
+
+- URI scheme dispatch: `plugin:`, `file:///`, relative paths handled differently
+- Fallback chain: Direct URI → plugin glob search → filesystem resolution
+- Multiple match handling: warnings for ambiguous matches, first-wins selection
+- Glob-based discovery: `assetGlob()` for pattern matching across plugin assets
+
+### Help System Implementation (Planned)
+
+**Design Principles** (from P0001 proposal):
+
+- Explicit command structure instead of fighting architectural constraints
+- Separation of concerns: human-readable `help-*` vs machine-readable `show-*` commands
+- CLI integration: check for `help` command existence, provide fallback recommendations
+
+**Planned Commands**:
+
+- `help` - comprehensive system overview
+- `help-command <name>` - detailed command help
+- `help-plugin <name>` - plugin-specific help
+- `help-script <name>` - YAML script documentation
+- `help-commands/plugins/scripts` - listing commands
+- `show-commands/plugins/scripts` - JSON output for tooling
+
+**Implementation Strategy**:
+
+- Create `@or-q/plugin-help` package following established plugin patterns
+- Integrate with CLI no-arguments fallback
+- Remove "Lazy" `runtime.usage()` method from core
+- Support plugin-specific help contribution
+
+### Development Best Practices
+
+**Code Quality Standards**:
+
+- Always run `pnpm run lint` before making changes
+- Use `pnpm run fix` to auto-fix ESLint and Prettier issues
+- No TODO/FIXME comments in code - use TODO.md instead
+- Comments marked "Lazy" indicate areas for potential future improvement
+
+**Plugin Development Guidelines**:
+
+- Export default object conforming to `Plugin` interface
+- Use `mergeCommands()` for combining command sets
+- Implement proper error handling with `fail()` function
+- Support both string and Readable input types
+- Emit structured logging events appropriately
+- Test asset loading and URI resolution thoroughly
+
+**Testing Approach**:
+
+- Test command chains with various input types
+- Use `debug` command for runtime inspection
+- Verify plugin loading with `plugins` command
+- Monitor event flow through logging system
+- Test with actual external services to catch integration issues

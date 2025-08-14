@@ -17,6 +17,9 @@ importers:
       '@or-q/plugin-dot-or-q-assets':
         specifier: workspace:*
         version: link:packages/plugin-dot-or-q-assets
+      '@or-q/plugin-fetch':
+        specifier: workspace:*
+        version: link:packages/plugin-fetch
       '@or-q/plugin-filesystem':
         specifier: workspace:*
         version: link:packages/plugin-filesystem
@@ -153,6 +156,19 @@ importers:
         version: 5.9.2
 
   packages/plugin-dot-or-q-assets:
+    dependencies:
+      '@or-q/lib':
+        specifier: workspace:*
+        version: link:../lib
+    devDependencies:
+      '@types/node':
+        specifier: ^24.2.0
+        version: 24.2.0
+      typescript:
+        specifier: ^5.9.2
+        version: 5.9.2
+
+  packages/plugin-fetch:
     dependencies:
       '@or-q/lib':
         specifier: workspace:*

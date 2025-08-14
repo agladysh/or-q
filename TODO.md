@@ -1,10 +1,14 @@
 # TODO
 
+- [ ] Design and implement proper CS-rigorous raw program form, for nestable command/argument chains (which are
+      essentially a weird form of dags or something). First class arguments, invocation form is always the (command,
+      arguments) tuple. Support raw form as js arrays.
+- [ ] CLI and YAML are external DSLs which are translated to the raw program form.
 - [ ] Implement exponential backoffs on 429 etc on all fetch() calls
 - [ ] Replace JSON.parse(JSON.stringify()) with modern structuredClone() calls.
-- [ ] Move fail() to IPluginRuntime interface, add fail logging level, add cli logger plugin which logs to stderr (error
-      and fail only) and stdout (other events) replace stdio logger with file logger, which does not log at all unless
-      provided with a filename via command
+- [ ] Move fail() to IPluginRuntime interface as abort(), add fail logging level, add cli logger plugin which logs to
+      stderr (error and fail only) and stdout (other events) replace stdio logger with file logger, which does not log
+      at all unless provided with a filename via command
 - [ ] Add loglevel event and core command, let logging plugins deviate (until next loglevel command)
 - [ ] Do not rethrow on command failures, instead, log JS stacktrace nicely to fail.
 - [ ] Implement initial task and decision tracking processes.

@@ -123,7 +123,7 @@ async function loadInputFromJSONCommand(runtime: IPluginRuntime, args: Arguments
   const arg = args.shift();
 
   if (Array.isArray(arg)) {
-    return readableToString(await runtime.runCommands('', arg));
+    return await readableToString(await runtime.runCommands('', arg));
   }
 
   if (typeof arg !== 'string') {

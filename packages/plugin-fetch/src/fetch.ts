@@ -21,7 +21,19 @@ const commands: Commands = {
     run: async (input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
       const usage = 'usage: fetch-json "<url>"';
       const url = await commandArgument(runtime, args.shift(), usage);
-      const response = await fetch(url, yaml.parse(await readableToString(input))); // Lazy. Should validate input.
+      const config = yaml.parse(await readableToString(input)); // Lazy. Should validate input.
+
+      // If body is an object and Content-Type is application/json, stringify the body
+      if (
+        config.body &&
+        typeof config.body === 'object' &&
+        config.headers &&
+        config.headers['Content-Type'] === 'application/json'
+      ) {
+        config.body = JSON.stringify(config.body);
+      }
+
+      const response = await fetch(url, config);
       if (!response.body) {
         console.error(response);
         return fail(`fetch: response body is null`);

@@ -283,7 +283,8 @@ OR-Q's current help situation is problematic:
 2. **Plugin Discovery**: No way to understand what plugins provide
 3. **Script Visibility**: YAML scripts are invisible without prior knowledge
 4. **Developer Experience**: Plugin authors have no standard way to expose help
-5. **Architectural Debt**: It is best to introduce breaking changes early
+5. **Architectural Debt**: It is best to introduce breaking changes early, while we do not care about backwards
+   compatibility
 
 ### Why Not Hierarchical Commands
 

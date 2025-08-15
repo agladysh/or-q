@@ -362,11 +362,9 @@ Run the script, study the output.
 
 The scripts will later become a basis for initial test suites.
 
-## Implementation Strategy
+## Implementation Notes
 
-### What needs to be done
-
-Non-exhaustive
+### Strategy
 
 1. Core Interface Enhancements
    - Enhance Command interface with mandatory tags and usage fields
@@ -401,6 +399,56 @@ Non-exhaustive
    - Perform manual smoke tests for all commands
    - Verify output formats match specifications
 
-### Plan
+### Recommended Order
 
-TBD
+#### Phase 1: Core Interface Foundation (Optional Fields)
+
+T1. **Enhance Command interface** - Add `tags?: string[]` and `usage?: string` as optional fields T2. **Enhance Plugin
+interface** - Add `description?: string` as optional field T3. **Remove legacy** - Delete `IPluginRuntime.usage()`
+method, output stub in cli on no-args
+
+**Rationale**: Optional fields allow existing plugins to continue working unchanged.
+
+#### Phase 2: New Plugin Implementation (with Graceful Degradation)
+
+T4. **Create plugin-help package** - Implement all `help-*` commands with fallbacks for missing metadata T5. **Create
+plugin-discover package** - Implement all `discover-*` commands with null handling T6. **Export tag constants** -
+`tagHelpCommand`, `tagDiscoverCommand`
+
+**Rationale**: Help system can work immediately, showing "No description available" or empty arrays for missing data.
+
+#### Phase 3: Incremental Plugin Updates
+
+T7. **Update plugin-core first** - Add descriptions, usage, tags, reorganize to `src/commands/` T8. **Test help
+system** - Verify help commands work with mixed old/new plugins T9. **Update remaining plugins one by one** - Each
+becomes fully documented as updated T10. **Validate after each plugin** - Ensure no regressions
+
+**Rationale**: System remains functional throughout; each plugin improvement is immediately visible.
+
+#### Phase 4: Integration & Enhancement
+
+T11. **Update CLI integration** - Add dependency, implement full no-args behavior T12. **YAML script descriptions** -
+Add description field support T13. **Update existing scripts** - Add descriptions to all YAML assets
+
+#### Phase 5: Make Fields Required & Cleanup
+
+T14. **Make Command fields required** - `tags: string[]`, `usage: string` T15. **Make Plugin description required** -
+`description: string` T16. **Remove legacy commands** - `list-plugins`, `plugins-json`, etc. T17. **Comprehensive
+testing** - Write test scripts for all commands
+
+**Rationale**: Only enforce requirements after all plugins are updated; breaking changes come last.
+
+#### Key Benefits
+
+- **Zero downtime**: System always works during migration
+- **Incremental value**: Help improves as each plugin gets updated
+- **Safe rollback**: Any step can be reverted without breaking the system
+- **Early feedback**: Help system can be tested and refined before making fields required
+
+#### Dependencies
+
+- **Phases 1-2 are sequential** (interface changes must precede help implementation)
+- **Phase 3 can be done incrementally** (one plugin at a time)
+- **Phases 4-5 require Phase 3 completion**
+
+This approach follows the principle of "make the change easy, then make the easy change."

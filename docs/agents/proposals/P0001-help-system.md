@@ -17,8 +17,7 @@ All help commands replace input with their output.
 - `help`: Lists all commands with the `help-command` tag in alphabetic order, with their desriptions.
 - `help-commands`: List all commands with their descriptions, grouped by plugin
 - `help-commands-by-tag "<tag>"`: List all commands with a tag. Tag is arbitrary.
-- `help-command "<command>"`: Prints command description and usage string (TBD: plan how to refactor the usage string to
-  a parameter)
+- `help-command "<command>"`: Prints command description and usage string
 - `help-plugins`: Lists all available plugins with their descriptions, sorted alphabetically
 - `help-plugin "<plugin.name>"`: Shows detailed information about a specific plugin including its commands and assets
 - `help-assets`: Lists all available assets (YAML scripts and other files) with their descriptions and plugin sources
@@ -244,6 +243,8 @@ Non-exhaustive:
 
 - Remove `IPluginRuntime.usage()`
 - Add `@or-q/cli` dependency on `@or-q/help`
+- Add mandatory `description` field on Plugin, and refactor all plugins to expose pkg.description sans `OR-Q Plugin:`
+  through it
 - Add `description: pkg.description` to every plugin `index.ts`
 - Add optional `tags` field on Command as array of strings
 - Add mandatory `usage` field on Command, and refactor all commands to expose it
@@ -290,6 +291,8 @@ When OR-Q is invoked with no arguments:
 ## Implementation Strategy
 
 TBD
+
+(TBD: also plan how to refactor the usage string to a parameter)
 
 ## Motivation
 

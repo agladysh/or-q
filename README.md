@@ -2,6 +2,8 @@
 
 README TBD, read the code.
 
+KISS, YAGNI, DRY.
+
 Some implementation conventions (non-exhaustive):
 
 - Ingest as YAML, output JSON.

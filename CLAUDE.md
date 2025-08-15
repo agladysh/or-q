@@ -27,8 +27,28 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Architecture Overview
 
-OR-Q is a plugin-based CLI tool for OpenRouter API interactions built with TypeScript and Node.js. The architecture
-follows a modular plugin system where each plugin provides commands and assets.
+OR-Q is a plugin-based CLI tool for orchestrating command pipelines, with a focus on interacting with AI models and
+services like OpenRouter and Ollama. It is built with TypeScript and Node.js and features a modular plugin system where
+each plugin provides commands and assets.
+
+The core of OR-Q is a command pipeline where each command receives an input (either a string or a Readable stream) and
+produces an output of the same type. This allows for chaining commands together to perform complex data transformations.
+
+### Design Principles
+
+- **KISS, YAGNI, DRY** - Keep it simple, you aren't gonna need it, don't repeat yourself
+- **Ingest as YAML, output JSON** - Standard data flow convention
+- **Do not pretty-print JSON, but append trailing newline** - Consistent JSON output format
+
+### Development Philosophy
+
+**Prototype Phase**: OR-Q (initiated 2025-08-05) is currently a functional prototype balancing:
+
+1. **Immediate Utility** - Rapidly implement working, end-to-end system that is immediately useful
+2. **Long-Term Rigor** - Build foundation that can mature into robust, performant, formally-designed engine
+
+**Architectural Evolution**: Current "as-is" prototype architecture has documented limitations with clear path to
+"to-be" target architecture outlined in TODO.md and codebase.
 
 ### Core Components
 
@@ -113,6 +133,9 @@ Each plugin exports a default object with:
 - Asset resolution supports `plugin:`, `file:///`, and relative path schemes
 - Logging system uses structured events with configurable levels (spam, debug, info, log, warn, error, none)
 - Context management allows plugins to share state during command execution
+- Usage strings currently hardcoded in `commandArgument()` calls - these should be extracted to command metadata
+- Plugin descriptions should be exported from package.json to Plugin interface
+- Command-to-plugin mapping lost during runtime flattening - requires reverse-engineering or enhanced runtime
 
 ### Testing Strategy
 
@@ -220,7 +243,7 @@ const commands: Commands = {
 - Supports nested arrays: `[[cmd1, arg1], [cmd2, arg2]]`
 - Object syntax: `{command: args}` where args can be string, array, or nested structure
 - Special `_RAW` directive: `{_RAW: [command_list]}` inlines command sequence
-- `_JSON` directive: converts structured data to JSON command arguments
+- `_JSON` directive: converts structured data to JSON command arguments (embeds JSON objects directly in YAML scripts)
 
 **Script Format** (example analysis of `fetch-test.yaml`):
 
@@ -257,6 +280,8 @@ const commands: Commands = {
 - `"invalid resulting input type; object"`: Command returned wrong type instead of `string | Readable`
 - Fetch errors: Usually body serialization issues (object vs string for JSON requests)
 - API error responses: Valid JSON with `{"error": {...}}` structure instead of expected data
+- Plugin interface type errors: `assets` field incorrectly typed as `Commands` instead of `Assets`
+- Missing metadata: Commands lack usage strings, plugins lack descriptions, assets lack documentation
 
 ### Architectural Constraints
 
@@ -288,6 +313,19 @@ behavior.
 **Future Solution**: Planned architectural evolution to schema-typed arguments with `(command, arguments)` tuple
 structure and compile-time validation.
 
+### Program Representation Evolution
+
+**Current (As-Is)**: `Arguments` type as `(string | Arguments)[]` - nestable array of strings generated from:
+
+- **ARGV Form**: Command-line arguments parsed directly
+- **YAML Form**: Compiled by `@or-q/plugin-yaml-script` using `_JSON`/`_RAW` directives
+
+**Target (To-Be)**: Formal `(command, arguments)` tuple where `arguments` is schema-defined object
+
+- Enables static validation via schemas (e.g., `arktype`)
+- Supports first-class, typed, and optional arguments
+- More robust and unambiguous program form
+
 ### Stream Processing Architecture
 
 **Type Contract Enforcement**:
@@ -298,10 +336,18 @@ structure and compile-time validation.
 
 **Pipeline Data Flow**:
 
-- Sequential command execution with output piped to next command's input
+- Sequential command execution with output piped to next command's input (Forth-like stack execution)
+- `PluginRuntime.runCommands` loop consumes `Arguments` array via `args.shift()`
+- Each instruction operates on persistent `input` data value (`string | Readable`)
 - `tee` command: outputs to stdout while preserving pipeline flow
 - Pass-through semantics: many commands perform side effects while maintaining pipeline integrity
 - Error transparency: API error responses flow through pipeline as valid data
+
+**Execution Model Evolution**:
+
+- **Current**: Text-only contract (`string | Readable`) with serialization overhead
+- **Target**: Structured objects (JavaScript objects/arrays) passed directly in memory
+- **Benefits**: Eliminates overhead and command clutter (`jp`, `unquote`, `to-json`)
 
 **HTTP Integration Patterns**:
 
@@ -333,29 +379,84 @@ structure and compile-time validation.
 - Multiple match handling: warnings for ambiguous matches, first-wins selection
 - Glob-based discovery: `assetGlob()` for pattern matching across plugin assets
 
-### Help System Implementation (Planned)
+### Help System Implementation (P0001)
 
-**Design Principles** (from P0001 proposal):
+**Design Principles**:
 
 - Explicit command structure instead of fighting architectural constraints
-- Separation of concerns: human-readable `help-*` vs machine-readable `show-*` commands
+- Separation of concerns: human-readable `help-*` vs machine-readable `discover-*` commands
 - CLI integration: check for `help` command existence, provide fallback recommendations
+- Programmatic content generation using existing metadata
 
-**Planned Commands**:
+**Command Structure**:
 
-- `help` - comprehensive system overview
-- `help-command <name>` - detailed command help
-- `help-plugin <name>` - plugin-specific help
-- `help-script <name>` - YAML script documentation
-- `help-commands/plugins/scripts` - listing commands
-- `show-commands/plugins/scripts` - JSON output for tooling
+**@or-q/plugin-help Package**:
+
+- `help` - Lists all commands with `help-command` tag in alphabetical order
+- `help-commands` - List all commands with descriptions, grouped by plugin
+- `help-commands-by-tag "<tag>"` - List all commands with specific tag
+- `help-command "<command>"` - Prints command description and usage string
+- `help-plugins` - Lists all available plugins with descriptions, sorted alphabetically
+- `help-plugin "<plugin.name>"` - Shows detailed plugin information including commands and assets
+- `help-assets` - Lists all available assets with descriptions and plugin sources
+- `help-scripts` - Lists all available YAML scripts with descriptions
+- `help-script "<script>"` - Shows detailed help for specific script
+
+**@or-q/plugin-discover Package**:
+
+- `discover` - Returns JSON array of all commands with `discovery-command` tag
+- `discover-commands` - Returns JSON array of all commands with full metadata
+- `discover-plugins` - Returns JSON array of all plugins with metadata
+- `discover-assets` - Returns JSON array of all assets with metadata
+- `discover-scripts` - Returns JSON array of all YAML scripts with metadata
+- `discover-script "<script>"` - Displays full script YAML
+
+**Interface Enhancements Required**:
+
+```typescript
+// Enhanced Command interface
+export interface Command {
+  description: string;
+  usage?: string; // New: extracted from hardcoded commandArgument() calls
+  tags?: string[]; // New: for categorization (help-command, discovery-command)
+  run: (input: string | Readable, args: Arguments, runtime: IPluginRuntime) => Promise<string | Readable>;
+}
+
+// Enhanced Plugin interface
+export interface Plugin<E extends IPluginRuntimeEvent = IPluginRuntimeEvent> {
+  name: string;
+  description?: string; // New: from package.json description
+  eventListeners?: IPluginRuntimeEventListeners<E>;
+  assets?: Assets; // Fix: was incorrectly typed as Commands
+  commands?: Commands;
+}
+
+// Enhanced Script interface
+interface Script {
+  description?: string; // New: for help system
+  requires: [string];
+  ['on-empty-stdin']: CommandList;
+  commands: CommandList;
+}
+```
+
+**Legacy Command Migration**:
+
+- `list-plugins` → `help-plugins`
+- `list-assets` → `help-assets`
+- `list-script-assets` → `help-scripts`
+- `plugins-json` → `discover-plugins`
+- `dump-macros` → `discover-macros`
+- `dump-store` → `discover-store`
 
 **Implementation Strategy**:
 
-- Create `@or-q/plugin-help` package following established plugin patterns
-- Integrate with CLI no-arguments fallback
+- Create both `@or-q/plugin-help` and `@or-q/plugin-discover` packages
+- Export tag constants: `tagHelpCommand`, `tagDiscoverCommand`
+- Update CLI to use help command when invoked with no arguments
 - Remove "Lazy" `runtime.usage()` method from core
-- Support plugin-specific help contribution
+- Reorganize commands to `src/commands/` directories (one file per command)
+- Extract usage strings from hardcoded `commandArgument()` calls to command metadata
 
 ### Development Best Practices
 
@@ -366,6 +467,25 @@ structure and compile-time validation.
 - No TODO/FIXME comments in code - use TODO.md instead
 - Comments marked "Lazy" indicate areas for potential future improvement
 
+**Current Development Priorities** (from TODO.md):
+
+1. **First Priority**:
+   - Implement P0001: Help System
+   - Find `Lazy` with `TODO` and migrate to TODO.md
+
+2. **Low Hanging Fruits**:
+   - Replace `JSON.parse(JSON.stringify())` with modern `structuredClone()` calls
+   - Forbid `console.*` in eslint, emit logging events instead
+   - Split `@or-q/lib/index.ts` to files
+   - Cleanup random files in `plugin-openrouter-api/assets/scripts`
+   - Ensure JSON output has trailing newline without pretty-printing
+
+3. **Technical Debt**:
+   - Move commands to separate files (ref: core plugin structure)
+   - Implement exponential backoffs on 429 errors for all fetch() calls
+   - Move `fail()` to `IPluginRuntime` interface as `abort()`
+   - Add proper CS-rigorous raw program form for nestable command/argument chains
+
 **Plugin Development Guidelines**:
 
 - Export default object conforming to `Plugin` interface
@@ -374,6 +494,76 @@ structure and compile-time validation.
 - Support both string and Readable input types
 - Emit structured logging events appropriately
 - Test asset loading and URI resolution thoroughly
+- Include `description: pkg.description` in plugin definition
+- Define usage strings as constants in command files, reference in both `run()` and `Command.usage`
+- Add appropriate tags to commands for help system categorization
+- Organize commands in `src/commands/` directory structure (one file per command)
+
+**Library Core (`packages/lib/src/index.ts`)**:
+
+**Type Definitions**:
+
+- `Arguments`: `(string | Arguments)[]` - Core nestable program representation
+- `Command`: Interface with `description` and `run` method
+- `Commands`: `Record<string, Command>` - Command registry type
+- `Assets`: `Record<string, string>` - Asset registry type
+- `IPluginRuntime`: Core runtime interface with plugins, commands, assets, context management
+
+**Command Processing**:
+
+- `commandArgument(runtime, arg, usage, input)` - Standard argument processor (marked "Lazy. Too low-level.
+  Rearchitect.")
+- `runCommandsInContext(runtime, input, program, id, data)` - Execute commands with context stack management
+- `mergeCommands(pluginName, commands[])` - Merge command sets with conflict warnings
+
+**Process Integration**:
+
+- `spawnText(cmd, input, opts)` - Execute external commands with stdin/stdout streaming and timeout support
+- `SpawnOptions`: Configuration for external process execution (args, timeout, shell)
+
+**Stream Processing**:
+
+- `readableToString(readable)` - Convert Readable stream to string using async iteration
+- Type contract: Commands must return `string | Readable`
+
+**Asset Management**:
+
+- `loadAssets(dirname, options?)` - Load all files from directory using glob patterns (marked "Lazy. Optimizable.")
+- `loadModuleAssets(importMetaUrl, options?, subdir)` - Load plugin assets relative to module
+- `resolveAsset(runtime, uri)` - Resolve asset URI (`plugin:`, `file:///`, filesystem paths)
+- `assetGlob(runtime, pattern, options?)` - Filter assets by glob pattern
+
+**Error Handling**:
+
+- `PluginError` - Base plugin error class
+- `PluginRuntimeFailure` - Standard command failure exception
+- `fail(message)` - Throw PluginRuntimeFailure with message
+
+**Logging System**:
+
+- `LogLevel`: `'spam' | 'debug' | 'info' | 'log' | 'warn' | 'error' | 'none'`
+- `LoggingEvent`: Event structure with `source`, `level`, `value`
+- Event system for inter-plugin communication
+
+**Plugin Architecture**:
+
+- `Plugin<E>`: Interface with `name`, `eventListeners?`, `assets?`, `commands?`
+- `getPlugin<T>(runtime, name)` - Type-safe plugin retrieval with error handling
+
+**Creating New Plugins**:
+
+1. Create directory in `packages/` following pattern `@or-q/plugin-name`
+2. Create `package.json` with correct name field
+3. Create `src/index.ts` as main entry point
+4. Export default object conforming to `Plugin` interface
+5. Add commands with `description` and `run` method
+
+**Creating New Commands**:
+
+1. Add entry to `commands` object in plugin's `index.ts`
+2. Key is command name, value has `description` and `run` method
+3. `run` method: async function taking `input`, `args`, `runtime` parameters
+4. Must return `Promise<string | Readable>`
 
 **Testing Approach**:
 

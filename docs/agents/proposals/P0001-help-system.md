@@ -75,32 +75,71 @@ Adding new help and discover commands to other plugins is not in scope of this p
 
 ## Reference Command Output Formats
 
-Illustrative, not normative.
+Illustrative abbreviated references.
+
+> [!NOTE] JSON outputs are pretty-printed here for readability. Implementations should return compact newline-termidated
+> representations.
 
 **`help` command output:**
 
 ```text
 Available Commands:
 
-Core Commands:
+Help Commands:
   help                 Show available help commands
   help-commands        List all commands grouped by plugin
   help-plugins         List all available plugins
+  help-assets          List all available assets with descriptions
 
-Plugin Commands:
-  echo                 Output the input unchanged
-  print                Print input to stdout and pass through
-  ...
+Discovery Commands:
+  discover             List discovery commands as JSON
+  discover-commands    List all commands with full metadata as JSON
+  discover-plugins     List all plugins with metadata as JSON
+  discover-assets      List all assets with metadata as JSON
+
+Core Commands:
+  echo                 replaces input with argument
+  print                prints trimmed argument to stdout, passing input forward
+  tee                  outputs end-trimmed input to stdout, passes it along untrimmed
+  clear                replaces input with empty string
+  input                forwards input (useful for program arguments sometimes)
+  default              if input is empty, replaces it with argument
 ```
 
 **`discover` command output:**
 
 ```json
 [
-  { "name": "help", "description": "Show available help commands", "tags": ["help-command"] },
-  { "name": "discover", "description": "List discovery commands as JSON", "tags": ["discovery-command"] }
-  //...
+  { "name": "discover", "description": "List discovery commands as JSON", "tags": ["discovery-command"] },
+  {
+    "name": "discover-commands",
+    "description": "List all commands with full metadata as JSON",
+    "tags": ["discovery-command"]
+  },
+  { "name": "discover-plugins", "description": "List all plugins with metadata as JSON", "tags": ["discovery-command"] }
 ]
+```
+
+**`help-commands` command output:**
+
+```text
+Commands by Plugin:
+
+@or-q/plugin-core:
+  echo                 replaces input with argument
+  print                prints trimmed argument to stdout, passing input forward
+  tee                  outputs end-trimmed input to stdout, passes it along untrimmed
+  clear                replaces input with empty string
+  ...
+
+@or-q/plugin-fetch:
+  fetch                fetches data from a provided URL, with input as request body
+
+@or-q/plugin-openrouter-api:
+  completions          feeds input to the OpenRouter completions API, requires OPENROUTER_API_KEY env variable
+  conversation         starts or continues a conversation
+  models               replaces input with OpenRouter models list
+  ...
 ```
 
 **`help-plugins` command output:**
@@ -108,30 +147,96 @@ Plugin Commands:
 ```text
 Available Plugins:
 
-@or-q/plugin-core
-  Core functionality and debugging commands
+@or-q/plugin-core            OR-Q Plugin: Core Commands
 
-@or-q/plugin-fetch
-  HTTP request functionality with YAML configuration support
+@or-q/plugin-fetch           OR-Q Plugin: Basic HTTP Support
 
+@or-q/plugin-openrouter-api  OR-Q Plugin: OpenRouter API Integration
 ...
 ```
 
 **`discover-plugins` command output:**
 
-```jsonc
+```json
 [
   {
     "name": "@or-q/plugin-core",
-    "description": "Core functionality and debugging commands",
-    "commands": ["echo", "print", "dump" /*...*/],
-    "assets": [],
+    "description": "OR-Q Plugin: Core Commands",
+    "commands": ["echo", "print", "tee", "clear" /*...*/],
+    "assets": []
   },
+  {
+    "name": "@or-q/plugin-fetch",
+    "description": "OR-Q Plugin: Basic HTTP Support",
+    "commands": ["fetch"],
+    "assets": ["scripts/fetch-openai-instruct.yaml", "scripts/fetch-test.yaml"]
+  }
   // ...
 ]
 ```
 
-TBD all other commands from this proposal.
+**`help-assets` command output:**
+
+```text
+Available Assets:
+
+@or-q/plugin-fetch:
+  scripts/fetch-openai-instruct.yaml    OpenAI-compatible chat completion request macro
+  scripts/fetch-test.yaml               Test script for fetch functionality with Ollama
+
+@or-q/plugin-openrouter-api:
+  scripts/chat.yaml                     Interactive chat session
+  scripts/list-free-models.yaml         List free models from OpenRouter
+  ...
+```
+
+**`discover-assets` command output:**
+
+```json
+[
+  {
+    "name": "scripts/fetch-openai-instruct.yaml",
+    "plugin": "@or-q/plugin-fetch",
+    "description": "OpenAI-compatible chat completion request macro",
+    "path": "plugin:@or-q/plugin-fetch/scripts/fetch-openai-instruct.yaml"
+  },
+  {
+    "name": "scripts/chat.yaml",
+    "plugin": "@or-q/plugin-openrouter-api",
+    "description": "Interactive chat session",
+    "path": "plugin:@or-q/plugin-openrouter-api/scripts/chat.yaml"
+  }
+  // ...
+]
+```
+
+**`help-scripts` command output:**
+
+```text
+Available Scripts:
+
+fetch-openai-instruct        OpenAI-compatible chat completion request macro
+chat                         Interactive chat session
+list-free-models             List free models from OpenRouter
+...
+```
+
+**`help-script "chat"` command output:**
+
+```text
+Script: chat
+Plugin: @or-q/plugin-openrouter-api
+Description: Interactive chat session
+
+Usage: pnpm or-q run chat
+
+Required Plugins:
+  - @or-q/plugin-openrouter-api
+  - @or-q/plugin-store
+
+Environment Variables:
+  - OPENROUTER_API_KEY (required for API access)
+```
 
 ## Other Code Changes
 

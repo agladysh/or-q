@@ -8,6 +8,30 @@ This proposal outlines the implementation of a comprehensive help system for OR-
 `@or-q/plugin-help` package. The design addresses the architectural constraints of the OR-Q pipeline system while
 providing intuitive help functionality for users.
 
+## Motivation
+
+### Why This Approach
+
+OR-Q's current help situation is problematic:
+
+1. **User Onboarding**: New users cannot discover available functionality
+2. **Plugin Discovery**: No way to understand what plugins provide
+3. **Script Visibility**: YAML scripts are invisible without prior knowledge
+4. **Developer Experience**: Plugin authors have no standard way to expose help
+5. **Architectural Debt**: Core runtime has a "Lazy" usage() method that needs removal
+
+### Why Not Optional Arguments
+
+The ideal solution would be `help [command]` syntax, but OR-Q's sequential argument consumption (`args.shift()`) makes
+optional arguments architecturally impossible. Commands cannot peek ahead without consuming arguments.
+
+### Why Plugin-Based
+
+- **Modularity**: Help system doesn't bloat core runtime
+- **Extensibility**: Plugins can contribute their own discovery commands
+- **Maintenance**: Help logic separated from core pipeline execution
+- **Dependency Management**: Can be added as a core dependency to solve chicken-and-egg problems
+
 ## Background
 
 ### Current State
@@ -20,39 +44,43 @@ lists available commands. Users have no way to:
 - Discover available YAML scripts
 - Access comprehensive system documentation
 
-### Architectural Discovery
-
-During analysis, we discovered a fundamental constraint in OR-Q's pipeline architecture: **optional arguments are
-generally impossible** due to the sequential consumption model where commands use `args.shift()` to consume arguments
-destructively.
-
-However, we identified a limited workaround: **command name collision detection**. Commands can peek at `args[0]` and
-check `!(args[0] in runtime.commands)` to implement pseudo-optional arguments, but this only works when the optional
-argument values don't conflict with command names.
-
-For help commands like `help <command-name>`, this workaround fails because the argument IS a valid command name, making
-collision detection ineffective.
-
 ## Design Principles
 
-### 1. Explicit Command Structure
+### 1. Programmatic Content Generation
+
+All help commands are programmatic, using existing content:
+
+- **Plugin metadata**: `pkg.name`, `pkg.description` from package.json
+- **Command descriptions**: Already present in command definitions
+- **Runtime state**: Available plugins, commands, assets from runtime
+- **No duplication**: No separate help content to maintain
+
+### 2. Explicit Command Structure
 
 Instead of fighting the architectural constraints, we embrace them by creating explicit, discoverable command names:
 
-- `help-command <command-name>` - Help for specific commands
-- `help-plugin <plugin-name>` - Help for specific plugins
-- `help-script <script-name>` - Help for specific scripts (from yaml-script plugin)
-- `help-commands` - List all commands
-- `help-plugins` - List all plugins
-- `help-scripts` - List all scripts (from yaml-script plugin)
+- `help` - System overview with plugin descriptions and available help commands
+- `help-<plugin-name>` - Plugin-specific help (each plugin can export these)
+- `discover-commands` - All commands with optional tags for categorization
+- `discover-plugins` - Plugin metadata in JSON format
+- `discover-scripts` - YAML scripts discovery (from yaml-script plugin)
 
-### 2. Separation of Concerns
+### 3. Enhanced Command Metadata
 
-- **Human-readable help**: `help-*` commands provide formatted, user-friendly output
-- **Machine-readable data**: `show-*` commands provide structured data for programmatic use
-- **Plugin-specific help**: Each plugin can contribute help content for its own commands
+Commands get an optional `tags` array for flexible categorization. Tags recognized by the help and discovery systems:
 
-### 3. CLI Integration
+- `help-command`: Commands that provide help functionality
+- `discover-command`: Commands that provide discovery/metadata functionality
+
+Plugins can use additional domain-specific tags as needed.
+
+### 4. Separation of Concerns
+
+- **Human-readable help**: `help` and `help-*` commands provide formatted, user-friendly output
+- **Machine-readable data**: `discover-*` commands provide structured data for programmatic use
+- **Plugin-extensible**: Each plugin can export its own help and discovery commands
+
+### 5. CLI Integration
 
 When OR-Q is invoked with no arguments:
 
@@ -66,77 +94,51 @@ When OR-Q is invoked with no arguments:
 
 #### `help`
 
-**Description**: Shows comprehensive system overview **Arguments**: None **Output**:
+**Description**: Shows system overview **Arguments**: None **Output**:
 
-- OR-Q version and description
-- Quick start guide
-- Available help commands
-- Installation instructions for additional plugins
+- Plugin list with `pkg.name` and `pkg.description`
+- Available help commands (`help-<plugin-name>`, `discover-*`)
+- Basic usage guidance
+- Kept concise to avoid information overload
 
-#### `help-command <command-name>`
+#### `help-<plugin-name>`
 
-**Description**: Shows detailed help for a specific command **Arguments**:
+**Description**: Plugin-specific help commands (exported by individual plugins) **Arguments**: None **Output**:
 
-- `command-name` (required): Name of the command to get help for **Output**:
-- Command description
-- Usage syntax
-- Examples (if available)
-- Plugin source
-- Related commands
+- Commands provided by that plugin with descriptions
+- Plugin-specific usage notes
+- Examples relevant to the plugin
 
-#### `help-plugin <plugin-name>`
+**Implementation**: Each plugin optionally exports these commands using existing command descriptions and plugin
+metadata.
 
-**Description**: Shows detailed help for a specific plugin **Arguments**:
+### Discovery Commands
 
-- `plugin-name` (required): Name of the plugin to get help for **Output**:
-- Plugin description and version
-- All commands provided by the plugin
-- Available assets
-- Installation/configuration notes
+#### `discover-commands`
 
-#### `help-script <script-name>`
+**Description**: Lists all available commands with metadata **Arguments**: None **Output**: JSON structure with:
 
-**Description**: Shows help for a specific YAML script (provided by yaml-script plugin) **Arguments**:
+- Command names, descriptions, and tags
+- Source plugin for each command
+- Complete command metadata for tooling integration
 
-- `script-name` (required): Name of the script to get help for **Output**:
-- Script description (from YAML metadata)
+#### `discover-plugins`
+
+**Description**: Lists all installed plugins **Arguments**: None **Output**: JSON structure with:
+
+- Plugin names, versions, and descriptions
+- Commands provided by each plugin
+- Plugin metadata for tooling integration
+
+#### `discover-scripts`
+
+**Description**: Lists all available YAML scripts **Arguments**: None **Output**: JSON structure with:
+
+- Script names and descriptions
 - Required plugins
-- Usage examples
-- Parameter documentation
+- Script metadata for tooling integration
 
-### List Commands
-
-#### `help-commands`
-
-**Description**: Lists all available commands grouped by plugin **Arguments**: None **Output**: Formatted list of all
-commands with brief descriptions
-
-#### `help-plugins`
-
-**Description**: Lists all installed plugins **Arguments**: None **Output**: List of plugins with versions and brief
-descriptions
-
-#### `help-scripts`
-
-**Description**: Lists all available YAML scripts (provided by yaml-script plugin) **Arguments**: None **Output**: List
-of scripts with brief descriptions
-
-### Machine-Readable Commands
-
-#### `show-commands`
-
-**Description**: Outputs command data in JSON format **Arguments**: None **Output**: JSON structure with complete
-command metadata
-
-#### `show-plugins`
-
-**Description**: Outputs plugin data in JSON format **Arguments**: None **Output**: JSON structure with complete plugin
-metadata
-
-#### `show-scripts`
-
-**Description**: Outputs script data in JSON format (provided by yaml-script plugin) **Arguments**: None **Output**:
-JSON structure with complete script metadata
+**Plugin-Extensible**: Plugins can export their own `discover-*` commands for specialized discovery needs.
 
 ## Implementation Plan
 
@@ -148,9 +150,9 @@ JSON structure with complete script metadata
    - Integration with existing plugin system
 
 2. **Implement basic help commands**
-   - `help` - comprehensive overview
-   - `help-command` - individual command help
-   - `help-commands` - command listing
+   - `help` - system overview with plugin descriptions
+   - `discover-commands` - all commands with tags
+   - Add `@or-q/plugin-help` as core dependency to CLI package
 
 3. **CLI integration**
    - Modify `packages/cli/src/main.ts` to check for help command
@@ -160,92 +162,41 @@ JSON structure with complete script metadata
 ### Phase 2: Plugin Integration
 
 1. **Plugin-specific help**
-   - `help-plugin` command implementation
-   - `help-plugins` listing command
-   - Integration with plugin metadata
+   - Enable plugins to export `help-<plugin-name>` commands
+   - `discover-plugins` implementation
+   - Integration with plugin metadata and package.json
 
-2. **Machine-readable commands**
-   - `show-commands` JSON output
-   - `show-plugins` JSON output
-   - Replace existing `list-*` commands
+2. **Command metadata enhancement**
+   - Add optional `tags: string[]` field to Command interface
+   - Update existing plugins to include relevant tags
+   - Enhance `discover-commands` to support tag-based categorization
 
 ### Phase 3: Script Integration
 
-1. **YAML script help** (implemented in yaml-script plugin)
-   - `help-script` command implementation
-   - `help-scripts` listing command
-   - `show-scripts` JSON output
+1. **YAML script discovery** (implemented in yaml-script plugin)
+   - `discover-scripts` JSON output
    - Script metadata parsing from YAML files
+   - Integration with existing asset system
 
 ### Phase 4: Command Cleanup
 
 1. **Triage existing commands**
-   - `list-plugins` → `show-plugins`
-   - `list-assets` → `show-assets`
-   - Remove redundant `*-json` commands
+   - `list-plugins` → `discover-plugins`
+   - Evaluate and potentially migrate other `list-*` commands
+   - Remove redundant commands
    - Update documentation
 
 ## Technical Implementation Details
 
-### Plugin Structure
+### Plugin Interface Updates
 
-```typescript
-// packages/plugin-help/src/index.ts
-import { Plugin, Commands } from '@or-q/lib';
-import pkg from '../package.json' with { type: 'json' };
+**Enhanced Plugin Interface**: Add `description` field alongside existing `name` field
 
-const commands: Commands = {
-  help: {
-    description: 'shows comprehensive OR-Q help and usage information',
-    run: async (input, args, runtime) => {
-      return generateComprehensiveHelp(runtime);
-    },
-  },
+**Enhanced Command Interface**: Add optional `tags: string[]` field for categorization
 
-  'help-command': {
-    description: 'shows detailed help for a specific command',
-    run: async (input, args, runtime) => {
-      const commandName = await commandArgument(runtime, args.shift(), 'usage: help-command "<command-name>"');
-      return generateCommandHelp(runtime, commandName);
-    },
-  },
+**CLI Integration**: Check for `help` command existence and execute on no-arguments invocation
 
-  // ... other commands
-};
-
-const plugin: Plugin = {
-  name: pkg.name,
-  commands,
-};
-
-export default plugin;
-```
-
-### CLI Integration
-
-```typescript
-// packages/cli/src/main.ts - modification
-if (args.length === 0) {
-  if ('help' in runtime.commands) {
-    const helpOutput = await runtime.runCommands('', ['help']);
-    process.stdout.write(await readableToString(helpOutput));
-  } else {
-    process.stdout.write('OR-Q (OpenRouter Query) - Plugin-based CLI tool\n\n');
-    process.stdout.write('No arguments provided. For comprehensive help, install:\n');
-    process.stdout.write('  npm install @or-q/plugin-help\n');
-    process.stdout.write('Then run: or-q help\n\n');
-    process.stdout.write(`Available commands: ${runtime.commandNames.join(', ')}\n`);
-  }
-  return;
-}
-```
-
-### Core Runtime Cleanup
-
-```typescript
-// Remove from packages/core/src/index.ts
-// Delete the usage() method and its interface declaration
-```
+**Core Runtime Cleanup**: Remove "Lazy" `usage()` method from core runtime
 
 ## Benefits
 
@@ -317,11 +268,11 @@ if (args.length === 0) {
 
 ### Risk: Plugin Dependency Issues
 
-**Mitigation**: Make help plugin optional with graceful fallbacks
+**Mitigation**: Add help plugin as core dependency to CLI package, ensuring it's always available
 
 ### Risk: Maintenance Overhead
 
-**Mitigation**: Automated help generation from plugin metadata where possible
+**Mitigation**: All help content is programmatically generated from existing metadata - no separate content to maintain
 
 ## Success Criteria
 

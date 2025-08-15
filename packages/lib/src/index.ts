@@ -78,7 +78,7 @@ export type RuntimeCloneChildEventListener = IPluginRuntimeEventListener<Runtime
 export interface Plugin<E extends IPluginRuntimeEvent = IPluginRuntimeEvent> {
   name: string;
   eventListeners?: IPluginRuntimeEventListeners<E>;
-  assets?: Commands;
+  assets?: Assets;
   commands?: Commands;
 }
 

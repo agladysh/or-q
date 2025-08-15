@@ -19,9 +19,9 @@ All help commands replace input with their output.
 - `help-commands-by-tag "<tag>"`: List all commands with a tag. Tag is arbitrary.
 - `help-command "<command>"`: Prints command description and usage string (TBD: plan how to refactor the usage string to
   a parameter)
-- `help-plugins`: TBD
-- `help-plugin "<plugin.name>"`: TBD
-- `help-assets`: TBD
+- `help-plugins`: Lists all available plugins with their descriptions, sorted alphabetically
+- `help-plugin "<plugin.name>"`: Shows detailed information about a specific plugin including its commands and assets
+- `help-assets`: Lists all available assets (YAML scripts and other files) with their descriptions and plugin sources
 
 Note that `help-asset` currently makes no sense, as there is no additional information to display
 
@@ -29,10 +29,10 @@ Note that `help-asset` currently makes no sense, as there is no additional infor
 
 - `discover`: Replaces input with JSON array of all commands with `discovery-command` tag in the form:
   `{"name":"command","description":"command description"}`
-- `discover-commands`: TBD list of all commands, full entries (TBD: plan how to refactor the usage string to a
-  parameter)
-- `discover-plugins`: TBD
-- `discover-assets`: TBD
+- `discover-commands`: Returns JSON array of all commands with full metadata including description, usage, tags, and
+  plugin source
+- `discover-plugins`: Returns JSON array of all plugins with their metadata, commands, and assets
+- `discover-assets`: Returns JSON array of all assets with their metadata, content paths, and plugin sources
 
 Note filtration commands are redundant, users may filter themselves arbitrarily with `jp`.
 
@@ -40,17 +40,34 @@ Note filtration commands are redundant, users may filter themselves arbitrarily 
 
 Support optional `description` field on assets to show in help
 
-- `help-scripts`: TBD
-- `help-script "<script>"`: TBD
-- `discover-scripts`: TBD
+- `help-scripts`: Lists all available YAML scripts with their descriptions and usage information
+- `help-script "<script>"`: Shows detailed help for a specific script including description, required plugins, and
+  parameters
+- `discover-scripts`: Returns JSON array of all YAML scripts with their metadata, requirements, and command structures
 - `discover-script "<script>"`: displays full script YAML
 
 ### Other Plugins
 
 #### Legacy Help-like Command Elimination
 
-TBD. Identify `dump`, `list`, `*json*` and similar commands which essentially are `help` and `discover`, describe here
-how they should be _replaced_. Note that not all commands with same naming conventions are help- or discover- like.
+The following existing commands should be replaced by the new help/discover system:
+
+**Commands to Replace with `help-*`** (stdout + pass-through pattern):
+
+- `list-plugins` → `help-plugins`
+- `list-assets` → `help-assets`
+- `list-script-assets` → `help-scripts`
+
+**Commands to Replace with `discover-*`** (JSON output pattern):
+
+- `plugins-json` → `discover-plugins`
+- `dump-macros` → `discover-macros` (plugin-specific)
+- `dump-store` → `discover-store` (plugin-specific)
+
+**Commands to Keep** (not help/discover related):
+
+- `dump` (debugging tool for program arguments)
+- Commands with similar names but different purposes
 
 #### Help and Discover Commands
 
@@ -60,7 +77,61 @@ Adding new help and discover commands to other plugins is not in scope of this p
 
 Illustrative, not normative.
 
-TBD, illustrative abbreviated outputs example for each command based on actual existing code.
+**`help` command output:**
+
+```text
+Available Commands:
+
+Core Commands:
+  help                 Show available help commands
+  help-commands        List all commands grouped by plugin
+  help-plugins         List all available plugins
+
+Plugin Commands:
+  echo                 Output the input unchanged
+  print                Print input to stdout and pass through
+  ...
+```
+
+**`discover` command output:**
+
+```json
+[
+  { "name": "help", "description": "Show available help commands", "tags": ["help-command"] },
+  { "name": "discover", "description": "List discovery commands as JSON", "tags": ["discovery-command"] }
+  //...
+]
+```
+
+**`help-plugins` command output:**
+
+```text
+Available Plugins:
+
+@or-q/plugin-core
+  Core functionality and debugging commands
+
+@or-q/plugin-fetch
+  HTTP request functionality with YAML configuration support
+
+...
+```
+
+**`discover-plugins` command output:**
+
+```jsonc
+[
+  {
+    "name": "@or-q/plugin-core",
+    "description": "Core functionality and debugging commands",
+    "commands": ["echo", "print", "dump" /*...*/],
+    "assets": [],
+  },
+  // ...
+]
+```
+
+TBD all other commands from this proposal.
 
 ## Other Code Changes
 
@@ -111,6 +182,10 @@ When OR-Q is invoked with no arguments:
 3. If yes, execute it on general principles
 4. If no, show a generic fallback message: `help command not available, install the @or-q/plugin-help npm package`
 
+## Implementation Strategy
+
+TBD
+
 ## Motivation
 
 ### Why This Approach
@@ -123,19 +198,15 @@ OR-Q's current help situation is problematic:
 4. **Developer Experience**: Plugin authors have no standard way to expose help
 5. **Architectural Debt**: It is best to introduce breaking changes early
 
-### Why Not Optional Arguments
-
-The ideal solution would be `help [command]` syntax, but OR-Q's sequential argument consumption (`args.shift()`) makes
-optional arguments architecturally impossible. Commands cannot peek ahead without consuming arguments.
-
 ### Why Not Hierarchical Commands
 
 A seemingly elegant alternative would be `help commands`, `help plugins`, etc. However, this is architecturally
-impossible due to OR-Q's stack-based argument consumption:
+impossible due to the way OR-Q's stack-based argument consumption is currently implemented:
 
 The `help` command cannot determine if `commands` is an argument for the help command (e.g., "show me help about
 commands") or a legitimate command name that should be left for the next pipeline stage.
 
-## Implementation Notes
+## Future Work
 
-TBD Derive from [codebase.md](../codebase.md)
+After planned switch to the CS-correct program form, `help` command may become porcelain for other
+`help-command-plumbing` commands, supporting the elegant alternative above.

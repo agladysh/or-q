@@ -1,4 +1,4 @@
-# P0001: Help Plugin Implementation
+# P0001: Help System
 
 Status: **DRAFT**
 
@@ -7,67 +7,6 @@ Status: **DRAFT**
 ## Summary
 
 This proposal outlines the implementation of a comprehensive help system for OR-Q.
-
-## Motivation
-
-### Why This Approach
-
-OR-Q's current help situation is problematic:
-
-1. **User Onboarding**: New users cannot discover available functionality
-2. **Plugin Discovery**: No way to understand what plugins provide
-3. **Script Visibility**: YAML scripts are invisible without prior knowledge
-4. **Developer Experience**: Plugin authors have no standard way to expose help
-5. **Architectural Debt**: It is best to introduce breaking changes early
-
-### Why Not Optional Arguments
-
-The ideal solution would be `help [command]` syntax, but OR-Q's sequential argument consumption (`args.shift()`) makes
-optional arguments architecturally impossible. Commands cannot peek ahead without consuming arguments.
-
-### Why Not Hierarchical Commands
-
-A seemingly elegant alternative would be `help commands`, `help plugins`, etc. However, this is architecturally
-impossible due to OR-Q's stack-based argument consumption:
-
-The `help` command cannot determine if `commands` is an argument for the help command (e.g., "show me help about
-commands") or a legitimate command name that should be left for the next pipeline stage.
-
-## Design Principles
-
-### 1. Programmatic Content Generation
-
-All help commands are programmatic, using existing content:
-
-- **Plugin metadata**: `Plugin.name` (existing) and `Plugin.description` (new field, re-export from Plugin's
-  `package.json`)
-- **Command descriptions**: Already present in command definitions
-- **Runtime state**: Available plugins, commands, assets from runtime
-- **No duplication**: No separate help content to maintain
-
-### 2. Enhanced Command Metadata
-
-Commands get an optional `tags` array for flexible categorization. Tags recognized by the help and discovery systems:
-
-- `help-command`: Commands that provide help functionality
-- `discovery-command`: Commands that provide discovery/metadata functionality
-
-Plugins can use additional domain-specific tags as needed.
-
-### 3. Separation of Concerns
-
-- **Human-readable help**: `help` and `help-*` commands provide formatted, user-friendly output
-- **Machine-readable data**: `discover` and `discover-*` commands provide structured data for programmatic use
-- **Plugin-extensible**: Each plugin may export its own help and/or discovery commands
-
-### 4. CLI Integration
-
-When OR-Q is invoked with no arguments:
-
-1. Output brief standard cli usage header
-2. Check if `help` command exists in the runtime
-3. If yes, execute it on general principles
-4. If no, show a generic fallback message: `help command not available, install the @or-q/plugin-help npm package`
 
 ## Commands
 
@@ -135,6 +74,67 @@ Non-exhaustive:
 - Add appropriate lookup dictionaries to `PluginRuntime` class
 - export `tagHelpCommand` constant from `@or-q/plugin-help` and use it in help command definitions
 - export `tagDiscoverCommand` constant from `@or-q/plugin-discover` and use it in discover command definitions
+
+## Design Principles
+
+### 1. Programmatic Content Generation
+
+All help commands are programmatic, using existing content:
+
+- **Plugin metadata**: `Plugin.name` (existing) and `Plugin.description` (new field, re-export from Plugin's
+  `package.json`)
+- **Command descriptions**: Already present in command definitions
+- **Runtime state**: Available plugins, commands, assets from runtime
+- **No duplication**: No separate help content to maintain
+
+### 2. Enhanced Command Metadata
+
+Commands get an optional `tags` array for flexible categorization. Tags recognized by the help and discovery systems:
+
+- `help-command`: Commands that provide help functionality
+- `discovery-command`: Commands that provide discovery/metadata functionality
+
+Plugins can use additional domain-specific tags as needed.
+
+### 3. Separation of Concerns
+
+- **Human-readable help**: `help` and `help-*` commands provide formatted, user-friendly output
+- **Machine-readable data**: `discover` and `discover-*` commands provide structured data for programmatic use
+- **Plugin-extensible**: Each plugin may export its own help and/or discovery commands
+
+### 4. CLI Integration
+
+When OR-Q is invoked with no arguments:
+
+1. Output brief standard cli usage header
+2. Check if `help` command exists in the runtime
+3. If yes, execute it on general principles
+4. If no, show a generic fallback message: `help command not available, install the @or-q/plugin-help npm package`
+
+## Motivation
+
+### Why This Approach
+
+OR-Q's current help situation is problematic:
+
+1. **User Onboarding**: New users cannot discover available functionality
+2. **Plugin Discovery**: No way to understand what plugins provide
+3. **Script Visibility**: YAML scripts are invisible without prior knowledge
+4. **Developer Experience**: Plugin authors have no standard way to expose help
+5. **Architectural Debt**: It is best to introduce breaking changes early
+
+### Why Not Optional Arguments
+
+The ideal solution would be `help [command]` syntax, but OR-Q's sequential argument consumption (`args.shift()`) makes
+optional arguments architecturally impossible. Commands cannot peek ahead without consuming arguments.
+
+### Why Not Hierarchical Commands
+
+A seemingly elegant alternative would be `help commands`, `help plugins`, etc. However, this is architecturally
+impossible due to OR-Q's stack-based argument consumption:
+
+The `help` command cannot determine if `commands` is an argument for the help command (e.g., "show me help about
+commands") or a legitimate command name that should be left for the next pipeline stage.
 
 ## Implementation Notes
 

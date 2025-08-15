@@ -237,21 +237,6 @@ Environment Variables:
   - OPENROUTER_API_KEY (required for API access)
 ```
 
-## Other Code Changes
-
-Non-exhaustive:
-
-- Remove `IPluginRuntime.usage()`
-- Add `@or-q/cli` dependency on `@or-q/help`
-- Add mandatory `description` field on Plugin, and refactor all plugins to expose pkg.description sans `OR-Q Plugin:`
-  through it
-- Add `description: pkg.description` to every plugin `index.ts`
-- Add optional `tags` field on Command as array of strings
-- Add mandatory `usage` field on Command, and refactor all commands to expose it
-- Add appropriate lookup dictionaries to `PluginRuntime` class
-- export `tagHelpCommand` constant from `@or-q/plugin-help` and use it in help command definitions
-- export `tagDiscoverCommand` constant from `@or-q/plugin-discover` and use it in discover command definitions
-
 ## Design Principles
 
 ### 1. Programmatic Content Generation
@@ -288,12 +273,6 @@ When OR-Q is invoked with no arguments:
 3. If yes, execute it on general principles
 4. If no, show a generic fallback message: `help command not available, install the @or-q/plugin-help npm package`
 
-## Implementation Strategy
-
-TBD
-
-(TBD: also plan how to refactor the usage string to a parameter)
-
 ## Motivation
 
 ### Why This Approach
@@ -318,3 +297,70 @@ commands") or a legitimate command name that should be left for the next pipelin
 
 After planned switch to the CS-correct program form, `help` command may become porcelain for other
 `help-command-plumbing` commands, supporting the elegant alternative above.
+
+## Code Impact Remarks
+
+Non-exhaustive assessment.
+
+### Core
+
+- Remove `IPluginRuntime.usage()`
+- Add mandatory `description` field on Plugin, and refactor all plugins to expose pkg.description sans `OR-Q Plugin:`
+  through it
+- Add `description: pkg.description` to every plugin `index.ts`
+- Add optional `tags` field on Command as array of strings
+- Add mandatory `usage` field on Command, and refactor all commands to expose it
+- Add appropriate lookup dictionaries to `PluginRuntime` class
+
+### New Plugins
+
+- Add `@or-q/cli` dependency on `@or-q/help`
+- export `tagHelpCommand` constant from `@or-q/plugin-help` and use it in help command definitions
+- export `tagDiscoverCommand` constant from `@or-q/plugin-discover` and use it in discover command definitions
+
+### Command Usage Refactoring
+
+The main challenge of the Proposal is to address implicit technical debt of the command `usage`, which is currently
+hardcoded in `Command.run()` implementations without violating DRY on usage text, given that the core as written now
+does not currently "know" which command is being executed.
+
+We address that by sidestepping the problem and improving the code layout at the same time, while incidentally ticking a
+couple of pre-existing `TODO.md` items:
+
+1. Reorganize code of each plugin:
+   - The `src/index.ts` is the plugin definition, commands are defined in other files. Reference:
+     [@or-q/plugin-core/index.ts](../../../packages/plugin-core/src/index.ts)
+
+   - One file per command, commands are in `src/commmands/`.
+
+   - If a plugin already had commands in separate files (e.g. `src/debug.ts`), place commands from it as files in a
+     subdirectory (e.g. `src/debug/dump.ts`).
+
+2. Define `usage` string as a contant in outer scope of a command implementation file.
+
+Pros:
+
+- Much better command list and command source discoverability
+- `usage` is written once, and then referenced both in `run` and in `Command.usage`
+
+Cons:
+
+- Unwieldy `index.ts` barrel-like files, which is acceptable.
+
+## Testing Strategy
+
+Manual smoke tests.
+
+Write dumb `test-<commmand>.yaml` scripts for each command.
+
+Run the script, study the output.
+
+## Proposal Implementation Strategy
+
+Recommendations
+
+1. TBD
+
+### Future work
+
+The scripts will later become a basis for initial test suites.

@@ -19,6 +19,7 @@ Keep sections in decreasing order of priority.
 - [ ] Forbid console.\* in eslint, emit logging events instead.
 - [ ] Split @or-q/lib/index.ts to files
 - [ ] Cleanup random files in plugin-openrouter-api/assets/scripts by moving them to `.or-q/asset/scripts`
+- [ ] Whenever JSON is put to input: do not pretty-print it, but append a trailing newline
 
 ## Testing
 

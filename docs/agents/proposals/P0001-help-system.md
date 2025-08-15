@@ -362,8 +362,45 @@ Run the script, study the output.
 
 The scripts will later become a basis for initial test suites.
 
-## Proposal Implementation Strategy
+## Implementation Strategy
 
-Recommendations
+### What needs to be done
 
-1. TBD
+Non-exhaustive
+
+1. Core Interface Enhancements
+   - Enhance Command interface with mandatory tags and usage fields
+   - Add mandatory description field to Plugin interface
+   - Remove `IPluginRuntime.usage()` method entirely
+   - Update all existing commands and plugins to include these fields
+
+2. Code Reorganization
+   - Move all commands to `src/commands/` directories with one file per command
+   - Define usage string as a constant in each command file
+   - Add appropriate tags to all commands
+   - Smoke test each command after reorganization to ensure functionality
+   - Plugin Implementation
+
+3. Create both `@or-q/plugin-help` and @`or-q/plugin-discover` simultaneously
+   - Implement all commands specified in the proposal
+   - Export tag constants (`tagHelpCommand`, `tagDiscoverCommand`) from respective plugins
+   - Add `@or-q/cli` dependency on `@or-q/plugin-help`
+   - Update CLI to use help command when invoked with no arguments
+   - YAML Script Enhancements
+
+4. Add support for description field in YAML scripts
+   - Implement script-specific help and discover commands
+   - Update all existing scripts with descriptions
+
+5. Legacy Command Removal
+   - Remove all legacy commands (`list-plugins`, `plugins-json`, etc.)
+   - Update any references to use new command patterns
+
+6. Testing
+   - Write `test-<command>.yaml` scripts for each new command
+   - Perform manual smoke tests for all commands
+   - Verify output formats match specifications
+
+### Plan
+
+TBD

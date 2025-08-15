@@ -356,12 +356,14 @@ Write dumb `test-<commmand>.yaml` scripts for each command.
 
 Run the script, study the output.
 
+### Future work
+
+`Command Usage Refactoring` implies smoke tests for all commands.
+
+The scripts will later become a basis for initial test suites.
+
 ## Proposal Implementation Strategy
 
 Recommendations
 
 1. TBD
-
-### Future work
-
-The scripts will later become a basis for initial test suites.

@@ -452,3 +452,166 @@ testing** - Write test scripts for all commands
 - **Phases 4-5 require Phase 3 completion**
 
 This approach follows the principle of "make the change easy, then make the easy change."
+
+## Comprehensive Implementation Plan
+
+### Current Status (Phases 1-2 Complete ✅)
+
+- Enhanced Command and Plugin interfaces with optional tags/usage/description fields
+- Created @or-q/plugin-help and @or-q/plugin-discover packages with all required commands
+- Removed legacy IPluginRuntime.usage() method
+
+### Complete Command Inventory
+
+#### Command Distribution by Plugin
+
+1. **@or-q/plugin-core**: 27 commands (40%) - **Needs reorganization to src/commands/**
+   - assets.ts: list-assets, cat → `src/commands/assets/list-assets.ts`, `src/commands/assets/cat.ts`
+   - debug.ts: dump → `src/commands/debug/dump.ts`
+   - error.ts: fail → `src/commands/fail.ts`
+   - formats.ts: tsv → `src/commands/formats/tsv.ts`
+   - functional.ts: head, map, map-n, parallel-map-n → `src/commands/functional/` directory
+   - input.ts: prepend, append → `src/commands/input/` directory
+   - io.ts: -, print, tee, input, echo, default, clear, readline → `src/commands/io/` directory
+   - log.ts: spam, debug, info, log, warn, error, none → `src/commands/log/` directory
+   - plugins.ts: list-plugins, plugins-json → `src/commands/plugins/` directory
+   - string.ts: unquote, quote, replace, trim, trimStart, trimEnd → `src/commands/string/` directory
+
+2. **@or-q/plugin-openrouter-api**: 7 commands (10%) - **Needs reorganization to src/commands/**
+   - completions.ts: completions → `src/commands/completions.ts`
+   - conversation.ts: conversation, system, user, assistant, tool, temperature → `src/commands/conversation/` directory
+   - models.ts: models → `src/commands/models.ts`
+
+3. **@or-q/plugin-filesystem**: 7 commands (10%) - **Needs reorganization to src/commands/**
+   - file.ts: cat-file, file → `src/commands/file/` directory
+   - dirtree.ts: dirtree-json, dirtree-annotated-json, dirtree → `src/commands/dirtree/` directory
+   - glob.ts: glob, glob3 → `src/commands/glob/` directory
+   - ignore.ts: ignore → `src/commands/ignore.ts`
+
+4. **@or-q/plugin-fetch**: 1 command (1%) - **Needs reorganization to src/commands/**
+   - fetch.ts: fetch → `src/commands/fetch.ts`
+
+5. **@or-q/plugin-ollama**: 3 commands (4%) - **Needs reorganization to src/commands/**
+   - ollama.ts: ollama-generate, ollama-chat → `src/commands/ollama/` directory
+   - openai.ts: ollama → `src/commands/ollama-openai.ts`
+
+6. **@or-q/plugin-yaml-script**: 6 commands (9%) - **Needs reorganization to src/commands/**
+   - All in index.ts: exec, list-script-assets, run, forever, \_DATA, \_JSON → separate files
+
+7. **@or-q/plugin-store**: 5 commands (7%) - **Needs reorganization to src/commands/**
+   - All in index.ts: load, save, set, setdata, dump-store → separate files
+
+8. **@or-q/plugin-macro**: 4 commands (6%) - **Needs reorganization to src/commands/**
+   - All in index.ts: $defmacro, $macro, $arg, dump-macros → separate files
+
+9. **@or-q/plugin-template**: 3 commands (4%) - **Needs reorganization to src/commands/**
+   - All in index.ts: t, f, render → separate files
+
+10. **@or-q/plugin-format**: 2 commands (3%) - **Needs reorganization to src/commands/**
+    - All in index.ts: pretty, yaml → separate files
+
+11. **@or-q/plugin-jp**: 1 command (1%) - **Needs reorganization to src/commands/**
+    - index.ts: jp → `src/commands/jp.ts`
+
+12. **@or-q/plugin-shell**: 1 command (1%) - **Needs reorganization to src/commands/**
+    - index.ts: shell → `src/commands/shell.ts`
+
+13. **@or-q/plugin-stdio-logger**: 1 command (1%) - **Needs reorganization to src/commands/**
+    - index.ts: stdio-loglevel → `src/commands/stdio-loglevel.ts`
+
+#### Current Metadata Status
+
+- **Commands with usage strings**: 32 (47%) - Need to extract to constants
+- **Commands without usage strings**: 36 (53%) - Need usage added
+- **Commands with tags**: 0 (0%) - All need appropriate tags
+- **Commands with descriptions**: 68 (100%) - All have descriptions
+
+### Remaining Work: ~150+ Tasks
+
+#### Phase 3: Plugin Reorganization (All plugins need src/commands/ structure)
+
+**Large Multi-Category Plugins (27+ commands each):**
+
+- **plugin-core**: 27 commands across 9 categories → src/commands/ with category subdirectories
+
+**Medium Multi-Category Plugins (3-7 commands):**
+
+- **plugin-openrouter-api**: 7 commands → src/commands/ with conversation/ subdirectory
+- **plugin-filesystem**: 7 commands → src/commands/ with file/, dirtree/, glob/ subdirectories
+- **plugin-yaml-script**: 6 commands → src/commands/ individual files
+- **plugin-store**: 5 commands → src/commands/ individual files
+- **plugin-macro**: 4 commands → src/commands/ individual files
+- **plugin-template**: 3 commands → src/commands/ individual files
+- **plugin-ollama**: 3 commands → src/commands/ with ollama/ subdirectory
+
+**Small Single-Category Plugins (1-2 commands):**
+
+- **plugin-format**: 2 commands → src/commands/ individual files
+- **plugin-fetch**: 1 command → src/commands/fetch.ts
+- **plugin-jp**: 1 command → src/commands/jp.ts
+- **plugin-shell**: 1 command → src/commands/shell.ts
+- **plugin-stdio-logger**: 1 command → src/commands/stdio-loglevel.ts
+
+**Each plugin requires:**
+
+1. Create src/commands/ directory structure
+2. Move commands to individual files (one command per file)
+3. Add usage constants to each command file
+4. Add appropriate tags to each command
+5. Update main index.ts to import from commands/ and add description
+6. Ensure all commands have proper metadata
+
+#### Phase 4: Testing & Validation (24 tasks)
+
+**Smoke Test Creation:**
+
+- **Help/Discover commands**: 13 test scripts for new help system commands
+- **All existing commands**: 10 task groups covering all 68 commands across all plugins
+- **System validation**: 1 comprehensive validation task
+
+**Test Script Structure:** Each command gets a `test-<command>.yaml` script in the plugin's `assets/scripts/` directory
+following this pattern:
+
+```yaml
+description: Smoke test for <command> command
+commands:
+  - echo "test input"
+  - <command> [args]
+  - tee
+```
+
+#### Phase 5: Integration & Cleanup (6 tasks)
+
+**YAML Script Enhancements:**
+
+- Add description field support to YAML scripts
+- Add help-scripts, help-script, discover-scripts, discover-script commands
+
+**Legacy Command Removal:**
+
+- Remove list-plugins → help-plugins
+- Remove list-assets → help-assets
+- Remove list-script-assets → help-scripts
+- Remove plugins-json → discover-plugins
+- Remove dump-macros → discover-macros
+- Remove dump-store → discover-store
+
+**CLI Integration:**
+
+- Add @or-q/plugin-help dependency to CLI
+- Update CLI to check for help command existence and execute it
+- Add both plugins to workspace dependencies
+- Run pnpm install
+
+### Implementation Priority Order
+
+1. **Complete plugin-core updates** (highest impact, 40% of commands)
+2. **Plugin reorganizations** (structural changes)
+3. **Add descriptions to already-organized plugins**
+4. **Create smoke tests** (validation)
+5. **YAML script enhancements**
+6. **Legacy command removal** (breaking changes last)
+7. **Final integration and testing**
+
+This comprehensive plan ensures all 68 commands across 13 plugins will be properly documented, organized, and tested
+according to P0001 specifications.

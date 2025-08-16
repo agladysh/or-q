@@ -14,7 +14,8 @@
   },
   "dependencies": {
     "@or-q/lib": "workspace:*",
-    "@or-q/core": "workspace:*"
+    "@or-q/core": "workspace:*",
+    "@or-q/plugin-help": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^24.2.0",

@@ -1,19 +1,13 @@
-import type { Arguments, IPluginRuntime, Plugin } from '@or-q/lib';
-import { commandArgument, spawnText } from '@or-q/lib';
-import type { Readable } from 'node:stream';
+import { type Plugin } from '@or-q/lib';
 import pkg from '../package.json' with { type: 'json' };
 
-// Lazy, this should use JS module!
+import jp from './commands/jp.ts';
+
 const plugin: Plugin = {
   name: pkg.name,
+  description: pkg.description,
   commands: {
-    jp: {
-      description: "run JMSEPath's jp command",
-      run: async (input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
-        const query = await commandArgument(runtime, args.shift(), 'usage: jp "[JMSEPath query string]"');
-        return spawnText('jp', input, { args: [query] });
-      },
-    },
+    jp,
   },
 };
 

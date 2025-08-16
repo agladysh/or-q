@@ -1,0 +1,4 @@
+description: Smoke test for help-command command
+commands:
+  - help-command "help"
+  - tee

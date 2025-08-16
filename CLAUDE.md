@@ -256,8 +256,12 @@ const commands: Commands = {
 **CLI Execution Modes**:
 
 - Single command: `pnpm or-q command arg1 arg2`
-- Pipeline: `echo input | pnpm or-q command | pnpm or-q another`
+- Internal pipeline: `pnpm or-q echo "input" command1 command2` (preferred - no shell pipes needed)
+- External pipeline: `echo input | pnpm or-q command | pnpm or-q another` (avoid - requires shell approval)
 - Script execution: `pnpm or-q run script-name`
+
+**Important**: OR-Q implements internal command chaining. Shell pipes like `echo "test" | pnpm or-q foo | pnpm or-q bar`
+should be replaced with `pnpm or-q echo "test" foo bar` for efficiency and to avoid shell approval prompts.
 
 **Error Handling Architecture**:
 
@@ -339,9 +343,12 @@ structure and compile-time validation.
 - Sequential command execution with output piped to next command's input (Forth-like stack execution)
 - `PluginRuntime.runCommands` loop consumes `Arguments` array via `args.shift()`
 - Each instruction operates on persistent `input` data value (`string | Readable`)
+- Internal pipeline: `pnpm or-q echo "hello" trim quote` → `echo` outputs "hello" → `trim` processes it → `quote` wraps
+  in quotes
 - `tee` command: outputs to stdout while preserving pipeline flow
 - Pass-through semantics: many commands perform side effects while maintaining pipeline integrity
 - Error transparency: API error responses flow through pipeline as valid data
+- **Efficiency**: Internal chaining eliminates shell overhead and approval prompts
 
 **Execution Model Evolution**:
 

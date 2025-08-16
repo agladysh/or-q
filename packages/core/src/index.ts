@@ -107,11 +107,6 @@ export class PluginRuntime implements IPluginRuntime {
     return new PluginRuntime(plugins);
   }
 
-  // Lazy. This does not belong here.
-  usage(): string {
-    return `Available commands: ${this.commandNames.join(', ')}`;
-  }
-
   // Lazy. Tighten up generic so event and eventName are closely related.
   emit<E extends IPluginRuntimeEvent>(eventName: string, event: E): boolean {
     return this.emitter.emit(eventName, event);

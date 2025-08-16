@@ -1,23 +1,19 @@
 import {
-  type Arguments,
-  type IPluginRuntime,
   type IPluginRuntimeEventListener,
   type LoggingEvent,
   type LogLevelOrd,
   type Plugin,
-  commandArgument,
-  fail,
   loggingEventName,
-  logLevelNames,
   logLevelOrds,
   logLevels,
 } from '@or-q/lib';
 import { Console } from 'node:console';
-import type { Readable } from 'stream';
 import pkg from '../package.json' with { type: 'json' };
+import { createStdioLoglevelCommand } from './commands/stdio-loglevel.ts';
 
 export class LoggingPlugin implements Plugin {
   name: string = pkg.name;
+  description: string = pkg.description;
 
   console = new Console(process.stdout, process.stderr);
   private logLevelOrd: LogLevelOrd = logLevelOrds[logLevels.log];
@@ -40,18 +36,9 @@ export class LoggingPlugin implements Plugin {
   };
 
   commands = {
-    // Lazy. Should be named
-    ['stdio-loglevel']: {
-      description: 'changes loglevel, useful for debugging',
-      run: async (input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
-        const level = await commandArgument(runtime, args.shift(), `usage: loglevel "${logLevelNames.join('|')}"`);
-        if (!(level in logLevelOrds)) {
-          return fail(`unknown log level ${level}`);
-        }
-        this.logLevelOrd = logLevelOrds[level];
-        return input;
-      },
-    },
+    'stdio-loglevel': createStdioLoglevelCommand((level: string) => {
+      this.logLevelOrd = logLevelOrds[level];
+    }),
   };
 }
 

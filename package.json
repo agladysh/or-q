@@ -26,10 +26,12 @@
   "dependencies": {
     "@or-q/cli": "workspace:*",
     "@or-q/plugin-core": "workspace:*",
+    "@or-q/plugin-discover": "workspace:*",
     "@or-q/plugin-dot-or-q-assets": "workspace:*",
     "@or-q/plugin-fetch": "workspace:*",
     "@or-q/plugin-filesystem": "workspace:*",
     "@or-q/plugin-format": "workspace:*",
+    "@or-q/plugin-help": "workspace:*",
     "@or-q/plugin-jp": "workspace:*",
     "@or-q/plugin-macro": "workspace:*",
     "@or-q/plugin-openrouter-api": "workspace:*",

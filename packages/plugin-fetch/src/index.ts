@@ -1,12 +1,15 @@
-import { loadModuleAssets, mergeCommands, type Plugin } from '@or-q/lib';
+import { loadModuleAssets, type Plugin } from '@or-q/lib';
 import pkg from '../package.json' with { type: 'json' };
 
-import fetch from './fetch.ts';
+import fetch from './commands/fetch.ts';
 
 const plugin: Plugin = {
   name: pkg.name,
+  description: pkg.description,
   assets: loadModuleAssets(import.meta.url),
-  commands: mergeCommands(pkg.name, [fetch]),
+  commands: {
+    fetch,
+  },
 };
 
 export default plugin;

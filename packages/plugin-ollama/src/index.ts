@@ -1,13 +1,22 @@
-import { loadModuleAssets, mergeCommands, type Plugin } from '@or-q/lib';
+import { loadModuleAssets, type Plugin } from '@or-q/lib';
 import pkg from '../package.json' with { type: 'json' };
 
-import openai from './openai.ts';
-import ollama from './ollama.ts';
+// Ollama commands
+import ollamaGenerate from './commands/ollama/ollama-generate.ts';
+import ollamaChat from './commands/ollama/ollama-chat.ts';
+
+// OpenAI compatibility commands
+import ollama from './commands/openai/ollama.ts';
 
 const plugin: Plugin = {
   name: pkg.name,
+  description: pkg.description,
   assets: loadModuleAssets(import.meta.url),
-  commands: mergeCommands(pkg.name, [ollama, openai]),
+  commands: {
+    'ollama-generate': ollamaGenerate,
+    'ollama-chat': ollamaChat,
+    ollama: ollama,
+  },
 };
 
 export default plugin;

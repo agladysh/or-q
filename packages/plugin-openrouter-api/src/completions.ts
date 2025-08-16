@@ -17,6 +17,8 @@ const url = 'https://openrouter.ai/api/v1/chat/completions';
 const commands: Commands = {
   completions: {
     description: 'feeds input to the OpenRouter completions API, requires OPENROUTER_API_KEY env variable',
+    usage: 'usage: completions',
+    tags: ['utility'],
     run: async (input: string | Readable, _args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
       const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
       if (!OPENROUTER_API_KEY) {

@@ -1,3 +1,5 @@
+description: Test script for fetch functionality with Ollama local API
+
 requires:
   - '@or-q/plugin-openrouter-api' # TODO: Migrate general openai conversation stuff from there and update this dependency
   - '@or-q/plugin-ollama'

@@ -6,6 +6,7 @@ import pkg from '../package.json' with { type: 'json' };
 export type CommandList = unknown;
 
 export interface Script {
+  description?: string;
   requires: [string];
   ['on-empty-stdin']: CommandList;
   commands: CommandList;

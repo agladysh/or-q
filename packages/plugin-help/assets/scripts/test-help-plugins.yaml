@@ -1,0 +1,4 @@
+description: Smoke test for help-plugins command
+commands:
+  - help-plugins
+  - tee

@@ -1,0 +1,4 @@
+description: Smoke test for discover-assets command
+commands:
+  - discover-assets
+  - tee

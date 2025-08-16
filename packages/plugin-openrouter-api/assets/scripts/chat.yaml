@@ -1,3 +1,5 @@
+description: Interactive chat session with OpenRouter API
+
 requires:
   - '@or-q/plugin-openrouter-api'
   - '@or-q/plugin-store'

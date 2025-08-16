@@ -1,0 +1,4 @@
+description: Smoke test for help-script command
+commands:
+  - help-script "chat"
+  - tee

@@ -2,7 +2,6 @@ import { type Plugin, type Commands } from '@or-q/lib';
 import pkg from '../package.json' with { type: 'json' };
 
 // Assets commands
-import listAssets from './commands/assets/list-assets.ts';
 import cat from './commands/assets/cat.ts';
 
 // Debug commands
@@ -43,9 +42,7 @@ import warn from './commands/log/warn.ts';
 import error from './commands/log/error.ts';
 import none from './commands/log/none.ts';
 
-// Plugin commands
-import listPlugins from './commands/plugins/list-plugins.ts';
-import pluginsJson from './commands/plugins/plugins-json.ts';
+// Plugin commands (removed legacy commands)
 
 // String commands
 import unquote from './commands/string/unquote.ts';
@@ -57,7 +54,6 @@ import trimEnd from './commands/string/trimEnd.ts';
 
 const commands: Commands = {
   // Assets
-  'list-assets': listAssets,
   cat,
 
   // Debug
@@ -98,9 +94,7 @@ const commands: Commands = {
   error,
   none,
 
-  // Plugins
-  'list-plugins': listPlugins,
-  'plugins-json': pluginsJson,
+  // Plugins (legacy commands removed)
 
   // String
   unquote,

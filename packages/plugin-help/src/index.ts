@@ -21,6 +21,7 @@ export const tagHelpCommand = 'help-command';
 const commands: Commands = {
   help: {
     description: 'Lists all commands with the help-command tag in alphabetic order',
+    usage: 'usage: help',
     tags: [tagHelpCommand],
     run: async (_input: string | Readable, _args: Arguments, runtime: IPluginRuntime): Promise<string> => {
       // Get all commands with help-command tag
@@ -57,6 +58,7 @@ const commands: Commands = {
 
   'help-commands': {
     description: 'List all commands with their descriptions, grouped by plugin',
+    usage: 'usage: help-commands',
     tags: [tagHelpCommand],
     run: async (_input: string | Readable, _args: Arguments, runtime: IPluginRuntime): Promise<string> => {
       let output = 'Commands by Plugin:\\n\\n';
@@ -95,7 +97,7 @@ const commands: Commands = {
 
   'help-commands-by-tag': {
     description: 'List all commands with a specific tag',
-    usage: 'help-commands-by-tag "<tag>"',
+    usage: 'usage: help-commands-by-tag "<tag>"',
     tags: [tagHelpCommand],
     run: async (_input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string> => {
       const tag = await commandArgument(runtime, args.shift(), 'usage: help-commands-by-tag "<tag>"');
@@ -119,7 +121,7 @@ const commands: Commands = {
 
   'help-command': {
     description: 'Prints command description and usage string',
-    usage: 'help-command "<command>"',
+    usage: 'usage: help-command "<command>"',
     tags: [tagHelpCommand],
     run: async (_input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string> => {
       const commandName = await commandArgument(runtime, args.shift(), 'usage: help-command "<command>"');
@@ -146,6 +148,7 @@ const commands: Commands = {
 
   'help-plugins': {
     description: 'Lists all available plugins with their descriptions, sorted alphabetically',
+    usage: 'usage: help-plugins',
     tags: [tagHelpCommand],
     run: async (_input: string | Readable, _args: Arguments, runtime: IPluginRuntime): Promise<string> => {
       let output = 'Available Plugins:\\n\\n';
@@ -163,7 +166,7 @@ const commands: Commands = {
 
   'help-plugin': {
     description: 'Shows detailed information about a specific plugin including its commands and assets',
-    usage: 'help-plugin "<plugin.name>"',
+    usage: 'usage: help-plugin "<plugin.name>"',
     tags: [tagHelpCommand],
     run: async (_input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string> => {
       const pluginName = await commandArgument(runtime, args.shift(), 'usage: help-plugin "<plugin.name>"');
@@ -201,6 +204,7 @@ const commands: Commands = {
 
   'help-assets': {
     description: 'Lists all available assets with their descriptions and plugin sources',
+    usage: 'usage: help-assets',
     tags: [tagHelpCommand],
     run: async (_input: string | Readable, _args: Arguments, runtime: IPluginRuntime): Promise<string> => {
       let output = 'Available Assets:\\n\\n';

@@ -2,7 +2,6 @@ import { loadModuleAssets, type Plugin } from '@or-q/lib';
 import pkg from '../package.json' with { type: 'json' };
 
 import exec from './commands/exec.ts';
-import listScriptAssets from './commands/list-script-assets.ts';
 import run from './commands/run.ts';
 import forever from './commands/forever.ts';
 import _DATA from './commands/_DATA.ts';
@@ -18,7 +17,6 @@ const plugin: Plugin = {
   assets: loadModuleAssets(import.meta.url),
   commands: {
     exec,
-    'list-script-assets': listScriptAssets,
     run,
     forever,
     _DATA,

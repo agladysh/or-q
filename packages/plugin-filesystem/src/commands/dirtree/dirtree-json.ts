@@ -32,7 +32,7 @@ const usage = 'usage: dirtree-json';
 const command: Command = {
   description: 'consumes list of paths, returns hierarchy as JSON',
   usage,
-  tags: [],
+  tags: ['utility'],
   run: async (input: string | Readable, _args: Arguments, _runtime: IPluginRuntime): Promise<string | Readable> => {
     input = await readableToString(input);
     // Lazy. Should validate schema.

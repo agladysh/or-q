@@ -18,7 +18,7 @@ const usage = 'usage: ollama';
 const command: Command = {
   description: 'feeds OpenAI-compatible input to the local Ollama instance OpenAI completions API wrapper',
   usage,
-  tags: [],
+  tags: ['utility'],
   run: async (input: string | Readable, _args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
     const response = await fetch(url, {
       method: 'POST',

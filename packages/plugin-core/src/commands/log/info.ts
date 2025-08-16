@@ -14,6 +14,7 @@ const usage = 'usage: info "<text>"';
 const command: Command = {
   description: 'logs text with info level, forwards input',
   usage,
+  tags: ['development'],
   run: async (input: string | Readable, args: Arguments, runtime: IPluginRuntime) => {
     const text = await commandArgument(runtime, args.shift(), usage);
     runtime.emit(loggingEventName, {

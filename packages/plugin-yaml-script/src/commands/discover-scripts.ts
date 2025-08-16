@@ -5,6 +5,7 @@ import type { Script } from '../utils.ts';
 
 const command: Command = {
   description: 'Returns JSON array of all YAML scripts with their metadata, requirements, and command structures',
+  usage: 'usage: discover-scripts',
   tags: ['discovery-command'],
   run: async (_input: string | Readable, _args: Arguments, runtime: IPluginRuntime): Promise<string> => {
     const scripts: Array<{

@@ -7,6 +7,8 @@ const options = { method: 'GET' };
 
 const command: Command = {
   description: 'replaces input with data from OpenResty models endpoint',
+  usage: 'usage: models',
+  tags: ['utility'],
   run: async (_input: string | Readable, _args: Arguments, _runtime: IPluginRuntime): Promise<string | Readable> => {
     const response = await fetch(url, options);
     if (!response.body) {

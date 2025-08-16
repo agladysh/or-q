@@ -8,6 +8,7 @@ const usage = 'usage: map [program]';
 const command: Command = {
   description: 'applies commands from the argument to each entry of the input array, returns resulting array',
   usage,
+  tags: ['data'],
   run: async (input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
     let arg = args.shift();
     if (arg === undefined) {

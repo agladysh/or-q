@@ -4,7 +4,6 @@ import pkg from '../package.json' with { type: 'json' };
 import defmacro from './commands/$defmacro.ts';
 import macro from './commands/$macro.ts';
 import arg from './commands/$arg.ts';
-import dumpMacros from './commands/dump-macros.ts';
 
 const plugin: Plugin = {
   name: pkg.name,
@@ -13,7 +12,6 @@ const plugin: Plugin = {
     $defmacro: defmacro,
     $macro: macro,
     $arg: arg,
-    'dump-macros': dumpMacros,
   },
 };
 

@@ -7,7 +7,7 @@ const usage = 'usage: exec "<yaml>", you may use run <(cat filename.yaml) to rea
 const command: Command = {
   description: 'executes YAML script from argument',
   usage,
-  tags: [],
+  tags: ['utility'],
   run: async (input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
     const yamlString = await commandArgument(runtime, args.shift(), usage);
     return runYAMLScript(input, yamlString, runtime);

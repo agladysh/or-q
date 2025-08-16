@@ -8,7 +8,7 @@ const usage = 'usage: $defmacro <name> <def>';
 const command: Command = {
   description: 'stores or overrides a macro definition, forwards input',
   usage,
-  tags: [],
+  tags: ['utility'],
   run: async (input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
     const name = await commandArgument(runtime, args.shift(), usage);
     const defArg = args.shift();

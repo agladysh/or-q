@@ -6,7 +6,7 @@ const usage = 'usage: shell "[shell command]"';
 const command: Command = {
   description: 'run a shell command (use with caution)',
   usage,
-  tags: [],
+  tags: ['utility'],
   run: async (input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
     const command = await commandArgument(runtime, args.shift(), usage);
     return spawnText(command, input, { shell: true });

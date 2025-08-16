@@ -14,6 +14,7 @@ export const tagDiscoverCommand = 'discovery-command';
 const commands: Commands = {
   discover: {
     description: 'List discovery commands as JSON',
+    usage: 'usage: discover',
     tags: [tagDiscoverCommand],
     run: async (_input: string | Readable, _args: Arguments, runtime: IPluginRuntime): Promise<string> => {
       const discoveryCommands = Object.entries(runtime.commands)
@@ -31,6 +32,7 @@ const commands: Commands = {
 
   'discover-commands': {
     description: 'List all commands with full metadata as JSON',
+    usage: 'usage: discover-commands',
     tags: [tagDiscoverCommand],
     run: async (_input: string | Readable, _args: Arguments, runtime: IPluginRuntime): Promise<string> => {
       const commandsData = Object.entries(runtime.commands)
@@ -60,6 +62,7 @@ const commands: Commands = {
 
   'discover-plugins': {
     description: 'List all plugins with metadata as JSON',
+    usage: 'usage: discover-plugins',
     tags: [tagDiscoverCommand],
     run: async (_input: string | Readable, _args: Arguments, runtime: IPluginRuntime): Promise<string> => {
       const pluginsData = Object.entries(runtime.plugins)
@@ -77,6 +80,7 @@ const commands: Commands = {
 
   'discover-assets': {
     description: 'List all assets with metadata as JSON',
+    usage: 'usage: discover-assets',
     tags: [tagDiscoverCommand],
     run: async (_input: string | Readable, _args: Arguments, runtime: IPluginRuntime): Promise<string> => {
       const assetsData = runtime.assetNames

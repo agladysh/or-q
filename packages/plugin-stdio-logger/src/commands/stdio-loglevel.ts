@@ -16,7 +16,7 @@ export function createStdioLoglevelCommand(setLogLevel: (level: string) => void)
   return {
     description: 'changes loglevel, useful for debugging',
     usage,
-    tags: [],
+    tags: ['development'],
     run: async (input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
       const level = await commandArgument(runtime, args.shift(), usage);
       if (!(level in logLevelOrds)) {

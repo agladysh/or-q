@@ -7,7 +7,7 @@ const usage = 'usage: t "[template]"';
 const command: Command = {
   description: 'replaces input with a template instantiated from @orq/store',
   usage,
-  tags: [],
+  tags: ['utility'],
   run: async (_input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
     const template = await commandArgument(runtime, args.shift(), usage);
     return renderORQ(runtime, template);

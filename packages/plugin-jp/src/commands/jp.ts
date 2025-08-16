@@ -6,7 +6,7 @@ const usage = 'usage: jp "[JMSEPath query string]"';
 const command: Command = {
   description: "run JMSEPath's jp command",
   usage,
-  tags: [],
+  tags: ['data'],
   run: async (input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
     const query = await commandArgument(runtime, args.shift(), usage);
     return spawnText('jp', input, { args: [query] });

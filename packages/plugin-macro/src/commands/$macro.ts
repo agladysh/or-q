@@ -15,7 +15,7 @@ const usage = 'usage: $macro [<macro>, ...args]';
 const command: Command = {
   description: 'invokes macro',
   usage,
-  tags: [],
+  tags: ['utility'],
   run: async (input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
     const arg = args.shift();
     if (arg === undefined) {

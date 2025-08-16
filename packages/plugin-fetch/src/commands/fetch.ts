@@ -19,7 +19,7 @@ const usage = 'usage: fetch "<url>"';
 const command: Command = {
   description: 'fetches data from a provided URL, with input as request body',
   usage,
-  tags: [],
+  tags: ['utility'],
   run: async (input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
     const url = await commandArgument(runtime, args.shift(), usage);
     const config = yaml.parse(await readableToString(input)); // Lazy. Should validate input.

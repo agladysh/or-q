@@ -6,6 +6,7 @@ const usage = 'usage: conversation "<model>"';
 const command: Command = {
   description: 'replaces input with an empty conversation object',
   usage,
+  tags: ['data'],
   run: async (_input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
     const model = await commandArgument(runtime, args.shift(), usage);
 

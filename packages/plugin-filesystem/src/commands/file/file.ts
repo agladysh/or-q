@@ -7,7 +7,7 @@ const usage = 'usage: file';
 const command: Command = {
   description: 'converts input filename to the file contents',
   usage,
-  tags: [],
+  tags: ['utility'],
   run: async (input: string | Readable, _args: Arguments, _runtime: IPluginRuntime): Promise<string | Readable> => {
     const filename = await readableToString(input);
     return readFileSync(filename, 'utf-8');

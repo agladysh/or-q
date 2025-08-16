@@ -7,6 +7,7 @@ const usage = 'usage: head N';
 const command: Command = {
   description: 'returns first N items from the input array',
   usage,
+  tags: ['data'],
   run: async (input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
     const nStr = await commandArgument(runtime, args.shift(), usage);
     const n = Number(nStr);

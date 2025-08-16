@@ -7,7 +7,7 @@ const usage = 'usage: yaml';
 const command: Command = {
   description: 'converts JSON to YAML',
   usage,
-  tags: [],
+  tags: ['data'],
   run: async (input: string | Readable, _args: Arguments, _runtime: IPluginRuntime): Promise<string | Readable> => {
     return yaml.stringify(JSON.parse(await readableToString(input)));
   },

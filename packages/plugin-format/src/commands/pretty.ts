@@ -6,7 +6,7 @@ const usage = 'usage: pretty';
 const command: Command = {
   description: 'pretty-prints JSON',
   usage,
-  tags: [],
+  tags: ['data'],
   run: async (input: string | Readable, _args: Arguments, _runtime: IPluginRuntime): Promise<string | Readable> => {
     return JSON.stringify(JSON.parse(await readableToString(input)), null, 2);
   },

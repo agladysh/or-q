@@ -7,7 +7,7 @@ const usage = 'usage: _JSON';
 const command: Command = {
   description: 'replaces input with special format argument serialized as JSON',
   usage,
-  tags: [],
+  tags: ['data'],
   run: async (_input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
     return JSON.stringify(await loadInputFromJSONCommand(runtime, args));
   },

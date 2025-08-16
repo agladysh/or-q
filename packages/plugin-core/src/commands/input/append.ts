@@ -6,6 +6,7 @@ const usage = 'usage: append "<text>"';
 const command: Command = {
   description: 'appends argument to input, does NOT insert a newline at either end of argument',
   usage,
+  tags: ['data'],
   run: async (input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
     const text = await commandArgument(runtime, args.shift(), usage);
     input = await readableToString(input);

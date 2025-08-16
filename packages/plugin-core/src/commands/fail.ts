@@ -6,6 +6,7 @@ const usage = 'usage: fail "<message>"';
 const command: Command = {
   description: 'fails with an error message',
   usage,
+  tags: ['development'],
   run: async (_input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
     const message = await commandArgument(runtime, args.shift(), usage);
     return fail(message);

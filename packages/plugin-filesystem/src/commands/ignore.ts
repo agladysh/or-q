@@ -8,7 +8,7 @@ const usage = 'usage: ignore "patterns"';
 const command: Command = {
   description: 'filters a list of file and directory paths based on .gitignore-like filters',
   usage,
-  tags: [],
+  tags: ['utility'],
   run: async (input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
     const patterns = await commandArgument(runtime, args.shift(), usage);
     const pathnames = yaml.parse(await readableToString(input));

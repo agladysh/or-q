@@ -3,6 +3,8 @@ import type { Readable } from 'node:stream';
 
 const command: Command = {
   description: 'replaces input with remaining program dump',
+  usage: 'usage: dump',
+  tags: ['development'],
   run: async (_input: string | Readable, args: Arguments, _runtime: IPluginRuntime): Promise<string | Readable> => {
     return JSON.stringify(args);
   },

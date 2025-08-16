@@ -18,7 +18,7 @@ const usage = 'usage: ollama-chat';
 const command: Command = {
   description: 'feeds input in the native Ollama format to the local Ollama instance chat REST API',
   usage,
-  tags: [],
+  tags: ['utility'],
   run: async (input: string | Readable, _args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
     const response = await fetch(chatUrl, {
       method: 'POST',

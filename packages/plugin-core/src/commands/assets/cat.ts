@@ -14,6 +14,7 @@ const usage = 'usage: cat "<file>"';
 const command: Command = {
   description: 'replaces input with file or asset',
   usage,
+  tags: ['io'],
   run: async (_input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
     const uri = await commandArgument(runtime, args.shift(), usage);
 

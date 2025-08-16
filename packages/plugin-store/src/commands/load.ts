@@ -7,7 +7,7 @@ const usage = 'usage: load "<text>"';
 const command: Command = {
   description: 'loads a named value from the store, replacing input with it, unknown values are empty strings',
   usage,
-  tags: [],
+  tags: ['utility'],
   run: async (_input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
     const key = await commandArgument(runtime, args.shift(), usage);
     return getStore(runtime)[key] ?? '';

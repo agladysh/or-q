@@ -7,7 +7,7 @@ const usage = 'usage: glob3 "pattern" "ignore-pattern" "options"';
 const command: Command = {
   description: 'replaces input with a list of files matching pattern in JSON, accepts arguments as JSON values',
   usage,
-  tags: [],
+  tags: ['utility'],
   run: async (_input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
     // Lazy. Should validate schemas
     const patterns = JSON.parse(await commandArgument(runtime, args.shift(), usage));

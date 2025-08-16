@@ -33,7 +33,7 @@ const usage = 'usage: dirtree';
 const command: Command = {
   description: 'consumes list of paths or dirtree-json output, returns hierarchy as text',
   usage,
-  tags: [],
+  tags: ['utility'],
   run: async (input: string | Readable, _args: Arguments, _runtime: IPluginRuntime): Promise<string | Readable> => {
     input = await readableToString(input);
     let dirtree = yaml.parse(input);

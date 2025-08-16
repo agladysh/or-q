@@ -7,7 +7,7 @@ const usage = 'usage: cat-file <filename>';
 const command: Command = {
   description: 'replaces input with the file contents from argument',
   usage,
-  tags: [],
+  tags: ['utility'],
   run: async (_input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
     const filename = await commandArgument(runtime, args.shift(), usage);
     return readFileSync(filename, 'utf-8');

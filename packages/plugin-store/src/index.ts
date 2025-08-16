@@ -5,7 +5,6 @@ import load from './commands/load.ts';
 import save from './commands/save.ts';
 import set from './commands/set.ts';
 import setdata from './commands/setdata.ts';
-import dumpStore from './commands/dump-store.ts';
 
 const plugin: Plugin = {
   name: pkg.name,
@@ -15,7 +14,6 @@ const plugin: Plugin = {
     save,
     set,
     setdata,
-    'dump-store': dumpStore,
   },
 };
 

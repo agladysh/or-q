@@ -7,7 +7,7 @@ const usage = 'usage: set "<key>" "<value>"';
 const command: Command = {
   description: 'sets key to value in store, forwards input',
   usage,
-  tags: [],
+  tags: ['utility'],
   run: async (input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
     const key = await commandArgument(runtime, args.shift(), usage);
     const value = await commandArgument(runtime, args.shift(), usage);

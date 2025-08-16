@@ -24,8 +24,8 @@ export type Arguments = (string | Arguments)[];
 
 export interface Command {
   description: string;
-  usage?: string;
-  tags?: string[];
+  usage: string;
+  tags: string[];
   run: (input: string | Readable, args: Arguments, runtime: IPluginRuntime) => Promise<string | Readable>;
 }
 
@@ -79,7 +79,7 @@ export type RuntimeCloneChildEventListener = IPluginRuntimeEventListener<Runtime
 
 export interface Plugin<E extends IPluginRuntimeEvent = IPluginRuntimeEvent> {
   name: string;
-  description?: string;
+  description: string;
   eventListeners?: IPluginRuntimeEventListeners<E>;
   assets?: Assets;
   commands?: Commands;

@@ -7,7 +7,7 @@ const usage = 'usage: $arg <n>';
 const command: Command = {
   description: 'macro argument placeholder',
   usage,
-  tags: [],
+  tags: ['utility'],
   run: async (_input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
     const argStr = await commandArgument(runtime, args.shift(), usage);
     const argno = Number(argStr);

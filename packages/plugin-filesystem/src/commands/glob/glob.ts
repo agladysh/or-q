@@ -7,7 +7,7 @@ const usage = 'usage: glob "pattern" "ignore-pattern"';
 const command: Command = {
   description: 'replaces input with a list of files matching pattern in JSON',
   usage,
-  tags: [],
+  tags: ['utility'],
   run: async (_input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
     const pattern = await commandArgument(runtime, args.shift(), usage);
     const ignore = await commandArgument(runtime, args.shift(), usage);

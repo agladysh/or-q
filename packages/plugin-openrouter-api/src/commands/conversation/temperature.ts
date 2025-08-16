@@ -6,6 +6,7 @@ const usage = 'usage: temperature "<number in [0..2]>"';
 const command: Command = {
   description: 'changes conversation object temperature',
   usage,
+  tags: ['data'],
   run: async (input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
     const temperatureStr: string = await commandArgument(runtime, args.shift(), usage);
     if (Number.isNaN(Number(temperatureStr))) {

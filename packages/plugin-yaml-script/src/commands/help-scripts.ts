@@ -5,6 +5,7 @@ import type { Script } from '../utils.ts';
 
 const command: Command = {
   description: 'Lists all available YAML scripts with their descriptions and usage information',
+  usage: 'usage: help-scripts',
   tags: ['help-command'],
   run: async (_input: string | Readable, _args: Arguments, runtime: IPluginRuntime): Promise<string> => {
     const scriptEntries: Array<{ name: string; plugin: string; description: string | null }> = [];

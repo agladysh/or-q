@@ -15,7 +15,7 @@ const usage = 'usage: run "<file>"';
 const command: Command = {
   description: 'runs YAML script file from file: or plugin:',
   usage,
-  tags: [],
+  tags: ['utility'],
   run: async (input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
     const uri = await commandArgument(runtime, args.shift(), usage);
 

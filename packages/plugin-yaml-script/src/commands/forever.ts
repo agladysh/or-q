@@ -7,7 +7,7 @@ const usage = 'usage: forever [actions]';
 const command: Command = {
   description: 'runs forever, interrupt to exit',
   usage,
-  tags: [],
+  tags: ['utility'],
   run: async (input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
     // Not using commandArgument() helper, since we do NOT want sub-command expansion here.
     let arg = args.shift();

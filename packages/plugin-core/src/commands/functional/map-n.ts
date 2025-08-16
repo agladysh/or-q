@@ -7,6 +7,7 @@ const usage = 'usage: map-n N [program1] ... [programN]';
 const command: Command = {
   description: 'applies programs from the argument to each entry of the input array, returns resulting array of arrays',
   usage,
+  tags: ['data'],
   run: async (input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
     const nStr = await commandArgument(runtime, args.shift(), usage);
     const n = Number(nStr);

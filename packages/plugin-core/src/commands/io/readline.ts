@@ -7,6 +7,7 @@ const usage = 'usage: readline "<prompt>"';
 const command: Command = {
   description: 'replaces input with a line from stdin',
   usage,
+  tags: ['io'],
   run: async (_input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
     const readline = createInterface({
       input: process.stdin,

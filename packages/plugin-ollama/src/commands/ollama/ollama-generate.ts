@@ -18,7 +18,7 @@ const usage = 'usage: ollama-generate';
 const command: Command = {
   description: 'feeds input in the native Ollama format to the local Ollama instance generate REST API',
   usage,
-  tags: [],
+  tags: ['utility'],
   run: async (input: string | Readable, _args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
     const response = await fetch(generateUrl, {
       method: 'POST',

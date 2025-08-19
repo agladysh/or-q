@@ -48,7 +48,7 @@ const commands: Commands = {
       const data = yaml.parse(input) as string[];
       const result = [];
       for (const entry of data) {
-        result.push(await runtime.runCommands(entry, arg.slice()));
+        result.push(await readableToString(await runtime.runCommands(entry, arg.slice())));
       }
       return JSON.stringify(result, null, 2);
     },
@@ -86,7 +86,7 @@ const commands: Commands = {
       for (const entry of data) {
         const row = [];
         for (const program of programs) {
-          row.push(await runtime.runCommands(entry, program.slice()));
+          row.push(await readableToString(await runtime.runCommands(entry, program.slice())));
         }
         result.push(row);
       }
@@ -132,7 +132,10 @@ const commands: Commands = {
               // Lazy. Least surprise principle violated, this silently loses any updates to scopes, e.g. storage.
               //       Is there a reasonable way possible to provide scope reintegration functionality for the Storage plugin?
               //       Perhaps users doing store-{push,pop} commands manually will help somehow? (It is ok, since our commands are so low-level)
-              return runtime.clone().runCommands(entry, program.slice());
+              return runtime
+                .clone()
+                .runCommands(entry, program.slice())
+                .then((r) => readableToString(r));
             })
           );
         })

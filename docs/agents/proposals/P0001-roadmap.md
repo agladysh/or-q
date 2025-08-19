@@ -696,23 +696,22 @@ After each plugin refactoring:
 3. Test a few commands manually
 4. Commit changes
 
-## Phase 7: Make Command.usage Field Mandatory (Revisited)
+## Phase 7: Verification - All Commands Have Usage Fields
 
-**Objective**: Enforce usage documentation now that all commands have it
+**Objective**: Verify that Phase 6 refactoring successfully added usage fields to all commands
 
 **Actions Required**:
 
-### 7.1 Update Core Interface
+### 7.1 TypeScript Verification
 
-**File**: `packages/lib/src/index.ts`
+- Run `pnpm run lint:tsc` - should have no TypeScript errors (Phase 5 made usage mandatory)
+- Verify all commands in all plugins have usage fields
 
-- Ensure `usage: string` is mandatory in `Command` interface
+### 7.2 Functional Verification
 
-### 7.2 Verification
-
-- Run `pnpm run lint` - should have no TypeScript errors
-- Run `pnpm test` to ensure functionality preserved
-- Commit changes
+- Run `pnpm test` to ensure functionality preserved after refactoring
+- Test a few commands manually to verify they still work
+- Commit any remaining fixes
 
 ## Phase 8: Create @or-q/plugin-help and @or-q/plugin-discover
 
@@ -912,8 +911,11 @@ Add smoke tests for script help commands.
 - `list-assets` → replaced by `help-assets`
 - `list-script-assets` → replaced by `help-scripts`
 - `plugins-json` → replaced by `discover-plugins`
-- `dump-macros` → replaced by `discover-macros` (if implementing)
-- `dump-store` → replaced by `discover-store` (if implementing)
+
+**Commands to Keep** (plugin-specific debugging, not help-related):
+
+- `dump-macros` - plugin-specific macro state debugging
+- `dump-store` - plugin-specific store state debugging
 
 ### 10.2 Update References
 

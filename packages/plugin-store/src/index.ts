@@ -44,10 +44,11 @@ const plugin: Plugin = {
         return input;
       },
     },
+    // Lazy. Formally, it is not possible to get data from arguments.
     setdata: {
       description: 'sets key to value in store, treating value as data and serializing it to JSON, forwards input',
       run: async (input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
-        const usage = 'usage: set "<key>" "<value>"';
+        const usage = 'usage: setdata "<key>" "<value>"';
         const key = await commandArgument(runtime, args.shift(), usage);
         const value = args.shift();
         if (value === undefined) {

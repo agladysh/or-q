@@ -71,11 +71,198 @@ assets export.
 
 ### 2.2 Create Smoke Tests
 
-Create basic smoke test for each command:
+Create basic smoke test for each command following the established pattern in `@or-q/plugin-test`.
 
-- Use plugin-test pattern: one test file per command in `assets/tests/commands/`
-- Focus on basic invocation, not full functionality
-- Handle commands requiring arguments or environment variables gracefully
+#### Test Infrastructure
+
+**Location**: `packages/*/assets/tests/commands/*.yaml`  
+**Pattern**: One YAML file per command  
+**Example**: `packages/plugin-test/assets/tests/commands/discover-tests.yaml`
+
+#### Test File Structure
+
+```yaml
+suite: command-name
+
+requires: # Optional: list plugin dependencies
+  - '@or-q/plugin-dependency'
+
+tests:
+  - name: smoke
+    argv: command-name [args...]
+    stdin: 'input data'
+    stdout:
+      - contains: 'expected-output'
+      - matches: 'regex-pattern'
+    timeout: 5000 # Optional: milliseconds
+    expect: success # Optional: success|failure|timeout
+```
+
+#### Environment Assumptions
+
+**Verified Available**:
+
+- `.env` file with `OPENROUTER_API_KEY` (confirmed present)
+- Ollama service running on `localhost:11434` (assumed per project setup)
+
+#### Command Categories and Test Strategies
+
+##### 1. Simple I/O Commands (75+ commands)
+
+```yaml
+# Example: echo command
+tests:
+  - name: smoke
+    argv: echo "test message"
+    stdout:
+      - contains: 'test message'
+
+# Example: trim command
+tests:
+  - name: smoke
+    argv: trim
+    stdin: '  padded text  '
+    stdout:
+      - contains: 'padded text'
+```
+
+##### 2. API/Service Commands (10 commands)
+
+```yaml
+# Example: completions (uses existing .env)
+tests:
+  - name: smoke
+    argv: completions
+    stdin: '{"model": "gpt-3.5-turbo", "messages": [{"role": "user", "content": "test"}]}'
+    stdout:
+      - matches: '.*'  # Verify doesn't crash, allow any response
+
+# Example: ollama-generate (assumes Ollama running)
+tests:
+  - name: smoke
+    argv: ollama-generate
+    stdin: 'simple test prompt'
+    stdout:
+      - matches: '.*'
+```
+
+##### 3. Interactive Commands (2 commands)
+
+```yaml
+# Example: readline (mock stdin)
+tests:
+  - name: smoke
+    argv: readline "Enter text: "
+    stdin: 'test input\n'
+    stdout:
+      - contains: 'test input'
+
+# Example: forever (use timeout)
+tests:
+  - name: smoke
+    argv: forever ["echo", "test"]
+    timeout: 1000
+    expect: timeout
+```
+
+##### 4. Mini-DSL Commands (2 commands)
+
+**`_DATA` Command** - Converts remaining arguments to JSON array:
+
+```yaml
+suite: _DATA
+
+tests:
+  - name: smoke-single
+    argv: _DATA "hello"
+    stdout:
+      - contains: '["hello"]'
+
+  - name: smoke-multiple
+    argv: _DATA "one" "two" "three"
+    stdout:
+      - contains: '["one","two","three"]'
+
+  - name: smoke-empty
+    argv: _DATA
+    stdout:
+      - contains: '[]'
+```
+
+**`_JSON` Command** - Mini-DSL for JSON construction:
+
+```yaml
+suite: _JSON
+
+tests:
+  - name: smoke-primitives
+    argv: _JSON true
+    stdout:
+      - contains: 'true'
+
+  - name: smoke-string
+    argv: _JSON string "hello"
+    stdout:
+      - contains: '"hello"'
+
+  - name: smoke-number
+    argv: _JSON number "42"
+    stdout:
+      - contains: '42'
+
+  - name: smoke-array
+    argv: _JSON array string "one" string "two" end-array
+    stdout:
+      - contains: '["one","two"]'
+
+  - name: smoke-object
+    argv: _JSON object "key" string "value" end-object
+    stdout:
+      - contains: '{"key":"value"}'
+
+  - name: smoke-command-execution
+    argv: _JSON ["echo", "test"]
+    stdout:
+      - contains: '"test"'
+```
+
+##### 5. Complex Functional Commands (6 commands)
+
+```yaml
+# Example: map command
+tests:
+  - name: smoke
+    argv: map ["echo", "processed"]
+    stdin: '["item1", "item2"]'
+    stdout:
+      - matches: '.*processed.*'
+
+# Example: macro system
+tests:
+  - name: smoke-defmacro
+    argv: ["$defmacro", "test", ["echo", "works"]]
+    stdin: ''
+    stdout:
+      - matches: '.*'  # Just verify no crash
+```
+
+#### Implementation Notes
+
+1. **All 86 Commands Are Testable**: No commands need to be skipped
+2. **Focus on "Doesn't Crash"**: Use `matches: '.*'` for complex outputs
+3. **Use Realistic Inputs**: Based on actual usage patterns in existing scripts
+4. **Environment Dependencies**: Leverage existing `.env` and Ollama setup
+5. **Error Cases Welcome**: Some tests may expect failures (missing env vars, etc.)
+
+#### Test Execution Pattern
+
+```bash
+# Run all tests
+pnpm test
+
+# Run specific plugin tests
+pnpm or-q run-test-suite plugin-name
+```
 
 ### 2.3 Verification
 

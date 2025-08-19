@@ -89,13 +89,20 @@ requires: # Optional: list plugin dependencies
 
 tests:
   - name: smoke
-    argv: command-name [args...]
+    argv: command-name arg1 arg2  # Simple command line string
+    # OR for flat arrays:
+    argv: ["command", "arg1", "arg2"]  # Flat array format
+    # OR for complex nested commands, use exec with YAML array:
+    argv: exec "[['command', ['nested', 'args']]]"
     stdin: 'input data'
+    stdout: 'exact-output'  # String literal for exact match
+    # OR use validators:
     stdout:
-      - contains: 'expected-output'
+      - contains: 'substring'
       - matches: 'regex-pattern'
-    timeout: 5000 # Optional: milliseconds
-    expect: success # Optional: success|failure|timeout
+      - equals: 'exact-match'
+    stderr: 'error-output'  # Optional
+    exit: 0  # Optional: expected exit code
 ```
 
 #### Environment Assumptions
@@ -110,20 +117,41 @@ tests:
 ##### 1. Simple I/O Commands (75+ commands)
 
 ```yaml
-# Example: echo command
+# Example: echo command (exact output)
 tests:
   - name: smoke
     argv: echo "test message"
-    stdout:
-      - contains: 'test message'
+    stdout: 'test message'
 
-# Example: trim command
+# Example: trim command (exact output)
 tests:
   - name: smoke
     argv: trim
     stdin: '  padded text  '
+    stdout: 'padded text'
+
+# Example: quote command (exact JSON string)
+tests:
+  - name: smoke
+    argv: quote
+    stdin: 'hello world'
+    stdout: '"hello world"'
+
+# Example: pretty command (formatted JSON - use contains for formatting)
+tests:
+  - name: smoke
+    argv: pretty
+    stdin: '{"a":1,"b":2}'
     stdout:
-      - contains: 'padded text'
+      - contains: '{\n'
+      - contains: '"a": 1'
+
+# Example: jp command (exact JSONPath result)
+tests:
+  - name: smoke
+    argv: jp name
+    stdin: '{"name": "test", "id": 123}'
+    stdout: '"test"'
 ```
 
 ##### 2. API/Service Commands (10 commands)
@@ -135,7 +163,8 @@ tests:
     argv: completions
     stdin: '{"model": "gpt-3.5-turbo", "messages": [{"role": "user", "content": "test"}]}'
     stdout:
-      - matches: '.*'  # Verify doesn't crash, allow any response
+      - contains: '"choices"'  # OpenAI API response format
+      - contains: '"message"'
 
 # Example: ollama-generate (assumes Ollama running)
 tests:
@@ -143,7 +172,15 @@ tests:
     argv: ollama-generate
     stdin: 'simple test prompt'
     stdout:
-      - matches: '.*'
+      - contains: '"response"'  # Ollama API response format
+
+# Example: models (OpenRouter models list)
+tests:
+  - name: smoke
+    argv: models
+    stdout:
+      - contains: '"data"'
+      - contains: '"id"'
 ```
 
 ##### 3. Interactive Commands (2 commands)
@@ -157,10 +194,10 @@ tests:
     stdout:
       - contains: 'test input'
 
-# Example: forever (use timeout)
+# Example: forever (use timeout - note: complex args need shell escaping)
 tests:
   - name: smoke
-    argv: forever ["echo", "test"]
+    argv: forever echo test
     timeout: 1000
     expect: timeout
 ```
@@ -175,18 +212,15 @@ suite: _DATA
 tests:
   - name: smoke-single
     argv: _DATA "hello"
-    stdout:
-      - contains: '["hello"]'
+    stdout: '["hello"]'
 
   - name: smoke-multiple
     argv: _DATA "one" "two" "three"
-    stdout:
-      - contains: '["one","two","three"]'
+    stdout: '["one","two","three"]'
 
   - name: smoke-empty
     argv: _DATA
-    stdout:
-      - contains: '[]'
+    stdout: '[]'
 ```
 
 **`_JSON` Command** - Mini-DSL for JSON construction:
@@ -197,62 +231,73 @@ suite: _JSON
 tests:
   - name: smoke-primitives
     argv: _JSON true
-    stdout:
-      - contains: 'true'
+    stdout: 'true'
 
   - name: smoke-string
-    argv: _JSON string "hello"
-    stdout:
-      - contains: '"hello"'
+    argv: _JSON string hello
+    stdout: '"hello"'
 
   - name: smoke-number
-    argv: _JSON number "42"
-    stdout:
-      - contains: '42'
+    argv: _JSON number 42
+    stdout: '42'
 
   - name: smoke-array
-    argv: _JSON array string "one" string "two" end-array
-    stdout:
-      - contains: '["one","two"]'
+    argv: _JSON array string one string two end-array
+    stdout: '["one","two"]'
 
   - name: smoke-object
-    argv: _JSON object "key" string "value" end-object
-    stdout:
-      - contains: '{"key":"value"}'
+    argv: _JSON object key string value end-object
+    stdout: '{"key":"value"}'
 
   - name: smoke-command-execution
-    argv: _JSON ["echo", "test"]
-    stdout:
-      - contains: '"test"'
+    argv: exec "commands: [['_JSON', ['echo', 'test']]]"
+    stdout: '"test"'
 ```
 
 ##### 5. Complex Functional Commands (6 commands)
 
 ```yaml
-# Example: map command
+# Example: head command (exact JSON output)
 tests:
   - name: smoke
-    argv: map ["echo", "processed"]
-    stdin: '["item1", "item2"]'
+    argv: head 2
+    stdin: '["a", "b", "c", "d"]'
     stdout:
-      - matches: '.*processed.*'
+      - contains: '"a"'
+      - contains: '"b"'
+      - matches: '^\[\s*"a"\s*,\s*"b"\s*\]'
 
-# Example: macro system
+# Example: sort command (exact sorted array)
+tests:
+  - name: smoke
+    argv: sort
+    stdin: '["c", "a", "b"]'
+    stdout:
+      - contains: '"a","b","c"'
+
+# Example: macro system (define macro and verify it's registered)
 tests:
   - name: smoke-defmacro
-    argv: ["$defmacro", "test", ["echo", "works"]]
-    stdin: ''
+    argv: exec "[['$defmacro', 'testmacro', ['echo', 'works']], ['dump-macros']]"
+    stdin: 'input'
     stdout:
-      - matches: '.*'  # Just verify no crash
+      - contains: '"testmacro"'  # Macro should be registered
+      - contains: '"echo"'       # Macro definition should contain echo command
 ```
 
 #### Implementation Notes
 
 1. **All 86 Commands Are Testable**: No commands need to be skipped
-2. **Focus on "Doesn't Crash"**: Use `matches: '.*'` for complex outputs
+2. **Meaningful Assertions**: Test actual expected outputs, not just "doesn't crash"
 3. **Use Realistic Inputs**: Based on actual usage patterns in existing scripts
 4. **Environment Dependencies**: Leverage existing `.env` and Ollama setup
 5. **Error Cases Welcome**: Some tests may expect failures (missing env vars, etc.)
+6. **Assertion Strategies**:
+   - **Exact match**: Use string literals (`stdout: 'expected'`) for deterministic output
+   - **Substring**: Use `contains` for partial matches in complex output
+   - **Regex**: Use `matches` for pattern matching
+   - **API responses**: Use `contains` to verify JSON structure elements
+   - **Error cases**: Test `stderr` and `exit` codes for failure scenarios
 
 #### Test Execution Pattern
 

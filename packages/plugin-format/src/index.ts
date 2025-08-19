@@ -20,6 +20,15 @@ const plugin: Plugin = {
         return yaml.stringify(JSON.parse(await readableToString(input)));
       },
     },
+    tsv: {
+      description: 'converts input JSON or YAML array of arrays to TSV',
+      run: async (input: string | Readable, _args: Arguments, _runtime: IPluginRuntime): Promise<string | Readable> => {
+        // Lazy. Very fragile. Use a real library.
+        input = await readableToString(input);
+        const data = yaml.parse(input) as Array<string>[][];
+        return data.map((row) => `${row.join('\t')}`).join('\n');
+      },
+    },
   },
 };
 

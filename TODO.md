@@ -18,8 +18,9 @@ Keep sections in decreasing order of priority.
 ## Testing
 
 - [x] Implement declaratuve black-box tests: per plugin, `packages/**/tests/**/.yaml` (argv, stdin, stdout, stderr)
-- [ ] support configuring test environment
+- [ ] support configuring test process environment
 - [ ] add a test-plugin script
+- [ ] switch tests to TAP output, use some reporter for pnpm test
 
 ## Development Documentation
 

@@ -27,12 +27,6 @@ const commands: Commands = {
       return input;
     },
   },
-  input: {
-    description: 'forwards input (useful for program arguments sometimes)',
-    run: async (input: string | Readable, _args: Arguments, _runtime: IPluginRuntime): Promise<string | Readable> => {
-      return input;
-    },
-  },
   echo: {
     description: 'replaces input with argument',
     run: async (_input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {

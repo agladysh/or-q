@@ -18,6 +18,13 @@ const commands: Commands = {
       return `${input}${text}`;
     },
   },
+  input: {
+    description: 'forwards input (useful for program arguments sometimes)',
+    run: async (input: string | Readable, _args: Arguments, _runtime: IPluginRuntime): Promise<string | Readable> => {
+      // Lazy. We read from the stream to prevent cli from skipping the output. Which is too weird. Perhaps cli should not print anything by itself at all?
+      return readableToString(input);
+    },
+  },
 };
 
 export default commands;

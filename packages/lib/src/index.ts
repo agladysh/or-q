@@ -20,6 +20,13 @@ export function mergeCommands(pluginName: string, commands: Commands[]): Command
   return merged;
 }
 
+export function commandsFromImports(pluginName: string, ...imports: (Command & { command: string })[]) {
+  return mergeCommands(
+    pluginName,
+    imports.map(({ command, ...rest }) => ({ [command]: rest }))
+  );
+}
+
 export type Arguments = (string | Arguments)[];
 
 export interface Command {
@@ -28,7 +35,9 @@ export interface Command {
 }
 
 export type Commands = Record<string, Command>;
-export type Assets = Record<string, string>;
+export type Asset = string;
+export type AssetURI = string;
+export type Assets = Record<AssetURI, Asset>;
 
 export const logLevelNames = ['spam', 'debug', 'info', 'log', 'warn', 'error', 'none'] as const;
 
@@ -215,7 +224,7 @@ export function loadModuleAssets(importMetaUrl: string, options?: GlobOptions, s
   return loadAssets(resolve(dir, subdir), options);
 }
 
-export function assetGlob(runtime: IPluginRuntime, pattern: string, options?: MinimatchOptions): string[] {
+export function assetGlob(runtime: IPluginRuntime, pattern: string, options?: MinimatchOptions): AssetURI[] {
   const filter = minimatch.filter(pattern, options);
   return runtime.assetNames.filter(filter);
 }
@@ -230,7 +239,7 @@ export function arrayWrap<T>(item: T): Array<T> {
   return [item];
 }
 
-export function resolveAsset(runtime: IPluginRuntime, uri: string): string | undefined {
+export function resolveAsset(runtime: IPluginRuntime, uri: string): Asset | undefined {
   if (uri.startsWith('plugin:')) {
     return runtime.assets[uri];
   }
@@ -246,6 +255,22 @@ export function resolveAsset(runtime: IPluginRuntime, uri: string): string | und
   }
 
   return undefined; // You may want to use assetGlob next.
+}
+
+export function resolvePluginAsset(runtime: IPluginRuntime, uri: string, pattern: string): Asset | undefined {
+  const assetNames = assetGlob(runtime, pattern).sort();
+  const assetName = assetNames[0]; // We handle not found below.
+  const asset = runtime.assets[assetName];
+  if (assetNames.length > 1) {
+    process.emitWarning(`run: several assets found for "${uri}":\n* ${assetNames.join('\n* ')}\nUsing "${assetName}"`);
+  }
+  return asset;
+}
+
+export function resolveAssetSubdir(runtime: IPluginRuntime, uri: string, subdir: string): Asset | undefined {
+  // Unqualified URIs are loaded from plugins.
+  // Use dot notation (./dir/filename.yaml) or an absolute path (/path/to/filename.yaml) to load from filesystem
+  return resolveAsset(runtime, uri) ?? resolvePluginAsset(runtime, uri, `plugin:*/**/${subdir}/**/${uri}.yaml`);
 }
 
 export function getPlugin<T extends Plugin>(runtime: IPluginRuntime, name: string): T {

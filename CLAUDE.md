@@ -572,3 +572,53 @@ interface Script {
 - Verify plugin loading with `plugins` command
 - Monitor event flow through logging system
 - Test with actual external services to catch integration issues
+
+### Testing Guidelines Discovered During Implementation
+
+**Phase 2 Implementation Insights**:
+
+- **Test Infrastructure**: Tests are YAML files in `packages/*/assets/tests/commands/*.yaml`
+- **Test Execution**: Tests run from project root directory (cwd = `/Users/agladysh/projects/or-q/`)
+- **Asset Requirements**: When adding assets to plugins, MUST update `package.json` `files` array to include `"assets"`
+- **Self-Contained Tests**: Tests must be self-contained and not depend on external files outside the plugin
+- **File Dependencies**: Use project root files like `README.md` for read-only filesystem tests (they exist in cwd)
+- **Command Understanding**: ALWAYS read command source code before writing tests - don't guess behavior
+- **CLI Output Behavior**: CLI suppresses empty output and trims whitespace (lines 29-32 in `packages/cli/src/main.ts`)
+
+**Test Pattern Examples**:
+
+```yaml
+# Basic command test
+suite: command-name
+tests:
+  - name: smoke
+    argv: command-name arg1 arg2
+    stdin: 'input data'
+    stdout: 'expected output'
+
+# Test with chain
+suite: command-name
+tests:
+  - name: integration
+    argv: echo "data" command-name other-command
+    stdin: ''
+    stdout:
+      - contains: 'partial match'
+
+# Failure test
+suite: command-name
+tests:
+  - name: error-case
+    argv: command-name invalid-arg
+    stdin: ''
+    exit: 1
+    stderr:
+      - contains: 'error message'
+```
+
+**Command Argument Patterns**:
+
+- `echo text` - replaces input with text
+- `command-from-input` - processes filename from stdin: `echo README.md | command-from-input`
+- `command-from-args filename` - processes filename from argument: `command-from-args README.md`
+- Store commands test with load: `set key value load key` outputs `value`

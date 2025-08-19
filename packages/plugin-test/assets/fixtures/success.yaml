@@ -1,0 +1,35 @@
+suite: Dummy Successful Tests
+
+depends:
+  - '@or-q/plugin-core'
+
+tests:
+  - name: stdout-no-stdin
+    argv: echo dummy
+    stdin: ''
+    stdout: 'dummy'
+
+  - name: stdin-stdout
+    argv: input
+    stdin: 'dummy'
+    stdout: 'dummy'
+
+  - name: stdout-contains
+    argv: tee
+    stdin: 'foo dummy bar'
+    stdout:
+      - contains: 'dummy'
+
+  - name: stdout-matches
+    argv: tee
+    stdin: 'foo dummy bar'
+    stdout:
+      - matches: '.*dummy.*'
+
+  - name: stdout-many
+    argv: tee
+    stdin: 'foo dummy bar'
+    stdout:
+      - contains: 'foo'
+      - contains: 'dummy'
+      - matches: 'bar$'

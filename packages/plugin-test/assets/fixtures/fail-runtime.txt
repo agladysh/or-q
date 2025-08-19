@@ -1,0 +1,29 @@
+SUITE	Dummy Failing Tests for Runtime
+	TEST	non-empty stdout
+		FAIL	stdout	actual "foo" expected to equal ""
+	FAILED	TEST	non-empty stdout
+	TEST	unexpected stdout
+		FAIL	stdout	actual "foo" expected to equal "bar"
+	FAILED	TEST	unexpected stdout
+	TEST	stdout does not contain
+		FAIL	stdout	actual "foo" expected to contain "bar"
+	FAILED	TEST	stdout does not contain
+	TEST	stdout does not match
+		FAIL	stdout	actual "foo" expected to match "^$"
+	FAILED	TEST	stdout does not match
+	TEST	unexpected stderr
+		FAIL	stderr	actual "foo" expected to equal "bar"
+	FAILED	TEST	unexpected stderr
+	TEST	stderr does not contain
+		FAIL	stderr	actual "foo" expected to contain "bar"
+	FAILED	TEST	stderr does not contain
+	TEST	stderr does not match
+		FAIL	stdout	actual "foo" expected to equal ""
+	FAILED	TEST	stderr does not match
+	TEST	unexpected error code
+		FAIL	exit	 got 1 expected 0
+	FAILED	TEST	unexpected error code
+	TEST	unexpected success code
+		FAIL	exit	 got 0 expected 1
+	FAILED	TEST	unexpected success code
+FAILED	SUITE	Dummy Failing Tests for Runtime

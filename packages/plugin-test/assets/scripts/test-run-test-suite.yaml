@@ -1,0 +1,35 @@
+description: Runs run-test-suite tests
+
+requires:
+  - '@or-q/plugin-test'
+
+# Lazy. This should be a test suite itself. Refactor after migration to CS-correct programs.
+commands:
+  - glob-assets: 'plugin:@or-q/plugin-test/fixtures/**/*.yaml'
+  - sort
+  - stream-map:
+      - - save: SUITE
+        - tee
+        - replace: [.yaml, .txt]
+        - resolve-asset
+        - trim
+        - save: EXPECTED
+        - load: SUITE
+        - run-test-suite
+        - trim
+        - save: ACTUAL
+        - equals:
+            - [load: ACTUAL]
+            - [load: EXPECTED]
+        - then:
+            - - print: OK
+        - else:
+            - - fail:
+                  - - t: |
+                        ${load SUITE} output does not match expected:
+                        ACTUAL:
+                        ${load ACTUAL}
+
+                        EXPECTED:
+                        ${load EXPECTED}
+        - clear

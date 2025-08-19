@@ -1,0 +1,64 @@
+suite: Dummy Failing Tests for Runtime
+
+requires:
+  - '@or-q/plugin-core'
+
+tests:
+  - name: non-empty stdout
+    argv: echo foo
+    stdin: ''
+    stdout: ''
+
+  - name: unexpected stdout
+    argv: echo foo
+    stdin: ''
+    stdout: bar
+
+  - name: stdout does not contain
+    argv: echo foo
+    stdin: ''
+    stdout:
+      - contains: bar
+
+  - name: stdout does not match
+    argv: echo foo
+    stdin: ''
+    stdout:
+      - matches: ^$
+
+  - name: unexpected stderr
+    argv: fail foo
+    stdin: ''
+    stdout: ''
+    stderr: bar
+    exit: 1
+
+  - name: stderr does not contain
+    argv: fail foo
+    stdin: ''
+    stdout: ''
+    stderr:
+      - contains: bar
+    exit: 1
+
+  - name: stderr does not match
+    argv: echo foo
+    stdin: ''
+    stdout: ''
+    stderr:
+      - matches: ^$
+    exit: 0
+
+  - name: unexpected error code
+    argv: fail expected
+    stdin: ''
+    stdout: ''
+    stderr: 'expected'
+    exit: 0
+
+  - name: unexpected success code
+    argv: echo expected
+    stdin: ''
+    stdout: 'expected'
+    stderr: ''
+    exit: 1

@@ -1,0 +1,10 @@
+SUITE	Dummy Successful Tests for Expected Errors
+	TEST	stderr
+	PASSED	TEST	stderr
+	TEST	stderr-contains
+	PASSED	TEST	stderr-contains
+	TEST	stderr-matches
+	PASSED	TEST	stderr-matches
+	TEST	stderr-many
+	PASSED	TEST	stderr-many
+PASSED	SUITE	Dummy Successful Tests for Expected Errors

@@ -1,0 +1,12 @@
+suite: Dummy Failing Tests for Dependencies
+
+requires:
+  - '@or-q/plugin-no-such-plugin' # Missing dependency
+
+tests:
+  - name: fail
+    argv: fail unreachable
+    stdin: ''
+    stdout: ''
+    stderr: ''
+    exit: 0

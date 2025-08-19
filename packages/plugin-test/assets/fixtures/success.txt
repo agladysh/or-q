@@ -1,0 +1,12 @@
+SUITE	Dummy Successful Tests
+	TEST	stdout-no-stdin
+	PASSED	TEST	stdout-no-stdin
+	TEST	stdin-stdout
+	PASSED	TEST	stdin-stdout
+	TEST	stdout-contains
+	PASSED	TEST	stdout-contains
+	TEST	stdout-matches
+	PASSED	TEST	stdout-matches
+	TEST	stdout-many
+	PASSED	TEST	stdout-many
+PASSED	SUITE	Dummy Successful Tests

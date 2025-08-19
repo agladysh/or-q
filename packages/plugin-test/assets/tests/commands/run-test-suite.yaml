@@ -1,0 +1,13 @@
+suite: run-test-suite
+
+requires:
+  - '@or-q/plugin-yaml-script'
+
+# TODO: Move fixtures to proper tests with _JSON to describe suites
+
+tests:
+  - name: smoke
+    argv: run test-run-test-suite
+    stdin: ''
+    stdout:
+      - matches: '.*' # Validated in the script

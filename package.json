@@ -5,7 +5,7 @@
   "description": "OR-Q Workspace Package",
   "scripts": {
     "pretest": "pnpm run lint",
-    "test": "true",
+    "test": "pnpm or-q run test-all",
     "lint:eslint": "eslint",
     "lint:prettier": "prettier --check .",
     "lint:tsc": "tsc --noEmit",
@@ -37,6 +37,7 @@
     "@or-q/plugin-shell": "workspace:*",
     "@or-q/plugin-stdio-logger": "workspace:*",
     "@or-q/plugin-store": "workspace:*",
+    "@or-q/plugin-test": "workspace:*",
     "@or-q/plugin-template": "workspace:*",
     "@or-q/plugin-yaml-script": "workspace:*"
   },

@@ -1,0 +1,8 @@
+suite: discover-tests
+
+tests:
+  - name: smoke
+    argv: discover-tests
+    stdin: ''
+    stdout:
+      - contains: plugin:@or-q/plugin-test/tests/commands/discover-tests.yaml

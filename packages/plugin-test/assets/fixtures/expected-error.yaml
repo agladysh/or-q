@@ -1,0 +1,38 @@
+suite: Dummy Successful Tests for Expected Errors
+
+requires:
+  - '@or-q/plugin-core'
+
+tests:
+  - name: stderr
+    argv: fail "foo dummy bar"
+    stdin: ''
+    stdout: ''
+    stderr: 'foo dummy bar'
+    exit: 1
+
+  - name: stderr-contains
+    argv: fail "foo dummy bar"
+    stdin: ''
+    stdout: ''
+    stderr:
+      - contains: 'dummy'
+    exit: 1
+
+  - name: stderr-matches
+    argv: fail "foo dummy bar"
+    stdin: ''
+    stdout: ''
+    stderr:
+      - matches: '.*dummy.*'
+    exit: 1
+
+  - name: stderr-many
+    argv: fail "foo dummy bar"
+    stdin: ''
+    stdout: ''
+    stderr:
+      - contains: 'foo'
+      - contains: 'dummy'
+      - matches: 'bar$'
+    exit: 1

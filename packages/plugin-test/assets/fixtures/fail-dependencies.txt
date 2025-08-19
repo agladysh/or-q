@@ -1,0 +1,3 @@
+SUITE	Dummy Failing Tests for Dependencies
+	FAIL	requires	test dependency @or-q/plugin-no-such-plugin not installed
+FAILED	SUITE	Dummy Failing Tests for Dependencies

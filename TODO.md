@@ -17,8 +17,9 @@ Keep sections in decreasing order of priority.
 
 ## Testing
 
-- [ ] Implement declaratuve black-box tests: per plugin, `packages/**/tests/**/.yaml` (env, args, stdin, stdout,
-      stderr), add a test-plugin and test-all-plugins commands
+- [x] Implement declaratuve black-box tests: per plugin, `packages/**/tests/**/.yaml` (argv, stdin, stdout, stderr)
+- [ ] support configuring test environment
+- [ ] add a test-plugin script
 
 ## Development Documentation
 

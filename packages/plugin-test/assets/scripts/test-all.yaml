@@ -1,0 +1,8 @@
+description: Runs all available tests
+
+requires:
+  - '@or-q/plugin-test'
+
+commands:
+  - discover-tests
+  - stream-map: run-test-suite # TODO: This does not seem to stream nested stream-maps gradually. Fix spawnTest() to stream stdout and stderr?

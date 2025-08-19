@@ -1,4 +1,4 @@
-import { type Arguments, commandArgument, fail, type IPluginRuntime, type Plugin } from '@or-q/lib';
+import { type Arguments, commandArgument, fail, type IPluginRuntime, type Plugin, readableToString } from '@or-q/lib';
 import type { Readable } from 'node:stream';
 import pkg from '../package.json' with { type: 'json' };
 
@@ -23,7 +23,16 @@ const plugin: Plugin = {
       description: 'loads a named value from the store, replacing input with it, unknown values are empty strings',
       run: async (_input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
         const key = await commandArgument(runtime, args.shift(), 'usage: load "<text>"');
-        return getStore(runtime)[key] ?? '';
+        const result = getStore(runtime)[key];
+        if (result === undefined) {
+          return '';
+        }
+        if (typeof result === 'string') {
+          return result;
+        }
+        const str = await readableToString(result);
+        getStore(runtime)[key] = str;
+        return str;
       },
     },
     save: {

@@ -309,10 +309,14 @@ pnpm test
 pnpm or-q run-test-suite plugin-name
 ```
 
-### 2.3 Verification
+### 2.3 Test-Fix-Commit Cycle
+
+**Per Plugin**: For each of the 15 plugins, create tests → run tests → fix issues → commit
+
+### 2.4 Verification
 
 - Run `pnpm test` and ensure all tests pass
-- Commit changes
+- Final commit if needed
 
 ## Phase 3: Add Mandatory Plugin.description Field
 
@@ -329,20 +333,30 @@ pnpm or-q run-test-suite plugin-name
 
 ### 3.2 Update All Plugin Definitions
 
-Update `src/index.ts` for each plugin to add `description: pkg.description`:
+Update `src/index.ts` for each plugin to add `description: pkg.description`.
+
+**Process**: Update each plugin individually with test-fix-commit cycle:
+
+1. Update plugin `src/index.ts` file
+2. Run `pnpm run lint:tsc` (verify TypeScript)
+3. Run `pnpm run fix` (auto-fix any issues)
+4. Run `pnpm test` (verify functionality)
+5. Commit changes
 
 #### Simple Updates (single index.ts file)
 
-- **@or-q/plugin-yaml-script**: `packages/plugin-yaml-script/src/index.ts`
-- **@or-q/plugin-template**: `packages/plugin-template/src/index.ts`
-- **@or-q/plugin-store**: `packages/plugin-store/src/index.ts`
-- **@or-q/plugin-stdio-logger**: `packages/plugin-stdio-logger/src/index.ts`
-- **@or-q/plugin-shell**: `packages/plugin-shell/src/index.ts`
-- **@or-q/plugin-macro**: `packages/plugin-macro/src/index.ts`
-- **@or-q/plugin-jp**: `packages/plugin-jp/src/index.ts`
-- **@or-q/plugin-format**: `packages/plugin-format/src/index.ts`
-- **@or-q/plugin-fetch**: `packages/plugin-fetch/src/index.ts`
-- **@or-q/plugin-dot-or-q-assets**: `packages/plugin-dot-or-q-assets/src/index.ts`
+**Per Plugin Cycle**:
+
+- **@or-q/plugin-yaml-script**: Update → Test → Fix → Commit
+- **@or-q/plugin-template**: Update → Test → Fix → Commit
+- **@or-q/plugin-store**: Update → Test → Fix → Commit
+- **@or-q/plugin-stdio-logger**: Update → Test → Fix → Commit
+- **@or-q/plugin-shell**: Update → Test → Fix → Commit
+- **@or-q/plugin-macro**: Update → Test → Fix → Commit
+- **@or-q/plugin-jp**: Update → Test → Fix → Commit
+- **@or-q/plugin-format**: Update → Test → Fix → Commit
+- **@or-q/plugin-fetch**: Update → Test → Fix → Commit
+- **@or-q/plugin-dot-or-q-assets**: Update → Test → Fix → Commit
 
 #### Already Correct
 
@@ -351,9 +365,11 @@ Update `src/index.ts` for each plugin to add `description: pkg.description`:
 
 #### Complex Updates (multiple source files)
 
-- **@or-q/plugin-openrouter-api**: `packages/plugin-openrouter-api/src/index.ts`
-- **@or-q/plugin-ollama**: `packages/plugin-ollama/src/index.ts`
-- **@or-q/plugin-filesystem**: `packages/plugin-filesystem/src/index.ts`
+**Per Plugin Cycle**:
+
+- **@or-q/plugin-openrouter-api**: Update → Test → Fix → Commit
+- **@or-q/plugin-ollama**: Update → Test → Fix → Commit
+- **@or-q/plugin-filesystem**: Update → Test → Fix → Commit
 
 **Example Change**:
 
@@ -493,7 +509,7 @@ export async function run(
    - `src/commands/_JSON.ts`
 3. Add `usage` field and appropriate `tags` to each command
 4. Update main `src/index.ts` to import from commands
-5. Test and commit
+5. **Test-Fix-Commit**: Run full cycle (lint → fix → test → commit) before next plugin
 
 **Tags Strategy**:
 
@@ -512,7 +528,7 @@ export async function run(
    - `src/commands/f.ts`
    - `src/commands/render.ts`
 3. Add usage and tags: `template`
-4. Test and commit
+4. **Test-Fix-Commit**: Run full cycle (lint → fix → test → commit) before next plugin
 
 #### @or-q/plugin-store
 
@@ -529,7 +545,7 @@ export async function run(
    - `src/commands/dump-store.ts`
 3. Add usage and tags: `store`
 4. Add `discovery-command` tag to `dump-store`
-5. Test and commit
+5. **Test-Fix-Commit**: Run full cycle (lint → fix → test → commit) before next plugin
 
 #### @or-q/plugin-stdio-logger
 
@@ -540,7 +556,7 @@ export async function run(
 1. Create `src/commands/index.ts`
 2. Extract to `src/commands/stdio-loglevel.ts`
 3. Add usage and tags: `stdio-logger`
-4. Test and commit
+4. **Test-Fix-Commit**: Run full cycle (lint → fix → test → commit) before next plugin
 
 #### @or-q/plugin-shell
 
@@ -551,7 +567,7 @@ export async function run(
 1. Create `src/commands/index.ts`
 2. Extract to `src/commands/shell.ts`
 3. Add usage and tags: `shell`
-4. Test and commit
+4. **Test-Fix-Commit**: Run full cycle (lint → fix → test → commit) before next plugin
 
 #### @or-q/plugin-macro
 
@@ -567,7 +583,7 @@ export async function run(
    - `src/commands/dump-macros.ts`
 3. Add usage and tags: `macro`
 4. Add `discovery-command` tag to `dump-macros`
-5. Test and commit
+5. **Test-Fix-Commit**: Run full cycle (lint → fix → test → commit) before next plugin
 
 #### @or-q/plugin-jp
 
@@ -578,7 +594,7 @@ export async function run(
 1. Create `src/commands/index.ts`
 2. Extract to `src/commands/jp.ts`
 3. Add usage and tags: `jp`
-4. Test and commit
+4. **Test-Fix-Commit**: Run full cycle (lint → fix → test → commit) before next plugin
 
 #### @or-q/plugin-format
 
@@ -592,7 +608,7 @@ export async function run(
    - `src/commands/yaml.ts`
    - `src/commands/tsv.ts`
 3. Add usage and tags: `format`
-4. Test and commit
+4. **Test-Fix-Commit**: Run full cycle (lint → fix → test → commit) before next plugin
 
 #### @or-q/plugin-fetch
 
@@ -604,7 +620,7 @@ export async function run(
 2. Move `src/fetch.ts` to `src/commands/fetch.ts`
 3. Update exports and imports
 4. Add usage and tags: `fetch`
-5. Test and commit
+5. **Test-Fix-Commit**: Run full cycle (lint → fix → test → commit) before next plugin
 
 #### @or-q/plugin-filesystem
 
@@ -626,7 +642,7 @@ export async function run(
      - `src/commands/glob/glob3.ts`
    - `src/ignore.ts` → `src/commands/ignore.ts`
 3. Add usage and tags: `filesystem`
-4. Test and commit
+4. **Test-Fix-Commit**: Run full cycle (lint → fix → test → commit) before next plugin
 
 #### @or-q/plugin-openrouter-api
 
@@ -646,7 +662,7 @@ export async function run(
      - `src/commands/conversation/temperature.ts`
    - `src/models.ts` → `src/commands/models.ts`
 3. Add usage and tags: `openrouter-api`
-4. Test and commit
+4. **Test-Fix-Commit**: Run full cycle (lint → fix → test → commit) before next plugin
 
 #### @or-q/plugin-ollama
 
@@ -661,7 +677,7 @@ export async function run(
      - `src/commands/ollama/ollama-chat.ts`
    - `src/openai.ts` → `src/commands/ollama.ts`
 3. Add usage and tags: `ollama`
-4. Test and commit
+4. **Test-Fix-Commit**: Run full cycle (lint → fix → test → commit) before next plugin
 
 #### @or-q/plugin-core
 
@@ -685,16 +701,21 @@ export async function run(
 4. Add appropriate help/discovery tags:
    - `list-plugins`: add `help-command` tag
    - `plugins-json`: add `discovery-command` tag
-5. Test and commit
+5. **Test-Fix-Commit**: Run full cycle (lint → fix → test → commit) before next plugin
 
-### 6.3 Per-Plugin Testing
+### 6.3 Mandatory Per-Plugin Test-Fix-Commit Cycle
 
-After each plugin refactoring:
+**CRITICAL**: After each plugin refactoring, MUST complete full cycle before proceeding:
 
-1. Run `pnpm run lint` to check TypeScript
-2. Run `pnpm test` to ensure functionality preserved
-3. Test a few commands manually
-4. Commit changes
+1. **Refactor**: Complete plugin restructuring as described above
+2. **TypeScript Check**: `pnpm run lint:tsc` - fix any TypeScript errors
+3. **Auto-fix**: `pnpm run fix` - auto-fix ESLint and Prettier issues
+4. **Test**: `pnpm test` - ensure all tests pass
+5. **Commit**: Commit changes with clear message
+6. **ONLY THEN**: Proceed to next plugin
+
+**Failure Protocol**: If any step fails, fix issues before proceeding. Do not accumulate broken state across multiple
+plugins.
 
 ## Phase 7: Verification - All Commands Have Usage Fields
 
@@ -813,13 +834,22 @@ src/
 
 Create smoke tests for all help and discover commands.
 
-### 8.8 Verification
+### 8.8 Test-Fix-Commit Cycle
+
+**Per Plugin**:
+
+1. **@or-q/plugin-help**: Create → Test → Fix → Commit
+2. **@or-q/plugin-discover**: Create → Test → Fix → Commit
+3. **Core runtime updates**: Update → Test → Fix → Commit
+4. **CLI integration**: Update → Test → Fix → Commit
+
+### 8.9 Verification
 
 - Run `pnpm install` to update dependencies
 - Run `pnpm run lint`
 - Run `pnpm test`
-- Test help commands manually: `pnpm or-q help`, `pnpm or-q help-plugins`
-- Commit changes
+- Test help commands: `pnpm or-q help`, `pnpm or-q help-plugins`
+- Final commit if needed
 
 ## Phase 9: Add Script Descriptions and Script-Specific Commands
 
@@ -890,12 +920,20 @@ Update all 19 script assets to include description fields:
 
 Add smoke tests for script help commands.
 
-### 9.6 Verification
+### 9.6 Test-Fix-Commit Cycle
+
+**Per Plugin Group**:
+
+1. **Script descriptions**: Update all scripts → Test → Fix → Commit
+2. **Help plugin updates**: Add script commands → Test → Fix → Commit
+3. **Discover plugin updates**: Add script commands → Test → Fix → Commit
+
+### 9.7 Verification
 
 - Run `pnpm run lint`
 - Run `pnpm test`
 - Test script help: `pnpm or-q help-scripts`, `pnpm or-q help-script chat`
-- Commit changes
+- Final commit if needed
 
 ## Phase 10: Legacy Command Removal
 
@@ -925,12 +963,20 @@ Search codebase for any references to removed commands and update them.
 
 Update any documentation that references old command names.
 
-### 10.4 Verification
+### 10.4 Test-Fix-Commit Cycle
+
+**Per Task**:
+
+1. **Remove legacy commands**: Remove → Test → Fix → Commit
+2. **Update references**: Update → Test → Fix → Commit
+3. **Update documentation**: Update → Test → Fix → Commit
+
+### 10.5 Verification
 
 - Run `pnpm run lint`
 - Run `pnpm test`
 - Verify no broken references
-- Commit changes
+- Final commit if needed
 
 ## Command Mapping
 

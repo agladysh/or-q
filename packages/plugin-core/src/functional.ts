@@ -1,5 +1,5 @@
 import { type Arguments, commandArgument, type Commands, fail, type IPluginRuntime, readableToString } from '@or-q/lib';
-import type { Readable } from 'node:stream';
+import { Readable } from 'node:stream';
 import parseArgsStringToArgv from 'string-argv';
 import yaml from 'yaml';
 
@@ -51,6 +51,38 @@ const commands: Commands = {
         result.push(await readableToString(await runtime.runCommands(entry, arg.slice())));
       }
       return JSON.stringify(result, null, 2);
+    },
+  },
+  // Lazy. Is there an idiomatic name for this?
+  ['stream-map']: {
+    description: 'applies commands from the argument to each entry of the input array, streaming to input',
+    run: async (input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
+      let arg = args.shift();
+      if (arg === undefined) {
+        return fail('usage: stream-map [program]');
+      }
+      if (typeof arg === 'string') {
+        arg = parseArgsStringToArgv(arg);
+      }
+
+      input = await readableToString(input);
+      // Lazy. Should check schema.
+      const data = yaml.parse(input) as string[];
+
+      async function* stream(arg: Arguments) {
+        for (const entry of data) {
+          const result = await runtime.runCommands(entry, arg.slice());
+          if (typeof result === 'string') {
+            yield result;
+            continue;
+          }
+          for await (const chunk of result) {
+            yield chunk;
+          }
+        }
+      }
+
+      return Readable.from(stream(arg), { objectMode: true });
     },
   },
   ['map-n']: {

@@ -24,6 +24,14 @@ const commands: Commands = {
       return JSON.stringify(result, null, 2);
     },
   },
+  sort: {
+    description: 'sorts input array',
+    run: async (input: string | Readable, _args: Arguments, _runtime: IPluginRuntime): Promise<string | Readable> => {
+      // Lazy. Should check schema.
+      const data = yaml.parse(await readableToString(input)) as string[];
+      return `${JSON.stringify(data.sort((lhs, rhs) => lhs.localeCompare(rhs)))}\n`;
+    },
+  },
   map: {
     description: 'applies commands from the argument to each entry of the input array, returns resulting array',
     run: async (input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {

@@ -15,6 +15,7 @@ import {
   logLevels,
   type Plugin,
   type PluginRecord,
+  PluginRuntimeFailure,
   runtimeCloneChildEventName,
   runtimeCloneParentEventName,
 } from '@or-q/lib';
@@ -241,16 +242,19 @@ export class PluginRuntime implements IPluginRuntime {
           return fail(`runCommands: internal error, invalid resulting input type; ${typeof input}`);
         }
       } catch (e: unknown) {
+        if (e instanceof PluginRuntimeFailure) {
+          dbg(`command ${command} failed`, e.message);
+          throw e;
+        }
         // Lazy. Improve diagnostics.
         const failedAt = program.length - args.length - 1;
         for (let i = 0; i < program.length; ++i) {
           const open = i === failedAt ? '> ' : '  ';
           const close = i === failedAt ? ' <' : '';
           // Lazy, compute maximum padding.
-          // Lazy, must ellipsis-trim to max length, since "commands" may actually be long text arguments
           error(`${i.toString().padStart(3)}: ${open}${truncate(String(program[i]).trim(), 60)}${close}`);
         }
-        error(`command ${command} failed`);
+        error(`command ${command} failed`, e);
         throw e;
       }
       spam('runCommands: done running', command);

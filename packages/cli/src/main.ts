@@ -1,7 +1,7 @@
 #! /usr/bin/env node --env-file-if-exists=.env --experimental-strip-types --disable-warning=ExperimentalWarning
 import { PluginRuntime } from '@or-q/core';
-import { PluginRuntimeFailure, readableToString } from '@or-q/lib';
-import type { Readable } from 'node:stream';
+import { PluginRuntimeFailure } from '@or-q/lib';
+import { Readable } from 'node:stream';
 
 async function main() {
   const runtime = await PluginRuntime.fromNodeModules();
@@ -13,23 +13,33 @@ async function main() {
     return;
   }
 
-  let input: string | Readable = '';
-
   try {
-    input = await readableToString(await runtime.runCommands(input, args));
+    const result = await runtime.runCommands(process.stdin, args);
+    if (result === process.stdin) {
+      return;
+    }
+
+    if (result instanceof Readable) {
+      for await (const chunk of result) {
+        process.stdout.write(chunk);
+      }
+      return;
+    }
+
+    const output = result.trimEnd();
+    if (output !== '') {
+      process.stdout.write(`${output}\n`);
+    }
   } catch (e: unknown) {
     if (e instanceof PluginRuntimeFailure) {
       process.stderr.write(`${e.message.trimEnd()}\n`);
+      process.exitCode = 1;
       return;
     }
-  }
-
-  input = input.trimEnd();
-  if (input !== '') {
-    process.stdout.write(`${input}\n`);
   }
 }
 
 main().catch((e: unknown) => {
   console.error('Unexpected error:', e);
+  process.exitCode = 1;
 });

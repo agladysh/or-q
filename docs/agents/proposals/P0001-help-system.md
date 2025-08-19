@@ -348,107 +348,49 @@ Cons:
 
 - Unwieldy `index.ts` barrel-like files, which is acceptable.
 
-## Testing Strategy
+## Implementation Plan
 
-Manual smoke tests.
+1. Prepare detailed implementation action roadmap in proposals/P0001-roadmap.md
+   - Read sources of plugin-test as correct plugin source code layout
+   - Capture full list of plugins by running `pnpm or-q list-plugins`
+   - Capture full list of commands by running `pnpm or-q` without arguments
+   - Capture full list of script assets by running `pnpm or-q list-script-assets`
+   - Locate source files for each command
+   - Read the plan items below
+   - Write the roadmap, detailing every planned action
+   - Commit
 
-Write dumb `test-<commmand>.yaml` scripts for each command.
+2. Implement smoke tests for every command of every plugin.
+   - Gotcha: some plugin package.json and index.ts files do not yet export assets
 
-Run the script, study the output.
+   Make sure `pnpm test` passes. Commit.
 
-### Future work
+3. Add mandatory `Plugin.description` field. Refactor all plugins to expose pkg.description sans `OR-Q Plugin:` through
+   it
 
-`Command Usage Refactoring` implies smoke tests for all commands.
+4. Add optional `tags` and _optional_ `usage` fields on `Command`.
 
-The scripts will later become a basis for initial test suites.
+5. Make sure `pnpm test` passes. Commit.
 
-## Implementation Notes
+6. Systematically refactor each plugin to match plugin-test layout.
+   - Move each command to an individual file, preserving groupings (old filename becomes directory).
+   - Add `tag` and `usage` fields to commands. Use plugin name (sans `@or-q/plugin-`) and grouping (if present) as tags.
+   - Test and commit after each plugin.
 
-### Strategy
+7. Make `Command.usage` field _mandatory_. Test and commit.
 
-1. Core Interface Enhancements
-   - Enhance Command interface with mandatory tags and usage fields
-   - Add mandatory description field to Plugin interface
-   - Remove `IPluginRuntime.usage()` method entirely
-   - Update all existing commands and plugins to include these fields
-
-2. Code Reorganization
-   - Move all commands to `src/commands/` directories with one file per command
-   - Define usage string as a constant in each command file
-   - Add appropriate tags to all commands
-   - Smoke test each command after reorganization to ensure functionality
-   - Plugin Implementation
-
-3. Create both `@or-q/plugin-help` and @`or-q/plugin-discover` simultaneously
-   - Implement all commands specified in the proposal
+8. Create both `@or-q/plugin-help` and `@or-q/plugin-discover` simultaneously
+   - Implement all commands specified in the proposal, with smoke tests. Avoid capturing full outputs in tests.
    - Export tag constants (`tagHelpCommand`, `tagDiscoverCommand`) from respective plugins
    - Add `@or-q/cli` dependency on `@or-q/plugin-help`
    - Update CLI to use help command when invoked with no arguments
-   - YAML Script Enhancements
+   - Add appropriate lookup dictionaries to `PluginRuntime` class
+   - Remove `IPluginRuntime.usage()`
 
-4. Add support for description field in YAML scripts
-   - Implement script-specific help and discover commands
-   - Update all existing scripts with descriptions
+   Test and commit.
 
-5. Legacy Command Removal
-   - Remove all legacy commands (`list-plugins`, `plugins-json`, etc.)
-   - Update any references to use new command patterns
+9. Add description fields to all scripts. Implement script-specific help and discover commands with smoke tests. Commit.
 
-6. Testing
-   - Write `test-<command>.yaml` scripts for each new command
-   - Perform manual smoke tests for all commands
-   - Verify output formats match specifications
-
-### Recommended Order
-
-#### Phase 1: Core Interface Foundation (Optional Fields)
-
-T1. **Enhance Command interface** - Add `tags?: string[]` and `usage?: string` as optional fields T2. **Enhance Plugin
-interface** - Add `description?: string` as optional field T3. **Remove legacy** - Delete `IPluginRuntime.usage()`
-method, output stub in cli on no-args
-
-**Rationale**: Optional fields allow existing plugins to continue working unchanged.
-
-#### Phase 2: New Plugin Implementation (with Graceful Degradation)
-
-T4. **Create plugin-help package** - Implement all `help-*` commands with fallbacks for missing metadata T5. **Create
-plugin-discover package** - Implement all `discover-*` commands with null handling T6. **Export tag constants** -
-`tagHelpCommand`, `tagDiscoverCommand`
-
-**Rationale**: Help system can work immediately, showing "No description available" or empty arrays for missing data.
-
-#### Phase 3: Incremental Plugin Updates
-
-T7. **Update plugin-core first** - Add descriptions, usage, tags, reorganize to `src/commands/` T8. **Test help
-system** - Verify help commands work with mixed old/new plugins T9. **Update remaining plugins one by one** - Each
-becomes fully documented as updated T10. **Validate after each plugin** - Ensure no regressions
-
-**Rationale**: System remains functional throughout; each plugin improvement is immediately visible.
-
-#### Phase 4: Integration & Enhancement
-
-T11. **Update CLI integration** - Add dependency, implement full no-args behavior T12. **YAML script descriptions** -
-Add description field support T13. **Update existing scripts** - Add descriptions to all YAML assets
-
-#### Phase 5: Make Fields Required & Cleanup
-
-T14. **Make Command fields required** - `tags: string[]`, `usage: string` T15. **Make Plugin description required** -
-`description: string` T16. **Remove legacy commands** - `list-plugins`, `plugins-json`, etc. T17. **Comprehensive
-testing** - Write test scripts for all commands
-
-**Rationale**: Only enforce requirements after all plugins are updated; breaking changes come last.
-
-#### Key Benefits
-
-- **Zero downtime**: System always works during migration
-- **Incremental value**: Help improves as each plugin gets updated
-- **Safe rollback**: Any step can be reverted without breaking the system
-- **Early feedback**: Help system can be tested and refined before making fields required
-
-#### Dependencies
-
-- **Phases 1-2 are sequential** (interface changes must precede help implementation)
-- **Phase 3 can be done incrementally** (one plugin at a time)
-- **Phases 4-5 require Phase 3 completion**
-
-This approach follows the principle of "make the change easy, then make the easy change."
+10. Legacy Command Removal
+    - Remove all legacy commands (`list-plugins`, `plugins-json`, etc.)
+    - Update any references to use new command patterns

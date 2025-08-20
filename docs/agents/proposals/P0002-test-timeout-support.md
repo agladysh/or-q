@@ -72,6 +72,7 @@ While the underlying infrastructure supports timeouts:
 # Normal command with safety timeout
 - name: smoke
   argv: echo "hello"
+  stdin: ''
   stdout: 'hello'
   # timeout: 30 (default)
 ```
@@ -99,11 +100,11 @@ test: {
 test: {
   name: 'string > 0',
   argv: 'string|string[]',
-  stdin: 'string',
+  stdin: 'string = ""',
   stdout: 'stream = ""',
   stderr: 'stream = ""',
   exit: 'number|"timeout"=0',  // Allow "timeout" string
-  timeout: 'number > 0 = 30',  // Seconds, default 30
+  timeout: ['number > 0 = 30', '=>', (s: number) => s * 1000],  // Seconds (YAML) → milliseconds (internal), default 30
 },
 ```
 
@@ -115,7 +116,7 @@ test: {
 
 **Key Changes**:
 
-- Accept timeout in seconds, convert to milliseconds internally
+- Accept timeout (milliseconds) from schema-transformed value
 - Use local timeout flag instead of signal detection
 - Return `"timeout"` exit code when timeout occurs
 - Capture stdout/stderr before timeout
@@ -141,7 +142,7 @@ async function spawnTest(cmd: string, input: Readable | string, opts: SpawnOptio
     const timer = setTimeout(() => {
       timedOut = true; // Set flag before killing
       child.kill('SIGTERM');
-    }, timeout * 1000); // Convert seconds to milliseconds
+    }, timeout);
 
     child.on('exit', () => clearTimeout(timer));
   }
@@ -149,7 +150,7 @@ async function spawnTest(cmd: string, input: Readable | string, opts: SpawnOptio
   // ... stdin/stdout/stderr handling ...
 
   return new Promise<SpawnTestResult>((resolve, reject) => {
-    child.on('close', async (code, signal) => {
+    child.on('close', async (code) => {
       // Use local flag instead of signal detection
       const exitCode = timedOut ? 'timeout' : (code ?? 0);
 
@@ -168,15 +169,15 @@ async function spawnTest(cmd: string, input: Readable | string, opts: SpawnOptio
 **File**: `packages/plugin-test/src/lib/index.ts`
 
 ```typescript
-// In test execution loop:
-const result = await spawnTest('pnpm', input, {
-  args: ['or-q', ...argv],
-  timeout: test.timeout, // Pass timeout from test spec
+// In test execution loop, spawn the CLI directly (no pnpm):
+const result = await spawnTest('or-q', test.stdin, {
+  args: argv, // argv parsed from test.argv
+  timeout: test.timeout, // Already converted to milliseconds by schema
 });
 
 // Exit code validation handles both numbers and "timeout"
 if (result.code !== test.exit) {
-  yield`\tFAIL\tTEST\t${test.name}\texit code mismatch: expected ${test.exit}, got ${result.code}\n`;
+  yield`\t\tFAIL\texit\t got ${result.code} expected ${test.exit}\n`;
   ++testErrors;
 }
 ```
@@ -267,10 +268,12 @@ tests:
 
 ### Phase 1: Core Timeout Support
 
-1. **Update test schema** with timeout and timeout exit support
-2. **Modify spawnTest function** with local timeout flag implementation
-3. **Update test runner logic** to handle timeout exit conditions
-4. **Verify schema validation** works with new fields
+1. **Update test schema** with `timeout` (seconds → ms transform), `stdin` default, and `exit` union
+   (`packages/plugin-test/src/lib/schema.ts`)
+2. **Update SpawnTestResult interface** to support `"timeout"` exit code (`packages/plugin-test/src/lib/index.ts`)
+3. **Modify spawnTest function** with local timeout flag implementation (accept milliseconds)
+4. **Update test runner logic** to spawn `or-q` directly and handle timeout exit conditions
+5. **Verify schema validation** works with new fields
 
 ### Phase 2: Test Coverage
 

@@ -1,0 +1,9 @@
+SUITE	Timeout Success Tests
+	TEST	default-timeout-fast
+	PASSED	TEST	default-timeout-fast
+	TEST	explicit-timeout-fast
+	PASSED	TEST	explicit-timeout-fast
+	TEST	expected-timeout
+	PASSED	TEST	expected-timeout
+PASSED	SUITE	Timeout Success Tests
+

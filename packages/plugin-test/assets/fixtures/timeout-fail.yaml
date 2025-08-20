@@ -1,0 +1,21 @@
+suite: Timeout Failure Tests
+
+requires:
+  - '@or-q/plugin-core'
+  - '@or-q/plugin-yaml-script'
+
+tests:
+  - name: unexpected-timeout
+    argv: forever "echo test"
+    stdin: ''
+    timeout: 1
+    exit: 0 # Wrong! Should be "timeout"
+    stdout:
+      - contains: 'test'
+
+  - name: expected-timeout-but-succeeded
+    argv: echo fast
+    stdin: ''
+    timeout: 5
+    exit: 'timeout' # Wrong! Should be 0
+    stdout: 'fast'

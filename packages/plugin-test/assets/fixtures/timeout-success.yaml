@@ -1,0 +1,26 @@
+suite: Timeout Success Tests
+
+requires:
+  - '@or-q/plugin-core'
+  - '@or-q/plugin-yaml-script'
+
+tests:
+  - name: default-timeout-fast
+    argv: echo fast
+    stdin: ''
+    stdout: 'fast'
+    # Uses 30s default timeout
+
+  - name: explicit-timeout-fast
+    argv: echo fast
+    stdin: ''
+    timeout: 5
+    stdout: 'fast'
+
+  - name: expected-timeout
+    argv: forever "echo test"
+    stdin: ''
+    timeout: 1
+    exit: 'timeout'
+    stdout:
+      - contains: 'test'

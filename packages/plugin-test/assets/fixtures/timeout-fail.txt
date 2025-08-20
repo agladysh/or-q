@@ -1,0 +1,9 @@
+SUITE	Timeout Failure Tests
+	TEST	unexpected-timeout
+		FAIL	exit	 got timeout expected 0
+	FAILED	TEST	unexpected-timeout
+	TEST	expected-timeout-but-succeeded
+		FAIL	exit	 got 0 expected timeout
+	FAILED	TEST	expected-timeout-but-succeeded
+FAILED	SUITE	Timeout Failure Tests
+

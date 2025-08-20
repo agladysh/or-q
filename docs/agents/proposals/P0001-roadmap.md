@@ -1104,5 +1104,335 @@ Update any documentation that references old command names.
 
 ---
 
-**Next Steps**: Begin Phase 2 - Implement smoke tests for all commands to establish baseline functionality before making
-structural changes.
+## ANNEX: Phase 2 Implementation Analysis
+
+**Date**: 2025-08-20  
+**Analysis By**: Claude Code review of actual implementation  
+**Status**: Post-implementation quality assessment
+
+### Implementation Status
+
+**Phase 2**: ❌ **PARTIALLY COMPLETED** - Significant quality violations found
+
+**Quantitative Assessment**:
+
+- ✅ **Test Coverage**: 86 test files for 86 commands (100% coverage achieved)
+- ✅ **Infrastructure**: All plugins have `assets` in package.json, `loadModuleAssets()` added
+- ❌ **Test Quality**: Bimodal distribution with ~30% inadequate tests
+
+### Test Quality Analysis
+
+**Command-by-command analysis revealed systematic test quality issues:**
+
+#### Excellent Tests (Following P0001 Standards)
+
+- **`glob`, `glob3`**: Exact JSON output verification with realistic inputs ✅
+- **`dirtree-json`**: Proper hierarchy testing with expected structure ✅
+- **`_DATA`**: Complete coverage (empty case + multiple arguments) ✅
+- **`conversation`, `user`**: Perfect integration testing with exact JSON ✅
+- **`$defmacro`**: Tests both macro definition and passthrough behavior ✅
+- **`set`**: Integration test with `load` command verification ✅
+- **`jp`**: Multiple JSONPath scenarios with exact expected outputs ✅
+
+#### Inadequate Tests (Violating P0001 Requirements)
+
+- **`head`**: ❌ Only tests failure case, never tests actual "first N items" functionality
+- **`echo`, `default`**: ❌ Use weak `contains:` assertions instead of exact matches
+- **`map-n`**: ❌ Doesn't verify correct nested array structure `[["A","B"],["A","B"]]`
+- **`forever`**: ❌ **FRAUDULENT** - doesn't test command at all, just echoes excuse message
+- **`exec`, `run`**: ❌ Only test failure cases, never test successful YAML execution
+- **`$macro`**: ❌ Only tests failure case, not macro execution
+- **`cat-file`, `file`**: ❌ Weak content verification with `contains: 'OR-Q'`
+- **`_JSON`**: ❌ Only tests primitives, ignores array/object DSL functionality
+
+### Implementation Bugs Found and Fixed
+
+During analysis, multiple copy-paste errors in source code were discovered:
+
+1. **`head` command** (functional.ts:10): ✅ **FIXED**
+   - Wrong usage: `'usage: mapN N [program1] ... [programN]'`
+   - Correct usage: `'usage: head N'`
+   - Invalid validation: `n > args.length` (checked command args instead of data)
+
+2. **`default` command** (io.ts:39): ✅ **FIXED**
+   - Wrong usage: `'usage: echo "<text>"'`
+   - Correct usage: `'usage: default "<text>"'`
+
+3. **`cat-file` command** (file.ts:9): ✅ **FIXED**
+   - Wrong usage: `'usage: cat <filename>'`
+   - Correct usage: `'usage: cat-file <filename>'`
+
+### Test Quality Patterns
+
+**High-Quality Test Characteristics**:
+
+- Exact output verification (JSON structure, literal strings)
+- Realistic input scenarios
+- Integration testing where appropriate
+- Both success and edge cases tested
+
+**Low-Quality Test Anti-Patterns**:
+
+- Failure-only testing (avoiding real functionality)
+- Weak `contains:` assertions that would pass incorrect outputs
+- Excuse-making instead of testing (e.g., `forever` "not testable" message)
+- Testing error handling more thoroughly than core features
+
+### Fix Requirements for Phase 2 Completion
+
+**TRIVIAL FIXES** (5 minutes each):
+
+```yaml
+# Pattern: contains → exact match
+# BAD
+stdout:
+  - contains: 'test'
+# GOOD
+stdout: 'test'
+
+# Pattern: Add success cases to failure-only tests
+# BAD (only failure)
+tests:
+  - name: smoke-fail
+    argv: command
+    exit: 1
+# GOOD (add success)
+  - name: smoke-success
+    argv: command arg
+    stdout: 'expected'
+```
+
+**STRAIGHTFORWARD FIXES** (15 minutes each):
+
+- `forever`: Use timeout testing as specified in P0001 roadmap
+- `exec`/`run`: Test actual YAML execution with simple scripts
+- `$macro`: Test successful macro execution after `$defmacro`
+- `head`: Test actual "first N items" functionality
+
+**MODERATE FIXES** (30 minutes each):
+
+- `map-n`: Verify correct nested array output structure
+- `_JSON`: Test array and object DSL construction
+- API commands: Enhanced response structure validation
+
+### Quality Distribution
+
+**Bimodal Test Quality Distribution**:
+
+- **Excellent** (~35%): Meet or exceed P0001 standards
+- **Adequate** (~35%): Functional but weak assertions
+- **Inadequate** (~30%): Fundamentally flawed or fraudulent
+
+### Recommendations
+
+1. **Immediate Action Required**: Fix inadequate tests before proceeding to Phase 3
+2. **Use Excellent Tests as Templates**: Copy patterns from `glob`, `conversation`, `_DATA` tests
+3. **Systematic Review**: Each plugin needs quality normalization to excellent test standards
+4. **No Complex Architecture Changes**: All fixes follow clear patterns from working examples
+
+### Smoke Test Quality Guidelines
+
+Based on analysis of excellent vs inadequate tests, here are the standards for OR-Q smoke tests:
+
+#### What Makes a Good Smoke Test
+
+**Purpose**: Verify command's core functionality works correctly with realistic inputs.
+
+**Essential Characteristics**:
+
+1. **Test Primary Function**: Must test the command's main purpose, not just error handling
+2. **Realistic Inputs**: Use inputs that represent actual usage scenarios
+3. **Exact Assertions**: Verify precise expected outputs, not just "doesn't crash"
+4. **Minimal but Complete**: Cover the essential path without being exhaustive
+
+#### Good Smoke Test Patterns
+
+**Simple Commands** (echo, clear, etc.):
+
+```yaml
+# GOOD: Tests actual functionality with exact output
+tests:
+  - name: smoke
+    argv: echo "hello world"
+    stdin: ''
+    stdout: 'hello world' # Exact match, not contains:
+```
+
+**Data Processing Commands** (JSON, YAML manipulation):
+
+```yaml
+# GOOD: Realistic data with exact structure verification
+tests:
+  - name: smoke
+    argv: jp name
+    stdin: '{"name": "test", "id": 123}'
+    stdout: '"test"' # Exact JSON output
+```
+
+**File System Commands**:
+
+```yaml
+# GOOD: Uses known file with structural verification
+tests:
+  - name: smoke
+    argv: glob "README.md" ""
+    stdin: ''
+    stdout: |
+      [
+        "README.md"
+      ]
+```
+
+**Integration Commands** (multiple command chains):
+
+```yaml
+# GOOD: Tests command interaction
+tests:
+  - name: smoke
+    argv: conversation "test-model" user "Hello"
+    stdin: ''
+    stdout: |
+      {
+        "model": "test-model", 
+        "messages": [
+          {
+            "role": "user",
+            "content": "Hello"
+          }
+        ]
+      }
+```
+
+**Commands with Edge Cases**:
+
+```yaml
+# GOOD: Tests both normal and edge cases
+tests:
+  - name: smoke-empty
+    argv: _DATA
+    stdout: '[]'
+  - name: smoke-args
+    argv: _DATA "one" "two"
+    stdout: '["one","two"]'
+```
+
+#### Anti-Patterns to Avoid
+
+**❌ Weak Assertions**:
+
+```yaml
+# BAD: Too permissive, would pass incorrect outputs
+stdout:
+  - contains: 'test'
+
+# GOOD: Exact verification
+stdout: '"test"'
+```
+
+**❌ Failure-Only Testing**:
+
+```yaml
+# BAD: Only tests error handling, not functionality
+tests:
+  - name: smoke-fail
+    argv: command
+    exit: 1
+    stderr:
+      - contains: 'usage:'
+
+# GOOD: Test success case first
+tests:
+  - name: smoke-success
+    argv: command "arg"
+    stdout: 'expected result'
+  - name: error-case
+    argv: command
+    exit: 1
+```
+
+**❌ Fraudulent Tests**:
+
+```yaml
+# BAD: Doesn't test the command at all
+tests:
+  - name: smoke-skip
+    argv: echo "command not testable"
+    stdout: 'command not testable'
+
+# GOOD: Test real functionality with appropriate constraints
+tests:
+  - name: smoke-timeout
+    argv: forever "echo test"
+    timeout: 1000
+    expect: timeout
+    stdout:
+      - contains: 'test'
+```
+
+**❌ Unrealistic Inputs**:
+
+```yaml
+# BAD: Trivial inputs that don't represent real usage
+tests:
+  - name: smoke
+    argv: jp x
+    stdin: '{"x": 1}'
+    stdout: '1'
+
+# GOOD: Realistic JSON structure and meaningful query
+tests:
+  - name: smoke
+    argv: jp name
+    stdin: '{"name": "John Doe", "id": 123, "roles": ["user", "admin"]}'
+    stdout: '"John Doe"'
+```
+
+#### Special Cases
+
+**Long-Running Commands** (forever, interactive):
+
+- Use `timeout:` parameter with `expect: timeout`
+- Verify partial output before timeout occurs
+
+**API Commands** (external dependencies):
+
+- Test with real API calls using environment variables
+- Verify response structure, not exact content
+- Use `contains:` only for variable fields (timestamps, IDs)
+
+**File Commands** (cat-file, glob):
+
+- Use existing project files (README.md, package.json)
+- Verify file structure/content patterns, not exact bytes
+
+#### Command-Specific Guidelines
+
+**DSL Commands** (\_JSON, \_DATA):
+
+- Test multiple data types and structures
+- Verify exact JSON serialization format
+- Include empty/edge cases
+
+**Pipeline Commands** (map, head, sort):
+
+- Use realistic array data
+- Verify exact output structure including formatting
+- Test edge cases (empty arrays, n=0, etc.)
+
+**Store Commands** (set, load, save):
+
+- Test integration scenarios (set → load)
+- Verify state persistence within test
+- Use meaningful keys and values
+
+### Conclusion
+
+Phase 2 achieved comprehensive test coverage but with significant quality inconsistencies that undermine the testing
+foundation required for subsequent P0001 phases. The bimodal quality distribution indicates inconsistent implementation
+approaches rather than systematic methodology violations.
+
+**Phase 2 Corrected Status**: **70% Complete** - requires test quality normalization before Phase 3 progression.
+
+---
+
+**Next Steps**: Complete Phase 2 test quality fixes using patterns from excellent tests, then proceed to Phase 3.

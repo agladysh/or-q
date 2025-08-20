@@ -36,7 +36,7 @@ const commands: Commands = {
   default: {
     description: 'if input is empty, replaces it with argument',
     run: async (input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
-      const text = await commandArgument(runtime, args.shift(), 'usage: echo "<text>"');
+      const text = await commandArgument(runtime, args.shift(), 'usage: default "<text>"');
       input = await readableToString(input);
       return input === '' ? text : input;
     },

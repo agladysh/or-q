@@ -7,10 +7,10 @@ const commands: Commands = {
   head: {
     description: 'returns first N items from the input array',
     run: async (input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
-      const usage = 'usage: mapN N [program1] ... [programN]';
+      const usage = 'usage: head N';
       const nStr = await commandArgument(runtime, args.shift(), usage);
       const n = Number(nStr);
-      if (!Number.isInteger(n) || n < 0 || n > args.length) {
+      if (!Number.isInteger(n) || n < 0) {
         return fail(usage);
       }
       if (n === 0) {

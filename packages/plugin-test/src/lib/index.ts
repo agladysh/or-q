@@ -38,12 +38,14 @@ export function loadTestSuiteAsset(asset: Asset): TestSuite {
 interface SpawnTestResult {
   stdout: string;
   stderr: string;
-  code: number;
+  code: number | 'timeout';
 }
 
 // Lazy. DRY with lib's spawnText.
 async function spawnTest(cmd: string, input: Readable | string, opts: SpawnOptions = {}): Promise<SpawnTestResult> {
   const { args = [], timeout } = opts;
+
+  let timedOut = false;
 
   const child = spawn(cmd, args, {
     stdio: ['pipe', 'pipe', 'pipe'],
@@ -51,7 +53,10 @@ async function spawnTest(cmd: string, input: Readable | string, opts: SpawnOptio
   });
 
   if (timeout) {
-    const timer = setTimeout(() => child.kill('SIGTERM'), timeout);
+    const timer = setTimeout(() => {
+      timedOut = true;
+      child.kill('SIGTERM');
+    }, timeout);
     child.on('exit', () => clearTimeout(timer));
   }
 
@@ -73,7 +78,7 @@ async function spawnTest(cmd: string, input: Readable | string, opts: SpawnOptio
         resolve({
           stdout: Buffer.concat(stdout).toString('utf8'),
           stderr: Buffer.concat(stderr).toString('utf8'),
-          code: code ?? 0,
+          code: timedOut ? 'timeout' : (code ?? 0),
         });
       } catch (error) {
         reject(error);
@@ -120,11 +125,9 @@ async function* runTestSuiteImpl(runtime: IPluginRuntime, suite: TestSuite) {
     for (const test of suite.tests) {
       testErrors = 0;
       yield `\tTEST\t${test.name}\n`;
-      // Lazy. This should NOT have pnpm hardcoded!
+      // Build argv from test spec and spawn CLI directly (no pnpm)
       const argv = Array.isArray(test.argv) ? test.argv : parseArgsStringToArgv(test.argv);
-      argv.unshift('or-q');
-      // Lazy. Should support timeout.
-      const result = await spawnTest('pnpm', test.stdin, { args: argv });
+      const result = await spawnTest('or-q', test.stdin, { args: argv, timeout: test.timeout });
 
       if (result.code !== test.exit) {
         yield `\t\tFAIL\texit\t got ${result.code} expected ${test.exit}\n`;

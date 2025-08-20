@@ -20,10 +20,12 @@ const schema = scope({
   test: {
     name: 'string > 0',
     argv: 'string|string[]',
-    stdin: 'string',
+    stdin: 'string = ""',
     stdout: 'stream = ""',
     stderr: 'stream = ""',
-    exit: 'number=0',
+    exit: 'number|"timeout"=0',
+    // YAML specifies seconds; default to 30 and transform to milliseconds for internal use
+    timeout: [['number > 0', '=', 30], '=>', (s: number) => s * 1000] as unknown as never,
   },
   suite: {
     suite: 'string > 0',

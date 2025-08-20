@@ -1,6 +1,6 @@
 suite: Dummy Successful Tests
 
-depends:
+requires:
   - '@or-q/plugin-core'
 
 tests:

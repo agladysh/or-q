@@ -24,8 +24,8 @@ const schema = scope({
     stdout: 'stream = ""',
     stderr: 'stream = ""',
     exit: 'number|"timeout"=0',
-    // YAML specifies seconds; default to 30 and transform to milliseconds for internal use
-    timeout: [['number > 0', '=', 30], '=>', (s: number) => s * 1000] as unknown as never,
+    // YAML specifies seconds; set default to 30 and transform to milliseconds
+    timeout: ['number > 0', '=', 30, '=>', (s: number) => s * 1000] as unknown as never,
   },
   suite: {
     suite: 'string > 0',

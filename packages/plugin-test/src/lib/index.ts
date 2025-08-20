@@ -55,7 +55,11 @@ async function spawnTest(cmd: string, input: Readable | string, opts: SpawnOptio
   if (timeout) {
     const timer = setTimeout(() => {
       timedOut = true;
-      child.kill('SIGTERM');
+      try {
+        child.kill('SIGTERM');
+      } catch {
+        // Ignore kill errors (e.g., permission or already exited)
+      }
     }, timeout);
     child.on('exit', () => clearTimeout(timer));
   }

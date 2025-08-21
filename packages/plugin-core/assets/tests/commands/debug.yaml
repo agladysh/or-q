@@ -1,0 +1,8 @@
+suite: debug
+
+tests:
+  - name: smoke
+    argv: debug "test message"
+    stdin: ''
+    stdout:
+      - equals: ''

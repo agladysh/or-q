@@ -1,0 +1,90 @@
+# TODO: Implement static cache populated/updated based on git repo and working copy changes
+
+requires:
+  - '@or-q/plugin-openrouter-api' # TODO: Migrate general openai conversation stuff from there and update this dependency
+  - '@or-q/plugin-ollama'
+  - '@or-q/plugin-store'
+  - '@or-q/plugin-jp'
+
+commands:
+  # TODO: Model and provider should be switchable!
+  - run: ollama-gpt-oss-instruct
+  - run: openrouter-gpt-oss-free-instruct
+
+  - glob3:
+      - - _DATA: '**/*'
+      - - _DATA:
+            - '**/.git/**'
+      - - _DATA:
+            dot: true
+  - ignore:
+      - - cat: .gitignore
+        - append: |
+            pnpm-lock.yaml
+
+  - save: FILES
+
+  - dirtree
+  - save: DIRTREE
+
+  - log: Describing files...
+  - load: FILES
+  # - head: 5 # TODO: DEBUGGING, REMOVE
+  - parallel-map-n:
+      - 2
+      - - input
+      - - save: FILENAME
+        - $macro:
+            # TODO: Disable reasoning, it slows stuff down radically
+            # - - $ollama-gpt-oss-instruct
+            - - $openrouter-gpt-oss-free-instruct
+              - You are an erudite best-of-field CTO, excelling in technical documentation
+              - - t: |
+                    Your task is to write one extremely concise yet informative sentence, describing the file provided below.
+                    Your description will be used as an annotation of the file to populate the dirtree output also provided below.
+
+                    Descriptions for all files, when integrated together, should result in a readable yet informative annotated dirtree output.
+
+                    Example of the annotated dirtree output for a `pnpm-workspace.yaml` file:
+
+                    ```
+                    ...
+                    ├─ pnpm-workspace.yaml: workspace packages in packages/*, lefthook is a built dependency
+                    ...
+                    ```
+
+                    Study the following directory tree of the Project:
+                    <dirtree>
+                    ${ load DIRTREE }
+                    </dirtree>
+
+                    Study the file ${ load FILENAME quote }:
+                    <file>
+                    ${ load FILENAME file trimEnd }
+                    </file>
+
+                    - Do not include filename in the description.
+                    - If the filename is standard (e.g. tsconfig.json),
+                      omit obvious information that directly stems from the filename itself (e.g. "TypeScript compiler config").
+                    - If description gets large, provide key information only.
+                    - Begin with a lowercase letter (unless the first word is an upper-case identifier, e.g. "MIT"), omit period at the end.
+                    - Use declarative statements and/or third-person present tense with active voice
+
+                    Bad: `tsconfig.json – TypeScript compiler config targeting ES2022, bundler‑style module resolution, path mapping for `@or-q/*` to `packages/*/src`, and emitting only declaration files.`
+                    Good: `ES2022, bundler‑style module resolution, path mapping for `@or-q/*` to `packages/*/src`, emit only declaration files`
+
+                    Bad: `mit license granting broad usage rights with disclaimer of warranties`
+                    Good: `MIT`
+
+                    Bad: `configures Prettier to use semicolons, single quotes, ES5 trailing commas, and always wrap prose`
+                    Good: `semicolons, single quotes, ES5 trailing commas, always wrap prose`
+
+                    Bad: `provides @or-q/plugin-macro, a basic macro system plugin for OR-Q, version 1.0.0, MIT license, authored by Alexander Gladysh, uses pnpm 10.13.1, module type, exports src/index.ts, types dist/index.d.ts, includes src and dist, prepack script emits declaration files, depends on @or-q/lib workspace, devDependencies @types/node and TypeScript 5.9.2`
+                    Good: `A basic macro system plugin for OR-Q`
+
+                    Your response will be processed by an automated system. Do not include any additional information, respond only with most concise informative description possible.
+        - save: DESCRIPTION
+        - log: [[t: '${ load FILENAME }: ${ load DESCRIPTION }']]
+
+  - dirtree-annotated-json
+  - dirtree

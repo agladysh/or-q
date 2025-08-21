@@ -1,5 +1,5 @@
 import type { Arguments, IPluginRuntime, Plugin } from '@or-q/lib';
-import { readableToString } from '@or-q/lib';
+import { loadModuleAssets, readableToString } from '@or-q/lib';
 import type { Readable } from 'node:stream';
 import yaml from 'yaml';
 
@@ -7,6 +7,7 @@ import pkg from '../package.json' with { type: 'json' };
 
 const plugin: Plugin = {
   name: pkg.name,
+  assets: loadModuleAssets(import.meta.url),
   commands: {
     pretty: {
       description: 'pretty-prints JSON',

@@ -10,7 +10,8 @@
   "types": "./dist/index.d.ts",
   "files": [
     "src",
-    "dist"
+    "dist",
+    "assets"
   ],
   "scripts": {
     "prepack": "tsc --emitDeclarationOnly"

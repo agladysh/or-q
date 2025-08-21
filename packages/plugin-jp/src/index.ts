@@ -1,11 +1,12 @@
 import type { Arguments, IPluginRuntime, Plugin } from '@or-q/lib';
-import { commandArgument, spawnText } from '@or-q/lib';
+import { commandArgument, loadModuleAssets, spawnText } from '@or-q/lib';
 import type { Readable } from 'node:stream';
 import pkg from '../package.json' with { type: 'json' };
 
 // Lazy, this should use JS module!
 const plugin: Plugin = {
   name: pkg.name,
+  assets: loadModuleAssets(import.meta.url),
   commands: {
     jp: {
       description: "run JMSEPath's jp command",

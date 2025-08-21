@@ -2,6 +2,7 @@ import {
   assetGlob,
   commandArgument,
   fail,
+  loadModuleAssets,
   loggingEventName,
   logLevels,
   readableToString,
@@ -253,6 +254,7 @@ async function runYAMLScript(
 
 const plugin: Plugin = {
   name: pkg.name,
+  assets: loadModuleAssets(import.meta.url),
   commands: {
     exec: {
       description: 'executes YAML script from argument',

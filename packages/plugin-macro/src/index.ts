@@ -3,6 +3,7 @@ import {
   commandArgument,
   fail,
   type IPluginRuntime,
+  loadModuleAssets,
   type Plugin,
   runCommandsInContext,
 } from '@or-q/lib';
@@ -19,6 +20,7 @@ type Context = { args: Arguments };
 
 const plugin: Plugin = {
   name: pkg.name,
+  assets: loadModuleAssets(import.meta.url),
   commands: {
     $defmacro: {
       description: 'stores or overrides a macro definition, forwards input',

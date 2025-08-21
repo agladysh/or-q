@@ -1,4 +1,12 @@
-import { type Arguments, commandArgument, fail, type IPluginRuntime, type Plugin, readableToString } from '@or-q/lib';
+import {
+  type Arguments,
+  commandArgument,
+  fail,
+  type IPluginRuntime,
+  loadModuleAssets,
+  type Plugin,
+  readableToString,
+} from '@or-q/lib';
 import type { Readable } from 'node:stream';
 import pkg from '../package.json' with { type: 'json' };
 
@@ -18,6 +26,7 @@ function getStore(runtime: IPluginRuntime): Store {
 
 const plugin: Plugin = {
   name: pkg.name,
+  assets: loadModuleAssets(import.meta.url),
   commands: {
     load: {
       description: 'loads a named value from the store, replacing input with it, unknown values are empty strings',

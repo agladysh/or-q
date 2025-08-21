@@ -1,5 +1,5 @@
 import type { Arguments, IPluginRuntime, Plugin } from '@or-q/lib';
-import { commandArgument, readableToString } from '@or-q/lib';
+import { commandArgument, loadModuleAssets, readableToString } from '@or-q/lib';
 import type { Readable } from 'node:stream';
 import pkg from '../package.json' with { type: 'json' };
 import parseArgsStringToArgv from 'string-argv';
@@ -78,6 +78,7 @@ async function renderORQ(runtime: IPluginRuntime, template: string, input: strin
 
 const plugin: Plugin = {
   name: pkg.name,
+  assets: loadModuleAssets(import.meta.url),
   commands: {
     t: {
       description: 'replaces input with a template instantiated from @orq/store',

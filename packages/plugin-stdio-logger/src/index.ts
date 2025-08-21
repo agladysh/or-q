@@ -7,6 +7,7 @@ import {
   type Plugin,
   commandArgument,
   fail,
+  loadModuleAssets,
   loggingEventName,
   logLevelNames,
   logLevelOrds,
@@ -18,6 +19,7 @@ import pkg from '../package.json' with { type: 'json' };
 
 export class LoggingPlugin implements Plugin {
   name: string = pkg.name;
+  assets = loadModuleAssets(import.meta.url);
 
   console = new Console(process.stdout, process.stderr);
   private logLevelOrd: LogLevelOrd = logLevelOrds[logLevels.log];

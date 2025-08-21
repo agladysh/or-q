@@ -1,4 +1,4 @@
-import { mergeCommands, type Plugin } from '@or-q/lib';
+import { mergeCommands, loadModuleAssets, type Plugin } from '@or-q/lib';
 import pkg from '../package.json' with { type: 'json' };
 import assets from './assets.ts';
 import controlflow from './controlflow.ts';
@@ -13,6 +13,7 @@ import string from './string.ts';
 
 const plugin: Plugin = {
   name: pkg.name,
+  assets: loadModuleAssets(import.meta.url),
   commands: mergeCommands(pkg.name, [assets, controlflow, debug, error, functional, input, io, log, plugins, string]),
 };
 

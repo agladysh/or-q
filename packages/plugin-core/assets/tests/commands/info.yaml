@@ -1,0 +1,8 @@
+suite: info
+
+tests:
+  - name: smoke
+    argv: stdio-loglevel info info "test message"
+    stdin: ''
+    stdout:
+      - contains: 'info	core	 test message'

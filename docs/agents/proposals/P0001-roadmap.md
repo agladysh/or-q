@@ -1,8 +1,6 @@
 # P0001: Help System Implementation Roadmap
 
-**Status**: DRAFT  
-**Generated**: 2025-08-19  
-**Parent Proposal**: [P0001-help-system.md](./P0001-help-system.md)
+**Status**: IN PROGRESS **Generated**: 2025-08-19 **Parent Proposal**: [P0001-help-system.md](./P0001-help-system.md)
 
 ## Overview
 
@@ -84,9 +82,8 @@ Create basic smoke test for each command following the established pattern in `@
 
 #### Test Infrastructure
 
-**Location**: `packages/*/assets/tests/commands/*.yaml`  
-**Pattern**: One YAML file per command  
-**Example**: `packages/plugin-test/assets/tests/commands/discover-tests.yaml`
+**Location**: `packages/*/assets/tests/commands/*.yaml` **Pattern**: One YAML file per command **Example**:
+`packages/plugin-test/assets/tests/commands/discover-tests.yaml`
 
 #### Test File Structure
 
@@ -1118,9 +1115,8 @@ Update any documentation that references old command names.
 
 ## ANNEX: Phase 2 Implementation Analysis
 
-**Date**: 2025-08-20  
-**Analysis By**: Claude Code review of actual implementation  
-**Status**: Post-implementation quality assessment
+**Date**: 2025-08-20 **Analysis By**: Claude Code review of actual implementation **Status**: Post-implementation
+quality assessment
 
 ### Implementation Status
 
@@ -1257,6 +1253,50 @@ Based on analysis of excellent vs inadequate tests, here are the standards for O
 3. **Exact Assertions**: Verify precise expected outputs, not just "doesn't crash"
 4. **Minimal but Complete**: Cover the essential path without being exhaustive
 
+#### Critical Testing Gotchas Discovered
+
+**Input Ignoring Commands**: Commands like `-` that ignore pipeline input must be tested with pipeline input to verify
+ignoring behavior:
+
+```yaml
+# WRONG: Only tests stdin reading
+argv: '-'
+stdin: 'test-input'
+
+# CORRECT: Tests input ignoring + stdin reading
+argv: echo "ignored-pipeline-input" -
+stdin: 'actual-stdin-input'
+stdout: 'actual-stdin-input'
+```
+
+**Logging Commands**: Commands like `debug`, `info`, `warn` that emit logging events must use `stdio-loglevel` to verify
+logging:
+
+```yaml
+# WRONG: Only tests stdout (which is empty for logging commands)
+argv: debug "test message"
+stdout: ''
+
+# CORRECT: Tests actual logging output
+argv: stdio-loglevel debug debug "test message"
+stdout:
+  - contains: 'debug core  test message'
+```
+
+**File Content Assertions**: File reading commands should verify content was read without tight coupling to unrelated
+files:
+
+```yaml
+# ADEQUATE: Tests file reading without coupling to content details
+stdout:
+  - contains: 'OR-Q'  # Generic substring that proves file was read
+
+# AVOID: Tight coupling to non-fixture file content
+stdout:
+  - contains: '# OR-Q: OpenRouter Query Porcelain Tool with Plugins'  # Breaks if README changes
+  - contains: 'KISS, YAGNI, DRY, CS'
+```
+
 #### Good Smoke Test Patterns
 
 **Simple Commands** (echo, clear, etc.):
@@ -1305,7 +1345,7 @@ tests:
     stdin: ''
     stdout: |
       {
-        "model": "test-model", 
+        "model": "test-model",
         "messages": [
           {
             "role": "user",

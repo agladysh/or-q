@@ -15,7 +15,7 @@ async function main() {
 
   try {
     const result = await runtime.runCommands(process.stdin, args);
-    if (result === process.stdin) {
+    if (result === process.stdin && process.stdin.isTTY) {
       return;
     }
 

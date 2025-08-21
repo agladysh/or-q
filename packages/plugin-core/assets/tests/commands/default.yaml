@@ -1,0 +1,11 @@
+suite: default
+
+tests:
+  - name: smoke-empty
+    argv: default "fallback-value"
+    stdin: ''
+    stdout: 'fallback-value'
+  - name: smoke-non-empty
+    argv: default "fallback-value"
+    stdin: 'existing-data'
+    stdout: 'existing-data'

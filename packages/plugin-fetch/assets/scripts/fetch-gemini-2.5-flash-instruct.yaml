@@ -25,5 +25,10 @@ commands:
                     - text:
                         _RAW: [$arg: 2]
         - fetch: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent
+        - tee
+        - if-then:
+            - - contains: 'RESOURCE_EXHAUSTED'
+            - - tee
+              - fail: '$fetch-gemini-2.5-flash-instruct: RESOURCE_EXHAUSTED'
         - jp: 'candidates[0].content.parts[0].text'
         - unquote

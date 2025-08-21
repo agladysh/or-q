@@ -1,0 +1,9 @@
+suite: plugins-json
+
+tests:
+  - name: smoke
+    argv: plugins-json
+    stdin: ''
+    stdout:
+      - contains: '{'
+      - contains: 'plugin'

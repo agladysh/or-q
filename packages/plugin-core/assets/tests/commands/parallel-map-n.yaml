@@ -2,8 +2,16 @@ suite: parallel-map-n
 
 tests:
   - name: smoke
-    argv: parallel-map-n 2 "echo A" "echo B"
+    argv: parallel-map-n 2 "prepend A=" "prepend B="
     stdin: '["x", "y"]'
-    stdout:
-      - contains: '"A"'
-      - contains: '"B"'
+    stdout: |
+      [
+        [
+          "A=x",
+          "B=x"
+        ],
+        [
+          "A=y",
+          "B=y"
+        ]
+      ]

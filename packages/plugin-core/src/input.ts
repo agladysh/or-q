@@ -5,7 +5,7 @@ const commands: Commands = {
   prepend: {
     description: 'prepends argument to input, does NOT insert a newline at either end of argument',
     run: async (input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
-      const text = await commandArgument(runtime, args.shift(), 'usage: append "\n<text>\n"');
+      const text = await commandArgument(runtime, args.shift(), 'usage: prepend "\n<text>\n"');
       input = await readableToString(input);
       return `${text}${input}`;
     },

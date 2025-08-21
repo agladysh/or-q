@@ -2,7 +2,7 @@ suite: debug
 
 tests:
   - name: smoke
-    argv: debug "test message"
+    argv: stdio-loglevel debug debug "test message"
     stdin: ''
     stdout:
-      - equals: ''
+      - contains: 'debug	core	 test message'

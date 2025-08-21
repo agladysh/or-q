@@ -1,0 +1,13 @@
+suite: dump
+
+tests:
+  - name: smoke-empty
+    argv: dump
+    stdin: ''
+    stdout: '[]'
+  - name: smoke-with-remaining
+    argv: echo "input" dump tee echo "after-dump"
+    stdin: ''
+    stdout: |
+      ["tee","echo","after-dump"]
+      after-dump

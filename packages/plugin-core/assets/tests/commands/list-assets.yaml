@@ -1,0 +1,8 @@
+suite: list-assets
+
+tests:
+  - name: smoke
+    argv: list-assets
+    stdin: test-input
+    stdout:
+      - contains: 'Available assets:'

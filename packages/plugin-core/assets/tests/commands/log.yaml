@@ -2,8 +2,8 @@ suite: log
 
 tests:
   - name: smoke
-    argv: log "test message"
+    argv: stdio-loglevel log log "test message"
     stdin: 'input-data'
     stdout:
-      - contains: 'log'
-      - contains: 'test message'
+      - contains: 'log	core	 test message'
+      - contains: 'input-data'

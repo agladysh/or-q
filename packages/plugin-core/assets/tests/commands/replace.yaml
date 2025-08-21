@@ -1,0 +1,7 @@
+suite: replace
+
+tests:
+  - name: smoke
+    argv: replace "old" "new"
+    stdin: 'old text old'
+    stdout: 'new text new'

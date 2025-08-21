@@ -1,7 +1,6 @@
 requires:
-  - '@or-q/plugin-openrouter-api' # TODO: Migrate general openai conversation stuff from there and update this dependency
-  - '@or-q/plugin-ollama'
-  - '@or-q/plugin-store'
+  - '@or-q/plugin-core'
+  - '@or-q/plugin-fetch'
   - '@or-q/plugin-jp'
 
 commands:
@@ -23,6 +22,5 @@ commands:
                   content:
                     _RAW: [$arg: 4]
         - fetch: [[$arg: 1]]
-        - tee
         - jp: 'choices[0].message.content'
         - unquote

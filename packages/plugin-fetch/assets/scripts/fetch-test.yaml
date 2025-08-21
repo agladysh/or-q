@@ -1,11 +1,19 @@
 requires:
   - '@or-q/plugin-openrouter-api' # TODO: Migrate general openai conversation stuff from there and update this dependency
-  - '@or-q/plugin-ollama'
+  - '@or-q/plugin-fetch'
   - '@or-q/plugin-store'
   - '@or-q/plugin-jp'
 
 commands:
   - run: fetch-openai-instruct
+  - run: fetch-gemini-2.5-flash-instruct
+
+  - $macro:
+      - - $fetch-gemini-2.5-flash-instruct
+        - You speak only in Pirate
+        - Who are you?
+  - tee
+
   - $macro:
       - - $fetch-openai-instruct
         - http://localhost:11434/v1/chat/completions # ollama

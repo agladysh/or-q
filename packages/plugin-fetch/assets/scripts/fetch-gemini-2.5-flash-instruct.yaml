@@ -1,0 +1,29 @@
+requires:
+  - '@or-q/plugin-core'
+  - '@or-q/plugin-fetch'
+  - '@or-q/plugin-jp'
+
+commands:
+  - $defmacro:
+      - $fetch-gemini-2.5-flash-instruct
+      - - _JSON:
+            method: POST
+            headers:
+              x-goog-api-key:
+                _RAW: [secret: GEMINI_API_KEY]
+              Content-Type: application/json
+            body:
+              generationConfig:
+                temperature: 0
+              system_instruction:
+                parts:
+                  - text:
+                      _RAW: [$arg: 1]
+              contents:
+                - role: user
+                  parts:
+                    - text:
+                        _RAW: [$arg: 2]
+        - fetch: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent
+        - jp: 'candidates[0].content.parts[0].text'
+        - unquote

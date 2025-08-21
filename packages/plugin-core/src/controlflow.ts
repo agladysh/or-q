@@ -13,6 +13,22 @@ const commands: Commands = {
       return String(lhs === rhs);
     },
   },
+  matches: {
+    description: 'replaces input with `true` if input matches the argument, with `false` otherwise',
+    run: async (input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
+      const usage = 'usage: echo "<input>" matches "<pattern>"';
+      const pattern = await readableToString(await commandArgument(runtime, args.shift(), usage));
+      return String(new RegExp(pattern).test(await readableToString(input)));
+    },
+  },
+  contains: {
+    description: 'replaces input with `true` if input contains the argument, with `false` otherwise',
+    run: async (input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
+      const usage = 'usage: echo "<input>" contains "<substring>"';
+      const pattern = await readableToString(await commandArgument(runtime, args.shift(), usage));
+      return String((await readableToString(input)).includes(pattern));
+    },
+  },
   then: {
     description: 'runs commands only if trimmed input is `true`',
     run: async (input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
@@ -51,6 +67,35 @@ const commands: Commands = {
       }
 
       return runtime.runCommands(input, arg.slice());
+    },
+  },
+  ['if-then']: {
+    description:
+      'runs commands from the second argument only if the first argument is `true`, passes input to both arguments',
+    run: async (input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
+      const usage = 'usage: if-then ["<commands">] ["<commands>"]';
+      let condition = args.shift();
+      if (condition === undefined) {
+        return fail(usage);
+      }
+      if (typeof condition === 'string') {
+        condition = parseArgsStringToArgv(condition);
+      }
+
+      let commands = args.shift(); // We must consume commands regardless of condition
+      if (commands === undefined) {
+        return fail(usage);
+      }
+      if (typeof commands === 'string') {
+        commands = parseArgsStringToArgv(commands);
+      }
+
+      const flag = await readableToString(await runtime.runCommands(input, condition.slice()));
+      if (flag.trim() === 'true') {
+        return runtime.runCommands(input, commands.slice());
+      }
+
+      return input;
     },
   },
 };

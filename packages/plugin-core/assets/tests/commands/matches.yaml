@@ -1,0 +1,12 @@
+suite: matches
+
+tests:
+  - name: smoke-matches
+    argv: matches .*
+    stdin: 'foo dummy bar'
+    stdout: 'true'
+
+  - name: smoke-not-matches
+    argv: matches ^$
+    stdin: 'foo dummy bar'
+    stdout: 'false'

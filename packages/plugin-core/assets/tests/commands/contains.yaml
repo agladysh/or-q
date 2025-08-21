@@ -1,0 +1,12 @@
+suite: contains
+
+tests:
+  - name: smoke-contains
+    argv: contains dummy
+    stdin: 'foo dummy bar'
+    stdout: 'true'
+
+  - name: smoke-not-contains
+    argv: contains unexpected
+    stdin: 'foo dummy bar'
+    stdout: 'false'

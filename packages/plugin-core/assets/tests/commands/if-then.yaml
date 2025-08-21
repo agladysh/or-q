@@ -1,0 +1,7 @@
+suite: if-then
+
+tests:
+  - name: smoke
+    argv: fail TODO
+    stdin: ''
+    stdout: ''

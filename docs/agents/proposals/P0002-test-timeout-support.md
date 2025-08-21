@@ -58,7 +58,7 @@ While the underlying infrastructure supports timeouts:
 ```yaml
 # forever command should timeout
 - name: smoke-timeout
-  argv: forever "echo test"
+  argv: forever "print test"
   stdin: ''
   timeout: 1 # 1 second
   exit: 'timeout'
@@ -224,7 +224,7 @@ tests:
     stdout: 'fast'
 
   - name: expected-timeout
-    argv: forever "echo test"
+    argv: forever "print test"
     stdin: ''
     timeout: 1
     exit: 'timeout'
@@ -243,7 +243,7 @@ requires:
   - '@or-q/plugin-yaml-script'
 tests:
   - name: unexpected-timeout
-    argv: forever "echo test"
+    argv: forever "print test"
     stdin: ''
     timeout: 1
     exit: 0 # Wrong! Should be "timeout"

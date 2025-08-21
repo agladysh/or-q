@@ -584,6 +584,8 @@ interface Script {
 - **File Dependencies**: Use project root files like `README.md` for read-only filesystem tests (they exist in cwd)
 - **Command Understanding**: ALWAYS read command source code before writing tests - don't guess behavior
 - **CLI Output Behavior**: CLI suppresses empty output and trims whitespace (lines 29-32 in `packages/cli/src/main.ts`)
+- **Critical Gotcha - echo vs print**: `echo` returns pipeline data but does NOT write to stdout; `print` writes to
+  stdout. For timeout tests requiring stdout capture, use `forever "print test"` not `forever "echo test"`
 
 **Test Pattern Examples**:
 
@@ -618,7 +620,28 @@ tests:
 
 **Command Argument Patterns**:
 
-- `echo text` - replaces input with text
+- `echo text` - replaces input with text (pipeline data, NOT stdout)
+- `print text` - writes text to stdout (captured by test harness)
 - `command-from-input` - processes filename from stdin: `echo README.md | command-from-input`
 - `command-from-args filename` - processes filename from argument: `command-from-args README.md`
 - Store commands test with load: `set key value load key` outputs `value`
+
+**Stdout Testing Patterns**:
+
+```yaml
+# WRONG: echo doesn't write to stdout, test will fail
+- name: timeout-test-wrong
+  argv: forever "echo test"
+  timeout: 1
+  exit: 'timeout'
+  stdout:
+    - contains: 'test' # Will fail - no stdout output
+
+# CORRECT: print writes to stdout, test will pass
+- name: timeout-test-correct
+  argv: forever "print test"
+  timeout: 1
+  exit: 'timeout'
+  stdout:
+    - contains: 'test' # Will pass - stdout captured
+```

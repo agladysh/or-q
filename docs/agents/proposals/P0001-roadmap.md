@@ -197,7 +197,7 @@ tests:
 # Example: forever (use timeout - note: complex args need shell escaping)
 tests:
   - name: smoke
-    argv: forever echo test
+    argv: forever "print test"
     timeout: 1000
     expect: timeout
 ```
@@ -1362,7 +1362,7 @@ tests:
 # GOOD: Test real functionality with appropriate constraints
 tests:
   - name: smoke-timeout
-    argv: forever "echo test"
+    argv: forever "print test"
     timeout: 1000
     expect: timeout
     stdout:

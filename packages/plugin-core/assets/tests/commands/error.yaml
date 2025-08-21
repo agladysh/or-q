@@ -1,0 +1,9 @@
+suite: error
+
+tests:
+  - name: smoke
+    argv: stdio-loglevel error error "test message"
+    stdin: 'input-data'
+    stdout:
+      - contains: 'error	core	 test message'
+      - contains: 'input-data'

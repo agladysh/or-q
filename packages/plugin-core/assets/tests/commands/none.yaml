@@ -1,0 +1,9 @@
+suite: none
+
+tests:
+  - name: smoke
+    argv: stdio-loglevel none none "test message"
+    stdin: 'input-data'
+    stdout:
+      - contains: 'none	core	 test message'
+      - contains: 'input-data'

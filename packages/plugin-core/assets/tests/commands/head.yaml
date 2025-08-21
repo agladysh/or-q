@@ -1,0 +1,17 @@
+suite: head
+
+tests:
+  - name: smoke-success
+    argv: head 2
+    stdin: '["a", "b", "c", "d"]'
+    stdout: |
+      [
+        "a",
+        "b"
+      ]
+  - name: smoke-fail
+    argv: head
+    stdin: '["a", "b", "c", "d"]'
+    exit: 1
+    stderr:
+      - contains: 'usage:'

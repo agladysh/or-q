@@ -1,0 +1,7 @@
+suite: echo
+
+tests:
+  - name: smoke
+    argv: echo test
+    stdin: ''
+    stdout: 'test'

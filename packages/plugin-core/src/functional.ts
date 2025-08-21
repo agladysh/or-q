@@ -4,6 +4,16 @@ import parseArgsStringToArgv from 'string-argv';
 import yaml from 'yaml';
 
 const commands: Commands = {
+  call: {
+    description: 'calls command feeding it argument as input',
+    run: async (_input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
+      const usage = 'usage: call "<command>" "<input>"';
+      const command = await commandArgument(runtime, args.shift(), usage);
+      const input = await commandArgument(runtime, args.shift(), usage);
+
+      return runtime.runCommands(input, [command]);
+    },
+  },
   head: {
     description: 'returns first N items from the input array',
     run: async (input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {

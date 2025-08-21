@@ -1,0 +1,9 @@
+suite: call
+
+tests:
+  - name: smoke
+    argv: call tee foo
+    stdin: 'ignored'
+    stdout: |
+      foo
+      foo

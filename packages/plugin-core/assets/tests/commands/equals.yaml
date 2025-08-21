@@ -1,0 +1,11 @@
+suite: equals
+
+tests:
+  - name: smoke-equal
+    argv: equals hello hello
+    stdin: ''
+    stdout: 'true'
+  - name: smoke-not-equal
+    argv: equals hello world
+    stdin: ''
+    stdout: 'false'

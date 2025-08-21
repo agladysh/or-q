@@ -2,8 +2,16 @@ suite: map-n
 
 tests:
   - name: smoke
-    argv: map-n 2 "echo A" "echo B"
+    argv: map-n 2 "prepend A=" "prepend B="
     stdin: '["x", "y"]'
-    stdout:
-      - contains: '"A"'
-      - contains: '"B"'
+    stdout: |
+      [
+        [
+          "A=x",
+          "B=x"
+        ],
+        [
+          "A=y",
+          "B=y"
+        ]
+      ]

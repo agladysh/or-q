@@ -1,0 +1,7 @@
+suite: append
+
+tests:
+  - name: smoke
+    argv: append ":SUFFIX"
+    stdin: 'data'
+    stdout: 'data:SUFFIX'

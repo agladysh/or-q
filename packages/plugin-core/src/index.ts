@@ -9,12 +9,25 @@ import input from './input.ts';
 import io from './io.ts';
 import log from './log.ts';
 import plugins from './plugins.ts';
+import secrets from './secrets.ts';
 import string from './string.ts';
 
 const plugin: Plugin = {
   name: pkg.name,
   assets: loadModuleAssets(import.meta.url),
-  commands: mergeCommands(pkg.name, [assets, controlflow, debug, error, functional, input, io, log, plugins, string]),
+  commands: mergeCommands(pkg.name, [
+    assets,
+    controlflow,
+    debug,
+    error,
+    functional,
+    input,
+    io,
+    log,
+    plugins,
+    secrets,
+    string,
+  ]),
 };
 
 export default plugin;

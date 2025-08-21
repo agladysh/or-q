@@ -2,8 +2,7 @@ suite: glob-assets
 
 tests:
   - name: smoke
-    argv: glob-assets 'plugin:*/**/test*.yaml'
+    argv: glob-assets 'plugin:**/glob-assets.yaml'
     stdin: ''
-    stdout:
-      - contains: '["plugin:'
-      - contains: '.yaml"]'
+    stdout: |
+      ["plugin:@or-q/plugin-core/tests/commands/glob-assets.yaml"]

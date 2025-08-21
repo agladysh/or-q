@@ -1,0 +1,8 @@
+suite: print
+
+tests:
+  - name: smoke
+    argv: print test
+    stdin: ''
+    stdout:
+      - contains: 'test'

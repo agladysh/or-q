@@ -1,0 +1,8 @@
+suite: map
+
+tests:
+  - name: smoke
+    argv: map "echo hello"
+    stdin: '["a", "b"]'
+    stdout:
+      - contains: '"hello"'

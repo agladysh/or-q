@@ -8,31 +8,12 @@ requires:
 
 commands:
   - run: fetch-gemini-2.5-flash-instruct
+  - run: codebase
 
-  - glob3:
-      - - _DATA: '**/*'
-      - - _DATA:
-            - '**/.git/**'
-      - - _DATA:
-            dot: true
-  - ignore:
-      - - cat: .gitignore
-        - append: |
-            pnpm-lock.yaml
-
-  - save: FILENAMES
-
+  - load: FILENAMES
   - dirtree
   - save: DIRTREE
 
-  - load: FILENAMES
-  - stream-map:
-      - - save: FILENAME
-        - t: |
-            <file path=${ load FILENAME quote }>
-            ${ load FILENAME file trim }
-            </file>
-  - save: FILES
   - $macro:
       - - $fetch-gemini-2.5-flash-instruct
         - You are a pedantic erudite best-of-field CTO, excelling in technical documentation

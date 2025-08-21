@@ -1,0 +1,15 @@
+requires:
+  - '@or-q/plugin-core'
+
+commands:
+  - glob3:
+      - - _DATA: '**/*'
+      - - _DATA:
+            - '**/.git/**'
+      - - _DATA:
+            dot: true
+  # TODO: Load from some dotfile which #includes .gitignore
+  - ignore:
+      - - cat: .gitignore
+        - append: |
+            pnpm-lock.yaml

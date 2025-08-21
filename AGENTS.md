@@ -1,7 +1,14 @@
 # AGENTS.md
 
-This file provides concise, practical guidance for AI coding agents working in this repository. Prefer facts from code
-over docs when conflicted.
+This file provides concise, practical guidance for the OpenAI Codex agent working in this repository. Prefer facts from
+code over docs when conflicted.
+
+Scope and intent:
+
+- This file is for the OpenAI Codex agent (this assistant) only.
+- Other agents have dedicated instructions: see `CLAUDE.md`, `GEMINI.md`, and `.zencoder/rules/*`.
+- Agent instructions are onboarding aids tailored to each agent’s needs; they are not the source of truth.
+- The codebase is the ground truth. Keep agent docs updated regularly.
 
 ## Quick Start
 

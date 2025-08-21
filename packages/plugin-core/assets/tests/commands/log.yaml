@@ -1,0 +1,9 @@
+suite: log
+
+tests:
+  - name: smoke
+    argv: log "test message"
+    stdin: 'input-data'
+    stdout:
+      - contains: 'log'
+      - contains: 'test message'

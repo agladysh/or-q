@@ -50,13 +50,23 @@ async function spawnTest(cmd: string, input: Readable | string, opts: SpawnOptio
   const child = spawn(cmd, args, {
     stdio: ['pipe', 'pipe', 'pipe'],
     shell: false,
+    env: { ...process.env, NODE_NO_WARNINGS: '1' }, // Reduce noise
   });
+
+  // Collect output - register handlers immediately to avoid race conditions
+  const stdout: Buffer[] = [];
+  const stderr: Buffer[] = [];
+  child.stdout!.on('data', (c) => stdout.push(c));
+  child.stderr!.on('data', (c) => stderr.push(c));
 
   if (timeout) {
     const timer = setTimeout(() => {
       timedOut = true;
       try {
-        child.kill('SIGTERM');
+        // Give a brief moment for any pending output to be written
+        process.nextTick(() => {
+          child.kill('SIGTERM');
+        });
       } catch {
         // Ignore kill errors (e.g., permission or already exited)
       }
@@ -64,20 +74,17 @@ async function spawnTest(cmd: string, input: Readable | string, opts: SpawnOptio
     child.on('exit', () => clearTimeout(timer));
   }
 
-  // Feed stdin
+  // Feed stdin after output handlers are registered
   await pipeline(typeof input === 'string' ? Readable.from(input) : input, child.stdin!);
-
-  // Collect output
-  const stdout: Buffer[] = [];
-  const stderr: Buffer[] = [];
-  child.stdout!.on('data', (c) => stdout.push(c));
-  child.stderr!.on('data', (c) => stderr.push(c));
 
   return new Promise<SpawnTestResult>((resolve, reject) => {
     child.on('close', async (code) => {
       try {
         // Ensure all output streams are fully read
         await Promise.all([finished(child.stdout!, { cleanup: false }), finished(child.stderr!, { cleanup: false })]);
+
+        // Give a brief moment for any remaining buffered data to be processed
+        await new Promise((resolve) => process.nextTick(resolve));
 
         resolve({
           stdout: Buffer.concat(stdout).toString('utf8'),

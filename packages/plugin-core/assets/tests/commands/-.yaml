@@ -1,0 +1,8 @@
+suite: '-'
+
+tests:
+  - name: smoke
+    argv: echo "ignored-pipeline-input" -
+    stdin: 'actual-stdin-input'
+    stdout:
+      - equals: 'actual-stdin-input'

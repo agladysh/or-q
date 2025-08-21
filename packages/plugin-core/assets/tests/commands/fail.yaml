@@ -1,0 +1,9 @@
+suite: fail
+
+tests:
+  - name: smoke
+    argv: fail "test error"
+    stdin: ''
+    exit: 1
+    stderr:
+      - contains: 'test error'

@@ -31,8 +31,8 @@ Scope and intent:
 - `packages/core`: Runtime, plugin loader, execution engine
 - `packages/lib`: Shared types/utilities (`Plugin`, `Command`, helpers)
 - `packages/plugin-*`: Feature plugins (commands/assets)
-- `docs/agents`: AI-generated docs for AIs (may contain mistakes)
-- `.zencoder/rules/repo.md`: Up‑to‑date repo overview for agent tools
+- `docs/agents`: AI-generated architecture/codebase notes (not agent instructions; may contain mistakes)
+- `.zencoder/rules/repo.md`: Zencoder tool-specific rules snapshot (non‑normative)
 
 ## Development Commands
 

@@ -1,0 +1,9 @@
+suite: parallel-map-n
+
+tests:
+  - name: smoke
+    argv: parallel-map-n 2 "echo A" "echo B"
+    stdin: '["x", "y"]'
+    stdout:
+      - contains: '"A"'
+      - contains: '"B"'

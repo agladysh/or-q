@@ -1,0 +1,9 @@
+suite: glob-assets
+
+tests:
+  - name: smoke
+    argv: glob-assets 'plugin:*/**/test*.yaml'
+    stdin: ''
+    stdout:
+      - contains: '["plugin:'
+      - contains: '.yaml"]'

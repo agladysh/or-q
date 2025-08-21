@@ -1,0 +1,7 @@
+suite: clear
+
+tests:
+  - name: smoke
+    argv: clear
+    stdin: 'input-data'
+    stdout: ''

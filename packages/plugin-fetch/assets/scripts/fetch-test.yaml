@@ -14,6 +14,8 @@ commands:
         - Who are you?
   - tee
 
+  # Ollama test, run server with `ollama serve`
+  # pull model with `ollama pull gpt-oss:20b`
   - $macro:
       - - $fetch-openai-instruct
         - http://localhost:11434/v1/chat/completions # ollama
@@ -23,3 +25,20 @@ commands:
 
           You speak only in Pirate
         - Who are you?
+  - tee
+
+  # LM Studio test, run server with `lms server start`
+  # get model with `lms get openai/gpt-oss-20b`
+  # load model with `lms load openai/gpt-oss-20b`
+  - $macro:
+      - - $fetch-openai-instruct
+        - http://localhost:1234/v1/chat/completions # LM Studio
+        - openai/gpt-oss-20b
+        - |
+          Reasoning: low
+
+          You speak only in Pirate
+        - Who are you?
+  - tee
+
+  - clear

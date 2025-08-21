@@ -37,7 +37,6 @@ Keep sections in decreasing order of priority.
 
 - [ ] Move conversation commands to new @or-q/plugin-openai-chat and rename to openai-\*
 - [ ] Triage commands printing directly to stdout. Replace them with input-generating ones or remove altogether.
-- [ ] Triage
 - [ ] Rename openrouter-specific commands to openrouter-\*
 - [ ] Implement all OpenRouter endpoints
 - [ ] Implement all Ollama endpoints
@@ -87,6 +86,7 @@ Keep sections in decreasing order of priority.
       specific plugin), add lua and exec-lua commands (run each command individually in Lua, so we get nice coroutines
       and branching)
 - [ ] same as for Lua, but for JavaScript (with typings codegen for TS)
+- [ ] Same for s-expression syntax e.g. with <https://www.npmjs.com/package/s-expression>
 - [ ] Implement the TRIZ bi-system with Bayesian Bandit of some sorts
 
 ## Unsorted

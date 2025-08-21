@@ -1,0 +1,23 @@
+requires:
+  - '@or-q/plugin-openrouter-api' # TODO: Migrate general openai conversation stuff from there and update this dependency
+  - '@or-q/plugin-ollama'
+  - '@or-q/plugin-store'
+  - '@or-q/plugin-jp'
+
+commands:
+  - $defmacro:
+      - $openrouter-instruct
+      - - info: $openrouter-gpt-oss-free-instruct
+        - info: Model>
+        - info: [[$arg: 1]]
+        - info: System>
+        - info: [[$arg: 2]]
+        - info: User>
+        - info: [[$arg: 3]]
+        - conversation: [[$arg: 1]]
+        - temperature: 0
+        - system: [[$arg: 2]]
+        - user: [[$arg: 3]]
+        - completions
+        - jp: 'choices[0].message.content'
+        - unquote

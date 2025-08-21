@@ -3,6 +3,8 @@ suite: list-assets
 tests:
   - name: smoke
     argv: list-assets
-    stdin: test-input
+    stdin: pipeline input data
     stdout:
       - contains: 'Available assets:'
+      - contains: 'plugin:@or-q/plugin-core/tests/commands/list-assets.yaml'
+      - contains: 'pipeline input data'

@@ -2,7 +2,10 @@ suite: map
 
 tests:
   - name: smoke
-    argv: map "echo hello"
+    argv: map "prepend item="
     stdin: '["a", "b"]'
-    stdout:
-      - contains: '"hello"'
+    stdout: |
+      [
+        "item=a",
+        "item=b"
+      ]

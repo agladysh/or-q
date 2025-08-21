@@ -272,6 +272,8 @@ const commands: Commands = {
 - Check API responses directly with curl to verify expected vs actual response format
 - Examine command argument parsing with spam-level logging events
 - Validate `_JSON` directive output by testing individual components
+- **Environment Limitation**: The `timeout` command is broken in Claude Code environment - avoid using `timeout` in
+  shell commands
 - Add debugging `tee` commands liberally during development, remove only after confirming fixes work
 
 **Common Error Patterns**:

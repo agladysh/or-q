@@ -1,0 +1,8 @@
+suite: list-plugins
+
+tests:
+  - name: smoke
+    argv: list-plugins
+    stdin: 'test-input'
+    stdout:
+      - contains: 'Available plugins:'

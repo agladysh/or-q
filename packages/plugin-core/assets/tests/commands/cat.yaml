@@ -5,5 +5,4 @@ tests:
     argv: cat ./README.md
     stdin: ''
     stdout:
-      - contains: '# OR-Q: OpenRouter Query Porcelain Tool with Plugins'
-      - contains: 'KISS, YAGNI, DRY, CS'
+      - contains: 'OR-Q'

@@ -44,6 +44,17 @@ Scope and intent:
 - `pnpm run fix:eslint` / `pnpm run fix:prettier`: Targeted fixes
 - `pnpm run test`: Runs the test pipeline (currently lint)
 
+### Lefthook Gotcha (pre-commit)
+
+- Lefthook may stash your working tree while running hooks. If a hook fails (exit code 1), your edits can end up in a
+  stash.
+- To recover, run: `git stash list` then `git stash pop` (resolve any conflicts), and re-run linters/fixes before
+  committing.
+- Best practice: run `pnpm run lint` (or `pnpm run fix`) before committing to avoid failed hooks and unintended stashes.
+- Always verify the result on errors: check `git log -n 1 --oneline` to see if a commit was created; if not, recover
+  your changes from the stash or working tree. For unexpected history changes, use `git reflog` to locate lost commits
+  or HEAD moves.
+
 ## Architecture Snapshot
 
 - Program form: `Arguments = (string | Arguments)[]` (nestable array)
@@ -110,6 +121,13 @@ Scope and intent:
 - Environment: `.env` exists (e.g., `OPENROUTER_API_KEY`); Ollama assumed on `localhost:11434` when testing Ollama
   commands
 - Subtlety: `echo` changes pipeline input but does not write to stdout; use `print`/`tee` for observable stdout in tests
+- Default stream assertions: if `stdout`/`stderr` are omitted, they default to `equals: ''` (empty output required).
+  Specify validators to assert non-empty output; use `''` to explicitly assert empty.
+- Fixtures vs tests: files under `assets/fixtures/**` are fixtures and are not auto‑discovered by `discover-tests`. To
+  run a fixture, reference it by filename (plugin URI or filesystem path, include `.yaml`) and pipe it to
+  `run-test-suite`. Examples:
+  - Plugin URI: `pnpm or-q echo 'plugin:@or-q/plugin-test/fixtures/timeout-success.yaml' run-test-suite`
+  - Filesystem: `pnpm or-q echo './packages/plugin-test/assets/fixtures/timeout-success.yaml' run-test-suite`
 
 ## Help/Discovery Roadmap (P0001)
 

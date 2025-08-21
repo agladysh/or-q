@@ -258,6 +258,26 @@ tests:
     stdout: 'fast'
 ```
 
+## Running Timeout Fixtures
+
+Fixtures live under `packages/*/assets/fixtures/**` and are not auto-discovered tests.
+
+- Use `run-test-suite` with a direct filename reference (plugin URI or filesystem path).
+- Include the `.yaml` extension when referencing fixtures.
+
+Examples:
+
+```bash
+# From installed assets (plugin URI):
+pnpm or-q echo 'plugin:@or-q/plugin-test/fixtures/timeout-success.yaml' run-test-suite
+
+# From filesystem path (when working in the repo):
+pnpm or-q echo './packages/plugin-test/assets/fixtures/timeout-success.yaml' run-test-suite
+```
+
+Note: Only suites under `assets/tests/**` are listed by `discover-tests` and executed by the `test-all` script. Fixtures
+are validated separately via `packages/plugin-test/assets/scripts/test-run-test-suite.yaml`.
+
 ### Integration with Existing Infrastructure
 
 - **Automatic validation**: Timeout fixtures integrated into existing `test-run-test-suite.yaml` flow

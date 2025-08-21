@@ -1,0 +1,5 @@
+SUITE	Default Empty Success Tests
+	TEST	stdout-default-empty
+	PASSED	TEST	stdout-default-empty
+PASSED	SUITE	Default Empty Success Tests
+

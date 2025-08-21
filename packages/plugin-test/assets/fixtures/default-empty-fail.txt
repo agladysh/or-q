@@ -1,0 +1,8 @@
+SUITE	Default Empty Failure Tests
+	TEST	stdout-nonempty-should-fail-default
+		FAIL	stdout	actual "foo" expected to equal ""
+	FAILED	TEST	stdout-nonempty-should-fail-default
+	TEST	stderr-nonempty-should-fail-default
+		FAIL	stderr	actual "foo" expected to equal ""
+	FAILED	TEST	stderr-nonempty-should-fail-default
+FAILED	SUITE	Default Empty Failure Tests

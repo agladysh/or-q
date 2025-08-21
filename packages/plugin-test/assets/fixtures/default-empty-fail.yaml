@@ -1,0 +1,16 @@
+suite: Default Empty Failure Tests
+
+requires:
+  - '@or-q/plugin-core'
+
+tests:
+  - name: stdout-nonempty-should-fail-default
+    argv: echo foo
+    stdin: ''
+    # stdout default is equals ''
+
+  - name: stderr-nonempty-should-fail-default
+    argv: fail foo
+    stdin: ''
+    exit: 1
+    # stderr default is equals ''

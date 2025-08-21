@@ -252,9 +252,7 @@ async function* runTestSuiteImpl(runtime: IPluginRuntime, suite: TestSuite) {
         ++testErrors;
       }
       yield* validate('stdout', result.stdout, test.stdout);
-      if (test.stderr) {
-        yield* validate('stderr', result.stderr, test.stderr);
-      }
+      yield* validate('stderr', result.stderr, test.stderr);
       if (testErrors > 0) {
         ++errors;
         yield `\tFAILED\tTEST\t${test.name}\n`;

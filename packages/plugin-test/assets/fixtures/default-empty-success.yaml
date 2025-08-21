@@ -1,0 +1,10 @@
+suite: Default Empty Success Tests
+
+requires:
+  - '@or-q/plugin-core'
+
+tests:
+  - name: stdout-default-empty
+    argv: echo ''
+    stdin: ''
+    # stdout/stderr defaults apply: equals '' for both

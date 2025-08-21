@@ -1,0 +1,7 @@
+suite: quote
+
+tests:
+  - name: smoke
+    argv: quote
+    stdin: 'hello'
+    stdout: '"hello"'

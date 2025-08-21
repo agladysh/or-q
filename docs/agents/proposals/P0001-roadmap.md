@@ -60,6 +60,15 @@ Commands mapped across 15 plugins in 24 source files. See [Command Mapping](#com
 
 **Actions Required**:
 
+### 2.0 P0002 Dependency Verification
+
+**Prerequisite**: Verify P0002 timeout support is fully implemented
+
+- ✅ Verify timeout schema accepts `timeout: N` (seconds) and `exit: 'timeout'`
+- ✅ Test timeout functionality:
+  `pnpm or-q echo 'plugin:@or-q/plugin-test/fixtures/timeout-success.yaml' run-test-suite`
+- ✅ Confirm `forever` command testing is now possible
+
 ### 2.1 Update Plugin Package Files
 
 - **@or-q/plugin-fetch**: Verify `assets` export exists
@@ -196,10 +205,13 @@ tests:
 
 # Example: forever (use timeout - note: complex args need shell escaping)
 tests:
-  - name: smoke
+  - name: smoke-timeout
     argv: forever "print test"
-    timeout: 1000
-    expect: timeout
+    stdin: ''
+    timeout: 1
+    exit: 'timeout'
+    stdout:
+      - contains: 'test'
 ```
 
 ##### 4. Mini-DSL Commands (2 commands)
@@ -1363,8 +1375,9 @@ tests:
 tests:
   - name: smoke-timeout
     argv: forever "print test"
-    timeout: 1000
-    expect: timeout
+    stdin: ''
+    timeout: 1
+    exit: 'timeout'
     stdout:
       - contains: 'test'
 ```
@@ -1391,7 +1404,7 @@ tests:
 
 **Long-Running Commands** (forever, interactive):
 
-- Use `timeout:` parameter with `expect: timeout`
+- Use `timeout:` parameter with `exit: 'timeout'`
 - Verify partial output before timeout occurs
 
 **API Commands** (external dependencies):
@@ -1431,7 +1444,8 @@ Phase 2 achieved comprehensive test coverage but with significant quality incons
 foundation required for subsequent P0001 phases. The bimodal quality distribution indicates inconsistent implementation
 approaches rather than systematic methodology violations.
 
-**Phase 2 Corrected Status**: **70% Complete** - requires test quality normalization before Phase 3 progression.
+**Phase 2 Corrected Status**: **READY TO PROCEED** - P0002 timeout support resolves key blocker, test quality
+normalization can proceed in parallel.
 
 ---
 

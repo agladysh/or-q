@@ -6,7 +6,7 @@ requires:
 
 tests:
   - name: unexpected-timeout
-    argv: forever "echo test"
+    argv: forever "print test"
     stdin: ''
     timeout: 1
     exit: 0 # Wrong! Should be "timeout"

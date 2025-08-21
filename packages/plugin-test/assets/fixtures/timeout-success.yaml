@@ -18,7 +18,7 @@ tests:
     stdout: 'fast'
 
   - name: expected-timeout
-    argv: forever "echo test"
+    argv: forever "print test"
     stdin: ''
     timeout: 1
     exit: 'timeout'

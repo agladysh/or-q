@@ -1,0 +1,9 @@
+suite: map-n
+
+tests:
+  - name: smoke
+    argv: map-n 2 "echo A" "echo B"
+    stdin: '["x", "y"]'
+    stdout:
+      - contains: '"A"'
+      - contains: '"B"'

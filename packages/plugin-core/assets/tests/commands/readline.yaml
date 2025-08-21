@@ -1,0 +1,9 @@
+suite: readline
+
+tests:
+  - name: smoke-fail
+    argv: readline
+    stdin: ''
+    exit: 1
+    stderr:
+      - contains: 'usage: readline'

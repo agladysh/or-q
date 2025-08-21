@@ -1,0 +1,7 @@
+suite: prepend
+
+tests:
+  - name: smoke
+    argv: prepend "PREFIX:"
+    stdin: 'data'
+    stdout: 'PREFIX:data'

@@ -1,0 +1,9 @@
+suite: warn
+
+tests:
+  - name: smoke
+    argv: stdio-loglevel warn warn "test message"
+    stdin: 'input-data'
+    stdout:
+      - contains: 'warn	core	 test message'
+      - contains: 'input-data'

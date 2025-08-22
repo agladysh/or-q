@@ -5,8 +5,8 @@ const commands: Commands = {
   fail: {
     description: 'fails with an error message',
     run: async (_input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
-      const message = await commandArgument(runtime, args.shift(), 'usage: fail "<message>"');
-      return fail(message);
+      const message = (await commandArgument(runtime, args.shift(), 'usage: fail "<message>"')).trim();
+      return fail(message === '' ? 'fail: no error message provided' : message);
     },
   },
 };

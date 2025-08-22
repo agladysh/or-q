@@ -24,9 +24,12 @@ Keep sections in decreasing order of priority.
 ## Testing
 
 - [x] Implement declaratuve black-box tests: per plugin, `packages/**/tests/**/.yaml` (argv, stdin, stdout, stderr)
-- [ ] support configuring test process environment
-- [ ] add a test-plugin script
-- [ ] switch tests to TAP output, use some reporter for pnpm test
+- [ ] Design and add a test that verifies that all commands are covered with tests
+- [ ] Design and add a test that verifies that all asset scripts are covered with tests
+- [ ] Support configuring test process environment (test.env in suite, should _add_ to process.env of the runner)
+- [ ] Add a test-plugin script
+- [ ] Switch tests to TAP output, use some reporter for pnpm test
+- [ ] Add pre-push hook that checks that all tests pass
 
 ## Development Documentation
 

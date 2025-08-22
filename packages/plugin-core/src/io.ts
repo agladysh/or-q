@@ -13,7 +13,7 @@ const commands: Commands = {
   print: {
     description: 'prints trimmed argument to stdout, passing input forward',
     run: async (input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
-      const text = await commandArgument(runtime, args.shift(), 'usage: log "<text>"');
+      const text = await commandArgument(runtime, args.shift(), 'usage: print "<text>"');
       process.stdout.write(`${text.trim()}\n`);
       return input;
     },

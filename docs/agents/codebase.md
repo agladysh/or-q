@@ -105,12 +105,10 @@ export async function commandArgument(
 export interface Plugin<E extends IPluginRuntimeEvent = IPluginRuntimeEvent> {
   name: string;
   eventListeners?: IPluginRuntimeEventListeners<E>;
-  assets?: Commands; // Note: This should be Assets, not Commands
+  assets?: Assets;
   commands?: Commands;
 }
 ```
-
-**Critical Issue Found**: The `assets` field is typed as `Commands` but should be `Assets` (Record<string, string>).
 
 ### Plugin Implementation Patterns
 

@@ -83,7 +83,7 @@ export class PluginRuntime implements IPluginRuntime {
     this.assetNames = Object.keys(this.assets);
     this.commands = resolveRecord(pluginsArray, 'commands');
     this.commandNames = Object.keys(this.commands);
-    this.commandNameSet = new Set(...this.commandNames);
+    this.commandNameSet = new Set(this.commandNames);
 
     for (const plugin of pluginsArray) {
       if (plugin.eventListeners) {

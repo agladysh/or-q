@@ -1,0 +1,9 @@
+suite: spam
+
+tests:
+  - name: smoke
+    argv: stdio-loglevel spam spam "test message"
+    stdin: 'input data'
+    stdout:
+      - contains: 'spam	core	 test message'
+      - contains: 'input data'

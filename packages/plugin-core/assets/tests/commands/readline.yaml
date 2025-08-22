@@ -7,3 +7,8 @@ tests:
     exit: 1
     stderr:
       - contains: 'usage: readline'
+
+  - name: smoke-success
+    argv: 'readline "Enter name: "'
+    stdin: "test user input\n"
+    stdout: 'Enter name: test user input'

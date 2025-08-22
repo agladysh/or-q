@@ -1,0 +1,11 @@
+# TODO: This test will fail when tests are run outside the checked-out codebase
+suite: glob
+
+tests:
+  - name: smoke
+    argv: glob "README.md" ""
+    stdin: ''
+    stdout: |
+      [
+        "README.md"
+      ]

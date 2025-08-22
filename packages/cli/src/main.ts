@@ -39,7 +39,11 @@ async function main() {
   }
 }
 
-main().catch((e: unknown) => {
-  console.error('Unexpected error:', e);
-  process.exitCode = 1;
-});
+main()
+  .catch((e: unknown) => {
+    console.error('Unexpected error:', e);
+    process.exitCode = 1;
+  })
+  .finally(() => {
+    process.stdin.destroy();
+  });

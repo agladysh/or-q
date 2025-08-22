@@ -152,9 +152,7 @@ function loadCommandsImpl(parent: Arguments, root: Arguments, commands: CommandL
     for (const command of commands) {
       loadCommandsImpl(root, child, command);
     }
-    if (child.length > 0) {
-      root.push(child);
-    }
+    root.push(child);
     return root;
   }
 

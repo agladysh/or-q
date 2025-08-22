@@ -1,0 +1,12 @@
+suite: then
+
+tests:
+  - name: smoke-runs-commands
+    argv: then "echo hello"
+    stdin: 'true'
+    stdout: 'hello'
+
+  - name: smoke-skips-commands
+    argv: then "echo hello"
+    stdin: 'false'
+    stdout: 'false'

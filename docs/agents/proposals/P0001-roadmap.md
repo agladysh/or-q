@@ -337,20 +337,27 @@ pnpm or-q run-test-suite plugin-name
 
 ## Phase 3: Add Mandatory Plugin.description Field
 
-**Objective**: Enable plugin-level help by adding description metadata
+**Objective**: Enable plugin-level help by adding description metadata and centralize description normalization (no
+vendor prefix in user-facing descriptions for official `@or-q/*` plugins).
 
 **Actions Required**:
 
-### 3.1 Update Core Interface
+### 3.1 Update Core Interface and Normalization Helper
 
 **File**: `packages/lib/src/index.ts`
 
-- Add mandatory `description: string` field to `Plugin` interface
-- Update all type definitions that depend on Plugin interface
+- Add mandatory `description: string` field to `Plugin` interface.
+- Add and export `normalizePluginDescription(desc: string): string` that removes the leading `OR-Q Plugin:` prefix (if
+  present) and trims whitespace. This MUST be centralized (DRY) and MUST NOT be duplicated in each plugin.
+- Update all type definitions that depend on `Plugin` interface.
 
 ### 3.2 Update All Plugin Definitions
 
-Update `src/index.ts` for each plugin to add `description: pkg.description`.
+Update `src/index.ts` for each official `@or-q/*` plugin to add a `description` field using the shared helper. Set
+`description: normalizePluginDescription(pkg.description)`. Do NOT hand-roll per-plugin string manipulation.
+
+Third-party plugins: no enforcement — they may continue to expose any description string; normalization only applies to
+our help/discover presentation layer and our official plugins.
 
 **Process**: Update each plugin individually with test-fix-commit cycle:
 
@@ -397,19 +404,44 @@ const plugin: Plugin = {
   commands: commands,
 };
 
-// After
+// After (normalized via shared helper)
+import { normalizePluginDescription } from '@or-q/lib';
 const plugin: Plugin = {
   name: pkg.name,
-  description: pkg.description,
+  description: normalizePluginDescription(pkg.description),
   commands: commands,
 };
 ```
 
 ### 3.3 Verification
 
-- Run `pnpm run lint` to ensure all TypeScript errors are resolved
-- Run `pnpm test` to ensure functionality is preserved
-- Commit changes
+- Run `pnpm run lint` to ensure all TypeScript errors are resolved.
+- Add a repo-level test under `.or-q/assets/tests/` to verify normalization using existing machine-readable output:
+  - Command: `plugins-json` (from `@or-q/plugin-core`).
+  - Pipe through `jp` to select official plugin descriptions: `values(@)[?starts_with(name,'@or-q/')].description`.
+  - Assertion: Output MUST NOT contain the prefix `OR-Q Plugin:` (use a negative regex or equivalent validators).
+  - Scope: Enforce only for `@or-q/*` plugins; third-party plugins are out of scope for this rule.
+- Run `pnpm test` to ensure functionality (and the new normalization test) passes.
+- Commit changes.
+
+### 3.4 Codemod Automation
+
+To avoid repetitive and error-prone manual edits across 15+ plugins, apply a codemod to implement 3.2 consistently.
+
+- Location: add a repo-level codemod under `.or-q/assets/scripts/` (see existing `experimental/p0001-P3-codemod.yaml` as
+  a starting point).
+- Scope: only official `@or-q/*` plugins.
+- Actions automated per plugin:
+  - Ensure `src/index.ts` imports `normalizePluginDescription` from `@or-q/lib`.
+  - Insert or update `description: normalizePluginDescription(pkg.description)` in the plugin definition object.
+  - Preserve file style and ordering; do not touch unrelated code.
+- Execution:
+  - Provide dry-run and apply modes; dry-run prints intended diffs.
+  - Emit a summary report of updated files.
+  - Pair with a precise commit using Conventional Commits and explicit path staging.
+- Postconditions:
+  - Run `pnpm run fix` and `pnpm test` after applying the codemod.
+  - The Phase 3 normalization test must pass.
 
 ## Phase 4: Add Optional Command Tags and Usage Fields
 
@@ -525,8 +557,10 @@ export async function run(
    - `src/commands/_DATA.ts`
    - `src/commands/_JSON.ts`
 3. Add `usage` field and appropriate `tags` to each command
-4. Update main `src/index.ts` to import from commands
-5. **Test-Fix-Commit**: Run full cycle (lint → fix → test → commit) before next plugin
+4. Consider codemods to automate file moves and boilerplate generation where safe; ensure dry-run, reports, and precise
+   commits.
+5. Update main `src/index.ts` to import from commands
+6. **Test-Fix-Commit**: Run full cycle (lint → fix → test → commit) before next plugin
 
 **Tags Strategy**:
 
@@ -972,15 +1006,22 @@ Add smoke tests for script help commands.
 - `dump-macros` - plugin-specific macro state debugging
 - `dump-store` - plugin-specific store state debugging
 
-### 10.2 Update References
+### 10.2 Update Tests and References (Same Phase)
+
+- Update the repo-level normalization test introduced in Phase 3 to use `discover-plugins` instead of `plugins-json` in
+  the SAME change set that removes `plugins-json`, to avoid broken tests between phases.
+- Adjust the `jp` query to the JSON shape returned by `discover-plugins` while preserving the assertion that no
+  `@or-q/*` plugin description contains the `OR-Q Plugin:` prefix.
+
+### 10.3 Update References
 
 Search codebase for any references to removed commands and update them.
 
-### 10.3 Update Documentation
+### 10.4 Update Documentation
 
 Update any documentation that references old command names.
 
-### 10.4 Test-Fix-Commit Cycle
+### 10.5 Test-Fix-Commit Cycle
 
 **Per Task**:
 
@@ -988,7 +1029,7 @@ Update any documentation that references old command names.
 2. **Update references**: Update → Test → Fix → Commit
 3. **Update documentation**: Update → Test → Fix → Commit
 
-### 10.5 Verification
+### 10.6 Verification
 
 - Run `pnpm run lint`
 - Run `pnpm test`

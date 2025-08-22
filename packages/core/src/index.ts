@@ -1,6 +1,7 @@
 import type {
   Arguments,
   Assets,
+  Command,
   IPluginRuntimeEvent,
   LoggingEvent,
   RuntimeCloneChildEvent,
@@ -18,6 +19,7 @@ import {
   PluginRuntimeFailure,
   runtimeCloneChildEventName,
   runtimeCloneParentEventName,
+  runtimeNewCommandAddedEventName,
 } from '@or-q/lib';
 import installedNodeModules from 'installed-node-modules';
 import { EventEmitter } from 'node:events';
@@ -63,6 +65,7 @@ export class PluginRuntime implements IPluginRuntime {
   plugins: PluginRecord;
   pluginNames: string[];
   commandNames: string[];
+  commandNameSet: Set<string>;
   assetNames: string[];
   assets: Assets;
   commands: Commands;
@@ -80,6 +83,7 @@ export class PluginRuntime implements IPluginRuntime {
     this.assetNames = Object.keys(this.assets);
     this.commands = resolveRecord(pluginsArray, 'commands');
     this.commandNames = Object.keys(this.commands);
+    this.commandNameSet = new Set(...this.commandNames);
 
     for (const plugin of pluginsArray) {
       if (plugin.eventListeners) {
@@ -113,11 +117,13 @@ export class PluginRuntime implements IPluginRuntime {
     return `Available commands: ${this.commandNames.join(', ')}`;
   }
 
+  // Lazy. This should be in a IPluginRuntime sub-interface or mixin, as not all plugin systems need that
   // Lazy. Tighten up generic so event and eventName are closely related.
   emit<E extends IPluginRuntimeEvent>(eventName: string, event: E): boolean {
     return this.emitter.emit(eventName, event);
   }
 
+  // Lazy. This should be in a IPluginRuntime sub-interface or mixin, as not all plugin systems need that
   pushContext<T>(id: string, data: T): T {
     this.emit(loggingEventName, {
       source: pkg.name,
@@ -134,6 +140,7 @@ export class PluginRuntime implements IPluginRuntime {
     return data;
   }
 
+  // Lazy. This should be in a IPluginRuntime sub-interface or mixin, as not all plugin systems need that
   popContext<T>(id: string): T | undefined {
     const ctx = this.context[id];
     if (ctx === undefined) {
@@ -155,6 +162,7 @@ export class PluginRuntime implements IPluginRuntime {
     return ctx.pop() as T;
   }
 
+  // Lazy. This should be in a IPluginRuntime sub-interface or mixin, as not all plugin systems need that
   getContext<T>(id: string): T | undefined {
     const ctx = this.context[id];
     if (ctx === undefined) {
@@ -175,7 +183,38 @@ export class PluginRuntime implements IPluginRuntime {
     return ctx[ctx.length - 1] as T;
   }
 
-  // Lazy. This should be in IORQPluginRuntime
+  // Lazy. This should be in IORQPluginRuntime, as it is OR-Q specific
+  async addCommand(pluginName: string, commandName: string, command: Command) {
+    const plugin = this.plugins[pluginName];
+    if (!plugin) {
+      return fail(`addCommand: unknown plugin ${pluginName}`);
+    }
+
+    if (this.commandNameSet.has(commandName)) {
+      return fail(`addCommand: command ${commandName} is already registered`);
+    }
+
+    this.emit(loggingEventName, {
+      source: pkg.name,
+      level: logLevels.debug,
+      value: ['addCommand', pluginName, commandName],
+    } as LoggingEvent);
+
+    plugin.commands ??= {};
+    plugin.commands[commandName] = command;
+
+    this.commandNames.push(commandName);
+    this.commandNameSet.add(commandName);
+    this.commands[commandName] = command;
+
+    this.emit(runtimeNewCommandAddedEventName, {
+      source: pkg.name,
+      plugin: pluginName,
+      command: commandName,
+    });
+  }
+
+  // Lazy. This should be in IORQPluginRuntime, as it is OR-Q specific
   async runCommands(input: string | Readable, program: Arguments): Promise<string | Readable> {
     // Lazy. Generalize so it is reusable.
     const spam = (...args: unknown[]) => {

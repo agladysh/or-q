@@ -90,6 +90,14 @@ export interface RuntimeCloneChildEvent extends IPluginRuntimeEvent {
 }
 export type RuntimeCloneChildEventListener = IPluginRuntimeEventListener<RuntimeCloneChildEvent>;
 
+// Emitted only on dynamic addCommand() calls, silent on initial command list population.
+export const runtimeNewCommandAddedEventName = 'runtime-new-command-added';
+export interface RuntimeNewCommandAddedEvent extends IPluginRuntimeEvent {
+  plugin: string;
+  command: string;
+}
+export type RuntimeNewCommandAddedEventListener = IPluginRuntimeEventListener<RuntimeNewCommandAddedEvent>;
+
 export interface Plugin<E extends IPluginRuntimeEvent = IPluginRuntimeEvent> {
   name: string;
   eventListeners?: IPluginRuntimeEventListeners<E>;
@@ -103,6 +111,7 @@ export interface IPluginRuntime {
   plugins: PluginRecord;
   pluginNames: string[];
   commandNames: string[];
+  commandNameSet: Set<string>;
   assetNames: string[];
   commands: Commands;
   assets: Assets;
@@ -111,6 +120,7 @@ export interface IPluginRuntime {
   pushContext: <T>(id: string, data: T) => T;
   popContext: <T>(id: string) => T | undefined;
   getContext: <T>(id: string) => T | undefined;
+  addCommand: (pluginName: string, commandName: string, command: Command) => void;
   runCommands: (input: string | Readable, args: Arguments) => Promise<string | Readable>;
 }
 

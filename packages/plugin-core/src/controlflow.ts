@@ -90,6 +90,8 @@ const commands: Commands = {
         commands = parseArgsStringToArgv(commands);
       }
 
+      input = await readableToString(input); // Reading input to preserve stream content
+
       const flag = await readableToString(await runtime.runCommands(input, condition.slice()));
       if (flag.trim() === 'true') {
         return runtime.runCommands(input, commands.slice());

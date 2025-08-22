@@ -2,7 +2,6 @@ import { type IPluginRuntime, readableToString } from '@or-q/lib';
 import type { Readable } from 'stream';
 import parseArgsStringToArgv from 'string-argv';
 
-export const tmp = 42;
 export type Handler = (raw: string) => Promise<string>;
 
 export async function renderTemplate(src: string, h: Handler): Promise<string> {

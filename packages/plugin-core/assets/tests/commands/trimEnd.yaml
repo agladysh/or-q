@@ -1,0 +1,7 @@
+suite: trimEnd
+
+tests:
+  - name: smoke
+    argv: trimEnd
+    stdin: '  hello  '
+    stdout: '  hello'

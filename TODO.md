@@ -6,6 +6,8 @@ Keep sections in decreasing order of priority.
 
 - [ ] Implement P0001: Help System
 - [ ] Find `Lazy` with `TODO` and migrate them here.
+- [ ] Triage and redesign command naming, focusing on non-idiomatic commands like echo and tee, which currently violate
+      principle of least surprise by not behaving as their idiomatic names imply
 
 ## Low Hanging Fruits
 
@@ -37,9 +39,10 @@ Keep sections in decreasing order of priority.
 
 - [ ] Move conversation commands to new @or-q/plugin-openai-chat and rename to openai-\*
 - [ ] Triage commands printing directly to stdout. Replace them with input-generating ones or remove altogether.
-- [ ] Rename openrouter-specific commands to openrouter-\*
-- [ ] Implement all OpenRouter endpoints
-- [ ] Implement all Ollama endpoints
+- [ ] Rename openrouter-specific commands to openrouter-\* or retire the plugin in favor of fetch scripts
+- [ ] Implement all OpenRouter endpoints or retire the plugin in favor of fetch scripts
+- [ ] Implement all Ollama endpoints or retire the plugin in favor of fetch scripts
+- [ ] Find a good generic observability solution, and plug it in a-la logging, e.g. for fetch etc.
 
 ## Core
 
@@ -75,6 +78,9 @@ Keep sections in decreasing order of priority.
 - [ ] Implement a visual no/low-code editor
 - [ ] Implement repository description generation script
 - [ ] Implement initial task and decision tracking processes.
+- [ ] Modified (gamma=2, configurable) PERT 3-point estimator prompt-complex could be useful (more in fleshing out O/R/P
+      scenarios than in numbers, since AI would human hours which are meaningless for AI agent coding, OTOH we may
+      analytically treat numbers in hours a-la abstract complexity points, which could be useful)
 
 ## Dependency Management
 

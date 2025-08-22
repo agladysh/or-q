@@ -1,0 +1,8 @@
+suite: resolve-asset
+
+tests:
+  - name: smoke
+    argv: resolve-asset
+    stdin: './packages/plugin-core/assets/tests/commands/resolve-asset.yaml'
+    stdout:
+      - contains: 'suite: resolve-asset'

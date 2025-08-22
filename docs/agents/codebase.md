@@ -5,6 +5,9 @@
 These are detailed technical notes derived from studying the codebase for P0001 (Help Plugin Implementation). This
 document captures all discovered nuances and will be redistilled into proper documentation later.
 
+> [!WARNING] \_This document IS NOT A SOURCE OF TRUTH, is provided for the reference, may be obsolete, and shall be
+> replaced with proper professional codebase documentation.
+
 ## Command Interface and Usage String Patterns
 
 ### Current Command Structure

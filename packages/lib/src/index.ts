@@ -20,11 +20,17 @@ export function mergeCommands(pluginName: string, commands: Commands[]): Command
   return merged;
 }
 
-export function commandsFromImports(pluginName: string, ...imports: (Command & { command: string })[]) {
-  return mergeCommands(
-    pluginName,
-    imports.map(({ command, ...rest }) => ({ [command]: rest }))
-  );
+export type CommandExport = (Command & { command: string }) | { default: Commands[] };
+export function commandsFromImports(pluginName: string, ...imports: CommandExport[]): Commands {
+  const normalize = (c: CommandExport): Commands[] => {
+    if ('default' in c) {
+      return c.default;
+    }
+    const { command, ...rest } = c;
+    return [{ [command]: rest }];
+  };
+
+  return mergeCommands(pluginName, imports.flatMap(normalize));
 }
 
 export type Arguments = (string | Arguments)[];

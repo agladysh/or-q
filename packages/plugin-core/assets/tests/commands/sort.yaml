@@ -1,0 +1,8 @@
+suite: sort
+
+tests:
+  - name: smoke
+    argv: sort
+    stdin: '["c", "a", "b"]'
+    stdout: |
+      ["a","b","c"]

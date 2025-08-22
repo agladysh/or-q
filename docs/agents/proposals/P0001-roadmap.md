@@ -14,6 +14,7 @@ broken into 10 phases, each designed to maintain system stability while progress
 - 2025-08-22: plugin-core/log is not conductive to the canonical plugin-test-like layout, as it generates commands, we
   need to take that in account and support (see plugin-format for some tentative insights as to how).
 - 2025-08-22: New commands added, requiring tests, see plugin-template/src/commands/log.ts.
+- 2025-08-22: New plugin added: plugin-alias.
 
 ## Current State Analysis
 

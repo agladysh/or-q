@@ -1,25 +1,11 @@
-# Saves:
-#
-# - FILENAMES
-# - FILES
-#
-# Overrides:
-#
-# - FILENAME
-#
 requires:
   - '@or-q/plugin-core'
   - '@or-q/plugin-store'
 
 commands:
   - run: codebase-filenames
-  - save: FILENAMES
-
   - stream-map:
-      # TODO: We need to be hygienic here
-      - - save: FILENAME
-        - t: |
-            <file path=${ load FILENAME quote }>
-            ${ load FILENAME file trim }
+      - - f: |
+            <file path=${ input quote }>
+            ${ input file trim }
             </file>
-  - save: FILES

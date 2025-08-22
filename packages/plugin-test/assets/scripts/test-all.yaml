@@ -5,4 +5,8 @@ requires:
 
 commands:
   - discover-tests
-  - stream-map: run-test-suite # TODO: This does not seem to stream nested stream-maps gradually. Fix spawnTest() to stream stdout and stderr?
+  - stream-map: run-test-suite tee
+  - if-then:
+      - - matches: "FAILED\tSUITE"
+      - - fail: 'test-all: failing tests detected'
+  - echo: 'test-all: all tests passed'

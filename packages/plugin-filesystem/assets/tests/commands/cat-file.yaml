@@ -1,0 +1,8 @@
+suite: cat-file
+
+tests:
+  - name: smoke
+    argv: cat-file packages/plugin-filesystem/assets/tests/commands/cat-file.yaml
+    stdin: ''
+    stdout:
+      - contains: 'suite: cat-file'

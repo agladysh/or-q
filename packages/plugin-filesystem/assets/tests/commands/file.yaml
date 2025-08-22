@@ -1,0 +1,11 @@
+suite: file
+
+# TODO: This test will fail when tests are run outside the checked-out codebase
+# as it depends on the actual file path existing in the filesystem
+
+tests:
+  - name: smoke
+    argv: echo packages/plugin-filesystem/assets/tests/commands/file.yaml file
+    stdin: ''
+    stdout:
+      - contains: 'suite: file'

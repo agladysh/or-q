@@ -8,9 +8,12 @@ Keep sections in decreasing order of priority.
 - [ ] Find `Lazy` with `TODO` and migrate them here.
 - [ ] Triage and redesign command naming, focusing on non-idiomatic commands like echo and tee, which currently violate
       principle of least surprise by not behaving as their idiomatic names imply
+- [ ] Add and configure conventional commits linting
 
 ## Low Hanging Fruits
 
+- [ ] Add `true` command (replaces input with string `true`) in core/controlflow. Note we are intentionally not adding
+      `false` command, as controlflow design is based on single string "token", `true`.
 - [ ] Replace JSON.parse(JSON.stringify()) with modern structuredClone() calls.
 - [ ] Forbid console.\* in eslint, emit logging events instead.
 - [ ] Split @or-q/lib/index.ts to files
@@ -58,6 +61,7 @@ Keep sections in decreasing order of priority.
       essentially a weird form of dags or something). First class arguments, invocation form is always the (command,
       arguments) tuple explicitly (in data), and (command, arguments, input) implicitly (at runtime). Support raw form
       as js arrays. Arguments are schema-typed with arktype.
+- [ ] Allow storing metadata information in the tuple (like source code location for nice errors)
 - [ ] Support JSON-like data object passing as input to save on serialization / deserialization
 - [ ] CLI and YAML are external DSLs which are translated to the raw program form.
 - [ ] Schemas for CLI and YAML are generated dynamically

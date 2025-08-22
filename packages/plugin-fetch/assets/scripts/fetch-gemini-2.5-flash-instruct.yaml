@@ -24,11 +24,15 @@ commands:
                   parts:
                     - text:
                         _RAW: [$arg: 2]
+
+        - debug-f: "$fetch-gemini-2.5-flash-instruct\trequest\n${ input yaml }"
         - fetch: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent
-        - tee
+        - info-f: "$fetch-gemini-2.5-flash-instruct\tresponse\n${ input yaml }"
+
         - if-then:
             - - contains: 'RESOURCE_EXHAUSTED'
-            - - tee
+            - - yaml
+              - tee
               - fail: '$fetch-gemini-2.5-flash-instruct: RESOURCE_EXHAUSTED'
         - jp: 'candidates[0].content.parts[0].text'
         - unquote

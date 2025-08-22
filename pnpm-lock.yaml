@@ -11,6 +11,9 @@ importers:
       '@or-q/cli':
         specifier: workspace:*
         version: link:packages/cli
+      '@or-q/plugin-alias':
+        specifier: workspace:*
+        version: link:packages/plugin-alias
       '@or-q/plugin-core':
         specifier: workspace:*
         version: link:packages/plugin-core
@@ -137,6 +140,22 @@ importers:
       minimatch:
         specifier: ^10.0.3
         version: 10.0.3
+    devDependencies:
+      '@types/node':
+        specifier: ^24.2.0
+        version: 24.2.0
+      typescript:
+        specifier: ^5.9.2
+        version: 5.9.2
+
+  packages/plugin-alias:
+    dependencies:
+      '@or-q/lib':
+        specifier: workspace:*
+        version: link:../lib
+      string-argv:
+        specifier: ^0.3.2
+        version: 0.3.2
     devDependencies:
       '@types/node':
         specifier: ^24.2.0

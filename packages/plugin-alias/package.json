@@ -1,0 +1,27 @@
+{
+  "name": "@or-q/plugin-alias",
+  "description": "OR-Q Plugin: Alias Commands",
+  "version": "1.0.0",
+  "author": "Alexander Gladysh <agladysh@gmail.com>",
+  "license": "MIT",
+  "packageManager": "pnpm@10.13.1",
+  "type": "module",
+  "exports": "./src/index.ts",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "src",
+    "dist",
+    "assets"
+  ],
+  "scripts": {
+    "prepack": "tsc --emitDeclarationOnly"
+  },
+  "dependencies": {
+    "@or-q/lib": "workspace:*",
+    "string-argv": "^0.3.2"
+  },
+  "devDependencies": {
+    "@types/node": "^24.2.0",
+    "typescript": "^5.9.2"
+  }
+}

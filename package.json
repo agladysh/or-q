@@ -25,6 +25,7 @@
   "packageManager": "pnpm@10.13.1",
   "dependencies": {
     "@or-q/cli": "workspace:*",
+    "@or-q/plugin-alias": "workspace:*",
     "@or-q/plugin-core": "workspace:*",
     "@or-q/plugin-dot-or-q-assets": "workspace:*",
     "@or-q/plugin-fetch": "workspace:*",

@@ -1,0 +1,9 @@
+suite: alias
+
+tests:
+  - name: smoke
+    argv: alias -my-alias "my alias" -arg "tee echo -arg" -my-alias "alias argument"
+    stdin: 'stdio input'
+    stdout: |
+      stdio input
+      alias argument

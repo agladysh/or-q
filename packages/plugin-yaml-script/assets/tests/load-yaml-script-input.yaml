@@ -11,7 +11,7 @@ tests:
       - contains: required dependency @or-q/plugin-no-such-plugin not installed
     exit: 1
 
-  - name: smoke
+  - name: regression-alias
     argv: load-yaml-script-input yaml
     stdin: | # yaml
       commands:
@@ -27,3 +27,40 @@ tests:
       - []
       - - echo
         - Alias with no arguments
+
+  - name: regression-glob3
+    argv: load-yaml-script-input yaml
+    stdin: | # yaml
+      commands:
+        - glob3:
+            - - _DATA: '**/*'
+            - - _DATA:
+                  - '**/.git/**'
+            - - _DATA:
+                  dot: true
+    stdout: | # yaml
+      - glob3
+      - '"**/*"'
+      - '["**/.git/**"]'
+      - '{"dot":true}'
+
+  - name: regression-_JSON
+    argv: load-yaml-script-input yaml
+    stdin: | # yaml
+      commands:
+        - _JSON:
+            dot: true
+    stdout: | # yaml
+      - echo
+      - '{"dot":true}'
+
+  - name: regression-_DATA
+    argv: load-yaml-script-input yaml
+    stdin: | # yaml
+      commands:
+        - echo:
+            - - _DATA:
+                  dot: true
+    stdout: | # yaml
+      - echo
+      - '{"dot":true}'

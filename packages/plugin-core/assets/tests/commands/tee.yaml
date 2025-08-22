@@ -1,0 +1,9 @@
+suite: tee
+
+tests:
+  - name: smoke
+    argv: tee
+    stdin: 'test-data'
+    stdout: |
+      test-data
+      test-data

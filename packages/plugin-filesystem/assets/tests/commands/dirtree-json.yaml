@@ -1,0 +1,10 @@
+suite: dirtree-json
+
+tests:
+  - name: smoke
+    argv: echo '["README.md"]' dirtree-json
+    stdin: ''
+    stdout: |
+      {
+        "README.md": null
+      }

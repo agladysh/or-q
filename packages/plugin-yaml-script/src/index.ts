@@ -200,11 +200,7 @@ function loadCommands(commands: CommandList): Arguments {
   return result;
 }
 
-async function runYAMLScript(
-  input: string | Readable,
-  yamlString: string,
-  runtime: IPluginRuntime
-): Promise<string | Readable> {
+function loadYAMLScript(yamlString: string, runtime: IPluginRuntime) {
   // Lazy: Validate schema with arktype
   const data = yaml.parse(yamlString) as Script;
 
@@ -234,7 +230,17 @@ async function runYAMLScript(
     value: ['loaded YAML script for commands', args],
   });
 
-  return runtime.runCommands(input, args);
+  return args;
+}
+
+async function runYAMLScript(
+  input: string | Readable,
+  yamlString: string,
+  runtime: IPluginRuntime
+): Promise<string | Readable> {
+  const program = loadYAMLScript(yamlString, runtime);
+
+  return runtime.runCommands(input, program);
 }
 
 // Lazy. Some commands are generic to any kind of scripting, e.g. on-empty-stdin. Move them to some other plugin.
@@ -262,6 +268,27 @@ const plugin: Plugin = {
           `Available script assets:\n\n${assetNames.map((a) => `* ${parse(a).name}\t${a}`).join('\n')}\n\n`
         );
         return input;
+      },
+    },
+    ['load-yaml-script-asset']: {
+      description: 'loads YAML script from file and returns commands as JSON',
+      run: async (_input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
+        const uri = await commandArgument(runtime, args.shift(), 'usage: load-yaml-script "<file>"');
+
+        const yamlString = resolveAssetSubdir(runtime, uri, 'scripts');
+        if (yamlString === undefined) {
+          return fail(`run: "${uri}" not found, did you mean "./${uri}?"`);
+        }
+
+        return `${JSON.stringify(loadYAMLScript(yamlString, runtime))}\n`;
+      },
+    },
+    ['load-yaml-script-input']: {
+      description: 'loads YAML script from input and returns commands as JSON',
+      run: async (input: string | Readable, _args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
+        input = await readableToString(input);
+
+        return `${JSON.stringify(loadYAMLScript(input, runtime))}\n`;
       },
     },
     run: {

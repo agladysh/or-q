@@ -1,0 +1,29 @@
+suite: load-yaml-script-input
+
+tests:
+  - name: requires-not-found
+    argv: load-yaml-script-input
+    stdin: | # yaml
+      requires:
+          - '@or-q/plugin-no-such-plugin' # Missing dependency
+      commands: []
+    stderr:
+      - contains: required dependency @or-q/plugin-no-such-plugin not installed
+    exit: 1
+
+  - name: smoke
+    argv: load-yaml-script-input yaml
+    stdin: | # yaml
+      commands:
+        - alias:
+            - -no-args
+            - Alias with no arguments
+            - []
+            - - echo: Alias with no arguments
+    stdout: | # yaml
+      - alias
+      - -no-args
+      - Alias with no arguments
+      - []
+      - - echo
+        - Alias with no arguments

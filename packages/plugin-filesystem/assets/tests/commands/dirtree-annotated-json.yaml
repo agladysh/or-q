@@ -1,0 +1,10 @@
+suite: dirtree-annotated-json
+
+tests:
+  - name: smoke
+    argv: echo '[["README.md", "root documentation"]]' dirtree-annotated-json
+    stdin: ''
+    stdout: |
+      {
+        "README.md": "root documentation"
+      }

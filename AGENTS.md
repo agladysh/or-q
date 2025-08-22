@@ -44,6 +44,25 @@ Scope and intent:
 - `pnpm run fix:eslint` / `pnpm run fix:prettier`: Targeted fixes
 - `pnpm run test`: Runs the test pipeline (currently lint)
 
+## Git Hygiene (Staging/Committing)
+
+- Never run `git add -A`, `git add .`, or any bulk staging command.
+- Always stage explicit, intended paths only (e.g., `git add packages/plugin-core/assets/tests/commands/if-then.yaml`).
+- Prefer `git add -p` to interactively review and stage hunks.
+- Keep changes minimal and focused; do not stage incidental formatter churn unless requested.
+- Separate unrelated changes into distinct commits with specific, descriptive messages.
+
+## Commit Messages (Conventional Commits)
+
+- Use Conventional Commits rigorously: `type(scope): subject`.
+- Common types: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `build`, `ci`, `perf`, `chore`, `revert`.
+- Scope: prefer package or area (e.g., `cli`, `core`, `lib`, `plugin-core`, `docs`, `repo`).
+- Subject: imperative, lowercase, no trailing period, ≤ 72 chars.
+- Body: wrap at ~72 cols; explain what/why, not how (unless needed).
+- Breaking changes: include a footer `BREAKING CHANGE: <description>`.
+- One logical change per commit; split across scopes into separate commits.
+- Avoid vague messages (e.g., “minor fixes”, “update stuff”).
+
 ### Lefthook Gotcha (pre-commit)
 
 - Lefthook may stash your working tree while running hooks. If a hook fails (exit code 1), your edits can end up in a

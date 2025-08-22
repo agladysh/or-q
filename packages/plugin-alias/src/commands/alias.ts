@@ -29,14 +29,14 @@ export async function run(
     placeholdersRaw = parseArgsStringToArgv(placeholdersRaw);
   }
   if (!Array.isArray(placeholdersRaw)) {
-    return fail(`alias: placeholder is not string or array`);
+    return fail(`placeholder is not string or array`);
   }
   for (const p of placeholdersRaw) {
     if (typeof p !== 'string') {
-      return fail(`alias: unexpected placeholder ${JSON.stringify(p)}, should be a string value`);
+      return fail(`unexpected placeholder ${JSON.stringify(p)}, should be a string value`);
     }
     if (runtime.commandNameSet.has(p)) {
-      return fail(`alias: placeholder "${name}" is taken by existing command or alias, must be unique`);
+      return fail(`placeholder "${name}" is taken by existing command or alias, must be unique`);
     }
   }
   const placeholders: string[] = placeholdersRaw.map((p) => String(p).trim());
@@ -50,7 +50,7 @@ export async function run(
     program = parseArgsStringToArgv(program);
   }
   if (!Array.isArray(program)) {
-    return fail(`alias: arguments is not string or array`);
+    return fail(`arguments is not string or array`);
   }
 
   const aliasUsage = `usage: ${name} ${placeholders.join(' ')}`.trim();

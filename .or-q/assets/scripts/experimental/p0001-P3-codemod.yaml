@@ -71,10 +71,14 @@ commands:
               - Overcompications
               - Overhedging
               - Underhedging
+              - Violations of project's design and developmemnt principles
               - Violations of common sense
               - Missed special cases
               - Hidden complexity
               - Missed opportunities for automating routine tasks
               - Missed opportunities for streamlining processes
+
+              The plan must be immediately executable by a competent line developer --- AI agent,
+              and must not contain any unresolved optionality, nor decisions to make, nor other hidden or overt unknowns.
 
               Respond with the refined <plan> text.

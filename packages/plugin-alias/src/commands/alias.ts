@@ -1,5 +1,5 @@
 import type { Arguments, IPluginRuntime } from '@or-q/lib';
-import { commandArgument, fail, readableToString } from '@or-q/lib';
+import { commandArgument, fail, type LoggingEvent, loggingEventName, logLevels, readableToString } from '@or-q/lib';
 import { Readable } from 'node:stream';
 import parseArgsStringToArgv from 'string-argv';
 import pkg from '../../package.json' with { type: 'json' };
@@ -13,15 +13,18 @@ export async function run(
   args: Arguments,
   runtime: IPluginRuntime
 ): Promise<string | Readable> {
+  // Lazy. DRY with similar array argument loading cases to a lib function.
+  // Note all arguments ideally must be shifted before we start massaging them,
+  // which means we need a commandArguments function or something
   const name = (await commandArgument(runtime, args.shift(), usage)).trim();
+  const description = await commandArgument(runtime, args.shift(), usage);
+  let placeholdersRaw = args.shift();
+  let program = args.shift();
+
   if (runtime.commandNameSet.has(name)) {
     return fail(`alias: command or alias "${name}" already exists`);
   }
 
-  const description = await commandArgument(runtime, args.shift(), usage);
-
-  // Lazy. DRY with similar cases to a lib function.
-  let placeholdersRaw = args.shift();
   if (placeholdersRaw instanceof Readable) {
     placeholdersRaw = await readableToString(placeholdersRaw);
   }
@@ -41,8 +44,6 @@ export async function run(
   }
   const placeholders: string[] = placeholdersRaw.map((p) => String(p).trim());
 
-  // Lazy. DRY with similar cases to a lib function.
-  let program = args.shift();
   if (program instanceof Readable) {
     program = await readableToString(program);
   }
@@ -54,6 +55,13 @@ export async function run(
   }
 
   const aliasUsage = `usage: ${name} ${placeholders.join(' ')}`.trim();
+
+  runtime.emit<LoggingEvent>(loggingEventName, {
+    source: pkg.name,
+    level: logLevels.debug,
+    value: ['alias', name, description],
+  });
+
   runtime.addCommand(pkg.name, name, {
     description: `${description.trim()} [alias]`,
     run: async (input: string | Readable, args: Arguments, runtime: IPluginRuntime) => {

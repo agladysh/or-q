@@ -1,6 +1,18 @@
 suite: if-then
 
 tests:
+  - name: true-then-no-passthrough
+    argv: 'if-then "echo true" "echo THEN"'
+    stdin: 'test input'
+    stdout: |
+      THEN
+
+  - name: false-then-passthrough
+    argv: 'if-then "echo false" "echo THEN"'
+    stdin: 'test input'
+    stdout: |
+      test input
+
   # When condition is true, THEN branch prints, then the command after if runs.
   - name: true-then-and-after
     argv: 'if-then "echo true" "print THEN" print AFTER'

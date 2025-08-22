@@ -5,5 +5,5 @@ requires:
 commands:
   - print:
       - - load: CONVERSATION
-        - jp: 'messages[-1:].content'
+        - jp: 'messages[-1].content'
         - unquote

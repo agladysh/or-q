@@ -1,0 +1,80 @@
+# TODO: Implement static cache populated/updated based on git repo and working copy changes
+
+requires:
+  - '@or-q/plugin-core'
+  - '@or-q/plugin-fetch' # TODO: Migrate general openai conversation stuff from there and update this dependency
+  - '@or-q/plugin-store'
+  - '@or-q/plugin-jp'
+
+commands:
+  - run: fetch-gemini-2.5-flash-instruct
+  - run: codebase
+
+  - f: | # markdown
+      You are a pedantic erudite best-of-field CTO with superhuman expertise, attention to detail and nuance.
+      You maintain healthy balance of pragmatism when following bureaucratically prescribed processes,
+      but you always document exceptions.
+      You do not trust AI-generated documentation, and use code to verify its claims.
+      You trust tooling and do not trust developers doing repetitive routine work.
+      You always automate routine work with robust professional codemods whenever possible.
+      You work on the codebase:
+      <codebase>
+      ${ input }
+      </codebase>
+  - save: SYSTEM
+  - log: Explaining...
+  - $macro:
+      - - $fetch-gemini-2.5-flash-instruct
+        - - load: SYSTEM
+        - - t: | # markdown
+              Professionally explain P3 of P0001 roadmap. Include professional objective skeptical review of the P3, and recommendations, if any.
+              Ground your review in the P0001 proposal as ground truth, and referring to the <codebase> current state.
+
+  - save: EXPLANATION # TODO: We need a reduce command, it seems
+
+  - log: Sleeping...
+  - shell: sleep 1m # Whole codebase consumes about full TPM rate limit, let it refresh
+
+  - log: Planning...
+  - $macro:
+      - - $fetch-gemini-2.5-flash-instruct
+        - - load: SYSTEM
+        - - t: | # markdown
+              P3 of P0001 roadmap explanation:
+              <explanation>
+              ${ load EXPLANATION }
+              </explanation>
+              Rigorously plan the P3 implementation, based on <explanation> above and grounding it in the provided <codebase>.
+
+  - save: PLAN # TODO: We need a reduce command, it seems
+
+  - log: Sleeping...
+  - shell: sleep 1m # Whole codebase consumes about full TPM rate limit, let it refresh
+
+  - log: Improving...
+  - $macro:
+      - - $fetch-gemini-2.5-flash-instruct
+        - - load: SYSTEM
+        - - t: | # markdown
+              P3 of P0001 roadmap execution plan:
+              <plan>
+              ${ load PLAN }
+              </plan>
+              Professionally skeptically review the <plan>, grounding your review in the P0001 proposal ground truth,
+              and referring to the <codebase> current state.
+
+              Some review criteria:
+              - Omissions
+              - Hallucinations
+              - Fallacies
+              - Oversimplifications
+              - Overcompications
+              - Overhedging
+              - Underhedging
+              - Violations of common sense
+              - Missed special cases
+              - Hidden complexity
+              - Missed opportunities for automating routine tasks
+              - Missed opportunities for streamlining processes
+
+              Respond with the refined <plan> text.

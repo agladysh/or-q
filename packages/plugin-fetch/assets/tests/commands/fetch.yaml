@@ -1,0 +1,16 @@
+suite: fetch
+
+tests:
+  - name: smoke-get
+    argv: fetch https://httpbin.org/json
+    stdin: 'method: GET'
+    stdout:
+      - contains: '"slideshow"'
+      - contains: '"title"'
+
+  - name: smoke-fail-no-url
+    argv: fetch
+    stdin: 'method: GET'
+    exit: 1
+    stderr:
+      - contains: 'usage: fetch-json "<url>"'

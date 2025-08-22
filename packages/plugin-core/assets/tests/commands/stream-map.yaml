@@ -1,0 +1,7 @@
+suite: stream-map
+
+tests:
+  - name: smoke
+    argv: stream-map "prepend item="
+    stdin: '["x", "y"]'
+    stdout: 'item=xitem=y'

@@ -1,7 +1,30 @@
 suite: if-then
 
 tests:
-  - name: smoke
-    argv: fail TODO
+  # When condition is true, THEN branch prints, then the command after if runs.
+  - name: true-then-and-after
+    argv: 'if-then "echo true" "print THEN" print AFTER'
     stdin: ''
-    stdout: ''
+    stdout: |
+      THEN
+      AFTER
+
+  # When condition is false, THEN branch is skipped, but the command after if runs.
+  - name: false-skips-then-but-runs-after
+    argv: 'if-then "echo false" "print THEN" print AFTER'
+    stdin: ''
+    stdout: 'AFTER'
+
+  # Dynamic condition using input: contains b -> true
+  - name: dynamic-true-then-and-after
+    argv: 'if-then "contains b" "print THEN" print AFTER'
+    stdin: 'abc'
+    stdout: |
+      THEN
+      AFTER
+
+  # Dynamic condition using input: does not contain b -> false
+  - name: dynamic-false-skips-then-but-runs-after
+    argv: 'if-then "contains b" "print THEN" print AFTER'
+    stdin: 'adc'
+    stdout: 'AFTER'

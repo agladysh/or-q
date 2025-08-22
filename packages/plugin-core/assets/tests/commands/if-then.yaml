@@ -15,28 +15,24 @@ tests:
 
   # When condition is true, THEN branch prints, then the command after if runs.
   - name: true-then-and-after
-    argv: 'if-then "echo true" "print THEN" print AFTER'
+    argv: 'if-then "echo true" "append -THEN" append -AFTER'
     stdin: ''
-    stdout: |
-      THEN
-      AFTER
+    stdout: '-THEN-AFTER'
 
   # When condition is false, THEN branch is skipped, but the command after if runs.
   - name: false-skips-then-but-runs-after
-    argv: 'if-then "echo false" "print THEN" print AFTER'
+    argv: 'if-then "echo false" "append -THEN" append -AFTER'
     stdin: ''
-    stdout: 'AFTER'
+    stdout: '-AFTER'
 
   # Dynamic condition using input: contains b -> true
   - name: dynamic-true-then-and-after
-    argv: 'if-then "contains b" "print THEN" print AFTER'
+    argv: 'if-then "contains b" "append -THEN" append -AFTER'
     stdin: 'abc'
-    stdout: |
-      THEN
-      AFTER
+    stdout: abc-THEN-AFTER
 
   # Dynamic condition using input: does not contain b -> false
   - name: dynamic-false-skips-then-but-runs-after
-    argv: 'if-then "contains b" "print THEN" print AFTER'
+    argv: 'if-then "contains b" "append -THEN" append -AFTER'
     stdin: 'adc'
-    stdout: 'AFTER'
+    stdout: adc-AFTER

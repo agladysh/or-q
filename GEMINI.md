@@ -74,10 +74,11 @@ OR-Q supports a powerful YAML-based scripting system that allows you to define a
 
 - **`run` command:** The `run` command in the `plugin-yaml-script` plugin is used to execute YAML scripts.
 - **`requires` keyword:** YAML scripts can specify a `requires` keyword to declare dependencies on other plugins.
-- **`on-empty-stdin` keyword:** Scripts can use the `on-empty-stdin` keyword to execute a different set of commands when
-  the input is empty.
+- **`on-empty-stdin` command:** Available as a command for conditional execution when input is empty (treats TTY stdin
+  as empty).
 - **`_JSON` directive:** This directive allows you to embed JSON objects directly in your YAML scripts. The
-  `plugin-yaml-script` will serialize the object to a JSON string before passing it to the command.
+  `plugin-yaml-script` will serialize the object to a JSON string before passing it to the command. Note: `_JSON` is not
+  an executable command.
 - **`_RAW` directive:** This directive allows you to inline a sequence of commands within another command's arguments.
 
 ### Context System

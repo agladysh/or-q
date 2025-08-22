@@ -208,7 +208,6 @@ interface IPluginRuntime {
 ```typescript
 interface Script {
   requires: [string]; // Plugin dependencies (validation only)
-  ['on-empty-stdin']: CommandList; // Conditional execution
   commands: CommandList; // Main command sequence
 }
 ```
@@ -415,7 +414,6 @@ export interface Plugin<E extends IPluginRuntimeEvent = IPluginRuntimeEvent> {
 interface Script {
   description?: string; // New: for help system
   requires: [string];
-  ['on-empty-stdin']: CommandList;
   commands: CommandList;
 }
 ```

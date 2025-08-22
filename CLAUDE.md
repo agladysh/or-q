@@ -98,9 +98,9 @@ Each plugin exports a default object with:
 
 - Declarative command execution using YAML files
 - Scripts can specify `requires` for plugin dependencies
-- Support for `on-empty-stdin` conditional execution
 - Asset system allows bundled scripts accessible via `plugin:` URIs
 - Commands can be strings, arrays, or objects with nested structure
+- `on-empty-stdin` command available for conditional execution (treats TTY stdin as empty)
 
 ### Code Conventions
 
@@ -243,7 +243,8 @@ const commands: Commands = {
 - Supports nested arrays: `[[cmd1, arg1], [cmd2, arg2]]`
 - Object syntax: `{command: args}` where args can be string, array, or nested structure
 - Special `_RAW` directive: `{_RAW: [command_list]}` inlines command sequence
-- `_JSON` directive: converts structured data to JSON command arguments (embeds JSON objects directly in YAML scripts)
+- `_JSON` directive: converts structured data to JSON command arguments (embeds JSON objects in YAML scripts, not
+  executable as command)
 
 **Script Format** (example analysis of `fetch-test.yaml`):
 
@@ -271,7 +272,7 @@ const commands: Commands = {
 - Use `tee` command to inspect intermediate pipeline values at any point
 - Check API responses directly with curl to verify expected vs actual response format
 - Examine command argument parsing with spam-level logging events
-- Validate `_JSON` directive output by testing individual components
+- Validate `_JSON` directive output by testing individual components (note: `_JSON` is not an executable command)
 - **Environment Limitation**: The `timeout` command is broken in Claude Code environment - avoid using `timeout` in
   shell commands
 - Add debugging `tee` commands liberally during development, remove only after confirming fixes work
@@ -320,7 +321,7 @@ structure and compile-time validation.
 **Current (As-Is)**: `Arguments` type as `(string | Arguments)[]` - nestable array of strings generated from:
 
 - **ARGV Form**: Command-line arguments parsed directly
-- **YAML Form**: Compiled by `@or-q/plugin-yaml-script` using `_JSON`/`_RAW` directives
+- **YAML Form**: Compiled by `@or-q/plugin-yaml-script` using `_JSON`/`_RAW` directives (directives, not commands)
 
 **Target (To-Be)**: Formal `(command, arguments)` tuple where `arguments` is schema-defined object
 
@@ -353,7 +354,7 @@ structure and compile-time validation.
 
 **HTTP Integration Patterns**:
 
-- `_JSON` directive: creates structured request configuration at compilation time
+- `_JSON` directive: creates structured request configuration at compilation time (directive, not executable command)
 - `fetch` command: parses input as YAML config, handles body serialization for JSON requests
 - Response processing: returns `Readable` stream via `Readable.fromWeb()`
 - Error handling: APIs return valid JSON for errors, pipeline continues processing
@@ -437,7 +438,6 @@ export interface Plugin<E extends IPluginRuntimeEvent = IPluginRuntimeEvent> {
 interface Script {
   description?: string; // New: for help system
   requires: [string];
-  ['on-empty-stdin']: CommandList;
   commands: CommandList;
 }
 ```
@@ -619,6 +619,12 @@ tests:
     stderr:
       - contains: 'error message'
 ```
+
+**Test Execution Commands**:
+
+- **Preferred method**: `pnpm or-q call run-test-suite load-yaml-script` - Neater command to run test suites
+- **Legacy method**: `pnpm or-q run-test-suite plugin-name` - Run specific plugin tests
+- **All tests**: `pnpm test` - Run linting (tests are currently linting only)
 
 **Command Argument Patterns**:
 

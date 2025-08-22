@@ -17,11 +17,11 @@ broken into 10 phases, each designed to maintain system stability while progress
 - 2025-08-22: New commands added, requiring tests, see plugin-template/src/commands/log.ts.
 - 2025-08-22: New plugin added: plugin-alias.
 - 2025-08-22: Neater command to run a test suite: `pnpm or-q call run-test-suite load-yaml-script`
-  - [ ] TODO: Update agent instructions and other documentation.
+  - [x] TODO: Update agent instructions and other documentation.
 - 2025-08-22: `on-empty-stdin` yaml-script clause was removed in favor of `on-empty-stdin` command
-  - [ ] TODO: Update agent instructions and other documentation.
+  - [x] TODO: Update agent instructions and other documentation.
 - 2025-08-22: `_DATA` and `_JSON` are no longer executable commands, see plugin-yaml-script.
-  - [ ] TODO: Update agent instructions and other documentation.
+  - [x] TODO: Update agent instructions and other documentation.
 
 ## Current State Analysis
 

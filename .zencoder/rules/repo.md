@@ -297,14 +297,14 @@ The runtime validates type contracts after each command execution:
 
 - **Recursive descent parser**: `loadCommandsImpl()` handles nested YAML structures
 - **Command normalization**: Strings, arrays, objects all converted to `Arguments` arrays
-- **Special directive handling**: `_JSON`, `_DATA`, `_RAW` for meta-programming
+- **Special directive handling**: `_JSON`, `_DATA`, `_RAW` for meta-programming (directives, not executable commands)
 - **Macro expansion**: Template substitution with parameter binding via context system
 
 **Script Execution Model**:
 
 - **Asset-first resolution**: Scripts loaded from plugin assets before filesystem
 - **Dependency declaration**: `requires` array for plugin validation (not enforcement)
-- **Conditional execution**: `on-empty-stdin` for input-dependent behavior
+- **Conditional execution**: `on-empty-stdin` command for input-dependent behavior
 - **Error context preservation**: YAML parsing errors include source location info
 
 ### HTTP Request Pattern
@@ -584,7 +584,7 @@ export type Arguments = (string | Arguments)[];
 1. **Command name collision detection**: Limited optional arguments possible via `!(args[0] in runtime.commands)`
 2. **Multiple command variants**: `glob` vs `glob-advanced` for different argument patterns
 3. **Default value commands**: Use `default` command to provide fallback values
-4. **Conditional execution**: Use YAML scripts with `on-empty-stdin` for conditional behavior
+4. **Conditional execution**: Use `on-empty-stdin` command for conditional behavior
 5. **Context-based configuration**: Store optional parameters in the context system
 
 #### The Planned Solution
@@ -907,14 +907,14 @@ const commands: Commands = {
 2. **YAML Parsing** (`runYAMLScript`):
    - Parse YAML into `Script` object with `requires` and `commands` properties
    - Validate required plugin dependencies via `runtime.plugins[name]`
-   - Handle `on-empty-stdin` conditional execution
+   - Note: `on-empty-stdin` is now a command, not a script clause
    - Convert to command arguments via `loadCommands()`
 
 3. **Command Compilation** (`loadCommands` → `loadCommandsImpl`):
    - **Strings/Numbers**: Push directly as command arguments
    - **Arrays**: Create nested command sequences
    - **Objects**: Process key-value pairs as command-argument pairs
-   - **Special Directives**: Handle `_JSON` and `_DATA` during compilation
+   - **Special Directives**: Handle `_JSON` and `_DATA` during compilation (directives, not commands)
 
 4. **`_JSON` Special Processing**:
    - **Compilation Phase**: `loadYAMLAsJSONCommand()` converts YAML objects to argument streams

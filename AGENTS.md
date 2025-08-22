@@ -113,7 +113,7 @@ Scope and intent:
 - Scripts are assets (often in `assets/scripts/`), loaded via `plugin:` URIs or filesystem
 - `requires`: declares plugin dependencies (validation only)
 - `commands`: list composing the pipeline; supports strings, arrays, and object syntax
-- Special directives:
+- Special directives (not executable commands):
   - `_JSON`: build JSON from YAML for use as command argument or input
   - `_RAW`: inline a command list
   - `_DATA`: convert remaining arguments to a JSON array

@@ -1,0 +1,7 @@
+suite: rem
+
+tests:
+  - name: smoke
+    argv: rem echo commented
+    stdin: 'test input'
+    stdout: '["echo","commented"]'

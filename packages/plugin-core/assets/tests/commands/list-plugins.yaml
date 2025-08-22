@@ -3,6 +3,8 @@ suite: list-plugins
 tests:
   - name: smoke
     argv: list-plugins
-    stdin: 'test-input'
+    stdin: 'pipeline input data'
     stdout:
       - contains: 'Available plugins:'
+      - contains: '@or-q/plugin-core'
+      - contains: 'pipeline input data'

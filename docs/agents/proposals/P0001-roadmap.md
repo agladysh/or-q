@@ -1,11 +1,19 @@
 # P0001: Help System Implementation Roadmap
 
-**Status**: IN PROGRESS **Generated**: 2025-08-19 **Parent Proposal**: [P0001-help-system.md](./P0001-help-system.md)
+- **Status**: IN PROGRESS
+- **Generated**: 2025-08-19
+- **Parent Proposal**: [P0001-help-system.md](./P0001-help-system.md)
 
 ## Overview
 
 This roadmap provides detailed action items for implementing the P0001 Help System proposal. The implementation is
 broken into 10 phases, each designed to maintain system stability while progressively adding help system capabilities.
+
+## Addenda / Errata
+
+- 2025-08-22: plugin-core/log is not conductive to the canonical plugin-test-like layout, as it generates commands, we
+  need to take that in account and support (see plugin-format for some tentative insights as to how).
+- 2025-08-22: New commands added, requiring tests, see plugin-template/src/commands/log.ts.
 
 ## Current State Analysis
 

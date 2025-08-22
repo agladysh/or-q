@@ -13,13 +13,15 @@ Keep sections in decreasing order of priority.
 ## Low Hanging Fruits
 
 - [ ] Add `true` command (replaces input with string `true`) in core/controlflow. Note we are intentionally not adding
-      `false` command, as controlflow design is based on single string "token", `true`.
+      `false` command, as controlflow design is based on single string "token", `true`. Use this command in tests
+      instead of `echo true`.
 - [ ] Replace JSON.parse(JSON.stringify()) with modern structuredClone() calls.
 - [ ] Forbid console.\* in eslint, emit logging events instead.
 - [ ] Split @or-q/lib/index.ts to files
 - [ ] Cleanup random files in plugin-openrouter-api/assets/scripts by moving them to `.or-q/asset/scripts`
 - [ ] Whenever JSON is put to input: do not pretty-print it, but append a trailing newline
 - [ ] Trim asset string arguments in all commands that ingest asset names from input
+- [x] Design and execute removal of `on-empty-stdin` yaml-script clause in favor of `on-empty-stdin` command.
 
 ## Testing
 

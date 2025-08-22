@@ -220,9 +220,7 @@ export async function readableToString(readable: Readable | string): Promise<str
   }
 
   let result = '';
-  // Readable supports async iteration out-of-the-box in Node 18+
   for await (const chunk of readable) {
-    // chunk is a Buffer; convert to string as you go
     result += chunk.toString('utf8');
   }
   return result;

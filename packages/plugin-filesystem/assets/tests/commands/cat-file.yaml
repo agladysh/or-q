@@ -1,5 +1,8 @@
 suite: cat-file
 
+# TODO: This test will fail when tests are run outside the checked-out codebase
+# as it depends on the actual file path existing in the filesystem
+
 tests:
   - name: smoke
     argv: cat-file packages/plugin-filesystem/assets/tests/commands/cat-file.yaml

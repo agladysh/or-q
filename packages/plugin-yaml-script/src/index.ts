@@ -226,19 +226,6 @@ async function runYAMLScript(
       }
     }
   }
-  if (!isArray && data['on-empty-stdin']) {
-    input = await readableToString(input);
-    if (input === '') {
-      const args = loadCommands(data['on-empty-stdin']);
-      // Lazy. Should be a wrapper in the plugin lib.
-      runtime.emit(loggingEventName, {
-        source: pkg.name,
-        level: logLevels.debug,
-        value: ['loaded YAML script for on-empty-stdin', args],
-      });
-      input = await runtime.runCommands(input, args);
-    }
-  }
 
   const args = loadCommands(isArray ? data : data.commands);
 
@@ -252,6 +239,7 @@ async function runYAMLScript(
   return runtime.runCommands(input, args);
 }
 
+// Lazy. Some commands are generic to any kind of scripting, e.g. on-empty-stdin. Move them to some other plugin.
 const plugin: Plugin = {
   name: pkg.name,
   assets: loadModuleAssets(import.meta.url),
@@ -306,6 +294,31 @@ const plugin: Plugin = {
         while (true) {
           input = await runtime.runCommands(input, arg.slice());
         }
+      },
+    },
+    'on-empty-stdin': {
+      description: 'if input is empty, runs commands to populate, treats TTY stdin as empty',
+      run: async (input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
+        // Not using commandArgument() helper, since we do NOT want sub-command expansion here.
+        let arg = args.shift();
+        if (arg === undefined) {
+          return fail('usage: on-empty-stdin [actions]');
+        }
+        if (typeof arg === 'string') {
+          arg = parseArgsStringToArgv(arg);
+        }
+
+        if (input === process.stdin && process.stdin.isTTY) {
+          input = '';
+        }
+
+        input = await readableToString(input);
+
+        if (input !== '') {
+          return input;
+        }
+
+        return runtime.runCommands(input, arg.slice());
       },
     },
     // See also special handling in loader.

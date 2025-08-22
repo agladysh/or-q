@@ -1,0 +1,9 @@
+suite: dirtree
+
+tests:
+  - name: smoke
+    argv: echo '["README.md"]' dirtree
+    stdin: ''
+    stdout: |
+      ./
+      └─ README.md

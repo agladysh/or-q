@@ -50,6 +50,7 @@ const commands: Commands = {
   readline: {
     description: 'replaces input with a line from stdin',
     run: async (_input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
+      const isRaw = process.stdin.isRaw;
       const readline = createInterface({
         input: process.stdin,
         output: process.stdout,
@@ -57,7 +58,12 @@ const commands: Commands = {
 
       const prompt = await commandArgument(runtime, args.shift(), 'usage: readline "<prompt>"');
       const answer = await readline.question(prompt);
+
       readline.close();
+
+      process.stdin.setRawMode?.(isRaw);
+      process.stdin.resume();
+
       return answer;
     },
   },

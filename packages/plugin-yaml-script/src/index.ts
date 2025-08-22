@@ -161,7 +161,7 @@ function loadCommandsImpl(parent: Arguments, root: Arguments, commands: CommandL
   if (typeof commands === 'object' && commands !== null) {
     for (const [command, args] of Object.entries(commands)) {
       if (command === '_DATA') {
-        // Lazy. Seems obsolete, consider retiring in favor of _INPUT
+        // Lazy. Seems obsolete, consider retiring in favor of _JSON
         parent.push(JSON.stringify(args));
         continue;
       }

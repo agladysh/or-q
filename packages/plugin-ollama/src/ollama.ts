@@ -1,8 +1,7 @@
 import {
-  type Arguments,
   type Commands,
   fail,
-  type IPluginRuntime,
+  type IProgram,
   type LoggingEvent,
   loggingEventName,
   logLevels,
@@ -19,7 +18,7 @@ const chatUrl = 'http://localhost:11434/api/chat';
 const commands: Commands = {
   ['ollama-generate']: {
     description: 'feeds input in the native Ollama format to the local Ollama instance generate REST API',
-    run: async (input: string | Readable, _args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
+    run: async (input: string | Readable, program: IProgram): Promise<string | Readable> => {
       const response = await fetch(generateUrl, {
         method: 'POST',
         headers: {
@@ -32,7 +31,7 @@ const commands: Commands = {
         return fail(`ollama-generate: response body is null`);
       }
       // Lazy. Must handle HTTP code (esp. 429), in this handler and in others
-      runtime.emit(loggingEventName, {
+      program.runtime.emit(loggingEventName, {
         source: pkg.name,
         level: logLevels.spam,
         value: ['ollama-generate', response],
@@ -42,7 +41,7 @@ const commands: Commands = {
   },
   ['ollama-chat']: {
     description: 'feeds input in the native Ollama format to the local Ollama instance chat REST API',
-    run: async (input: string | Readable, _args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
+    run: async (input: string | Readable, program: IProgram): Promise<string | Readable> => {
       const response = await fetch(chatUrl, {
         method: 'POST',
         headers: {
@@ -55,7 +54,7 @@ const commands: Commands = {
         return fail(`ollama-generate: response body is null`);
       }
       // Lazy. Must handle HTTP code (esp. 429), in this handler and in others
-      runtime.emit(loggingEventName, {
+      program.runtime.emit(loggingEventName, {
         source: pkg.name,
         level: logLevels.spam,
         value: ['ollama-chat', response],

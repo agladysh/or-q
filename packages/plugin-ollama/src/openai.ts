@@ -1,8 +1,7 @@
 import {
-  type Arguments,
   type Commands,
   fail,
-  type IPluginRuntime,
+  type IProgram,
   type LoggingEvent,
   loggingEventName,
   logLevels,
@@ -17,7 +16,7 @@ const url = 'http://localhost:11434/v1/chat/completions';
 const commands: Commands = {
   ollama: {
     description: 'feeds OpenAI-compatible input to the local Ollama instance OpenAI completions API wrapper',
-    run: async (input: string | Readable, _args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
+    run: async (input: string | Readable, program: IProgram): Promise<string | Readable> => {
       const response = await fetch(url, {
         method: 'POST',
         headers: {
@@ -30,7 +29,7 @@ const commands: Commands = {
         return fail(`ollama: response body is null`);
       }
       // Lazy. Must handle HTTP code (esp. 429), in this handler and in others
-      runtime.emit(loggingEventName, {
+      program.runtime.emit(loggingEventName, {
         source: pkg.name,
         level: logLevels.spam,
         value: ['ollama', response],

@@ -263,6 +263,17 @@ const plugin: Plugin = {
         return fail('_DATA is not a command');
       },
     },
+    // Reserved; use only as a directive inside YAML scripts to inline commands
+    _RAW: {
+      description: 'not a command, reserved to use _RAW in yaml-scripts to inline commands',
+      run: async (
+        _input: string | Readable,
+        _args: Arguments,
+        _runtime: IPluginRuntime
+      ): Promise<string | Readable> => {
+        return fail('_RAW is not a command');
+      },
+    },
   },
 };
 

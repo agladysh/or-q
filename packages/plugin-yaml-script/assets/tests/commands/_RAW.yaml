@@ -1,0 +1,10 @@
+suite: _RAW
+
+tests:
+  - name: smoke
+    argv: _RAW echo hi
+    stdin: ''
+    exit: 1
+    stdout: ''
+    stderr:
+      - contains: '_RAW is not a command'

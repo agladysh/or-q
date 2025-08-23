@@ -96,6 +96,26 @@ assets export.
 
 Create basic smoke test for each command following the established pattern in `@or-q/plugin-test`.
 
+#### Test Review Procedure
+
+For systematic quality assurance, each test file must be reviewed using this strict 8-step procedure:
+
+**0. Generate Todo List**: Create todo list with all untracked test files to be reviewed **1. Read Command Source**:
+Find and read the source code for the command being tested **2. Manual Testing**: Try the command manually to understand
+its behavior  
+**3. Professional Review**: Skeptically review the test suite and refine it for quality **4. Run Test Suite**: Execute
+the test and fix any errors found **5. Code Formatting**: Run `pnpm run fix` to ensure code style compliance **6. Commit
+Changes**: Commit the reviewed test with clear message **7. Next File**: Move to the next test file and repeat from step
+0
+
+**Critical Requirements**:
+
+- Each test file must be reviewed individually in strict order
+- No batch processing - complete all 8 steps before moving to next file
+- Fix quality issues immediately, don't accumulate technical debt
+- Follow established patterns from excellent tests (e.g., `glob`, `conversation`, `_DATA`)
+- Use exact output verification where possible, avoid weak `contains:` assertions
+
 #### Test Infrastructure
 
 **Location**: `packages/*/assets/tests/commands/*.yaml` **Pattern**: One YAML file per command **Example**:

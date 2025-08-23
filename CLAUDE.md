@@ -19,6 +19,32 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `pnpm run test` - Run tests (currently just runs linting)
 - `pnpm run pretest` - Pre-test hook that runs linting
 
+### Git Status Verification
+
+**CRITICAL**: Always use `git status --untracked-files=all` instead of plain `git status` when checking repository
+state. The default `git status` only shows untracked directories, not individual files, which can hide significant work.
+
+**Examples**:
+
+```bash
+# WRONG - Hides individual untracked files
+git status
+# Shows: packages/plugin-format/assets/ (directory)
+
+# CORRECT - Shows all untracked files
+git status --untracked-files=all
+# Shows: packages/plugin-format/assets/tests/commands/pretty.yaml
+#        packages/plugin-format/assets/tests/commands/tsv.yaml
+#        packages/plugin-format/assets/tests/commands/yaml.yaml
+```
+
+**When to use**:
+
+- Before starting any work (to understand true repository state)
+- During P0001 test review procedures (to see all test files)
+- Before commits (to ensure nothing is accidentally left untracked)
+- When assessing implementation progress
+
 ### Package Management
 
 - Uses `pnpm` with workspaces defined in `pnpm-workspace.yaml`

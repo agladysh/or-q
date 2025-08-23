@@ -75,7 +75,9 @@ nestable array of strings is generated from two sources:
 
 - **ARGV Form:** Command-line arguments are parsed directly into this structure.
 - **YAML Form:** The `@or-q/plugin-yaml-script` compiles YAML files into the `Arguments` structure, using directives
-  like `_JSON` and `_RAW` as syntax extensions for meta-programming.
+  like `_JSON`, `_DATA`, and `_RAW` as syntax extensions for meta-programming. These are compile‑time directives — not
+  executable commands. When used correctly inside YAML, they transform the script into the internal program form. If
+  invoked directly as commands, they error by design (they are reserved placeholders).
 
 #### 4.2 Target Representation (To-Be)
 

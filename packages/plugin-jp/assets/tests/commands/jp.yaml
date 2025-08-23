@@ -1,0 +1,17 @@
+suite: jp
+
+tests:
+  - name: smoke-string-extraction
+    argv: jp name
+    stdin: '{"name": "test", "id": 123}'
+    stdout: '"test"'
+
+  - name: smoke-number-extraction
+    argv: jp id
+    stdin: '{"name": "test", "id": 123}'
+    stdout: '123'
+
+  - name: smoke-array-access
+    argv: jp '[0]'
+    stdin: '["first", "second", "third"]'
+    stdout: '"first"'

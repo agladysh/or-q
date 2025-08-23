@@ -22,6 +22,9 @@ broken into 10 phases, each designed to maintain system stability while progress
   - [x] TODO: Update agent instructions and other documentation.
 - 2025-08-22: `_DATA` and `_JSON` are no longer executable commands, see plugin-yaml-script.
   - [x] TODO: Update agent instructions and other documentation.
+- 2025-08-23: Test suites should explicitly list dependencies for all commands they use
+  - [ ] TODO: Update documentation to reflect that
+  - [ ] TODO: Update test suites to adhere
 
 ## Current State Analysis
 

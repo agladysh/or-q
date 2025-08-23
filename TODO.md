@@ -22,6 +22,12 @@ Keep sections in decreasing order of priority.
 - [ ] Whenever JSON is put to input: do not pretty-print it, but append a trailing newline
 - [ ] Trim asset string arguments in all commands that ingest asset names from input
 - [x] Design and execute removal of `on-empty-stdin` yaml-script clause in favor of `on-empty-stdin` command.
+- [ ] Design, implement and ingegrate various or-q-based linters, including ones to validate requires fields in scripts
+      and tests
+- [ ] Fill in (and update) nicely descriptions, keywords and other fields in all package.json files
+- [ ] Review package.json files for sanity
+- [ ] Integrate a robust package.json linter
+- [ ] Adapt `call` command to accept programs, not only standalone commands
 
 ## Testing
 
@@ -70,7 +76,6 @@ Keep sections in decreasing order of priority.
 - [ ] Support JSON-like data object passing as input to save on serialization / deserialization
 - [ ] CLI and YAML are external DSLs which are translated to the raw program form.
 - [ ] Schemas for CLI and YAML are generated dynamically
-- [ ] Fill in (and update) nicely descriptions, keywords and other fields in all package.json files
 
 ## Design Debt
 
@@ -83,6 +88,7 @@ Keep sections in decreasing order of priority.
 
 ## Product
 
+- [ ] Support yaml-script-only packages, with `#!/usr/bin/env or-q` on top.
 - [ ] Implement driver as an MCP server in addition to cli
 - [ ] Implement a visual no/low-code editor
 - [ ] Implement repository description generation script

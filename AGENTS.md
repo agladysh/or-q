@@ -167,6 +167,13 @@ Scope and intent:
   - Plugin URI: `pnpm or-q echo 'plugin:@or-q/plugin-test/fixtures/timeout-success.yaml' run-test-suite`
   - Filesystem: `pnpm or-q echo './packages/plugin-test/assets/fixtures/timeout-success.yaml' run-test-suite`
 
+### Timeouts and Timing
+
+- Use generous timeouts for full-suite runs; allow at least ~2 minutes.
+- Some tests deliberately loop or sleep (e.g., `forever`); rely on YAML `timeout`.
+- When timing locally, wrap runs with `/usr/bin/time -p` to track wall-clock.
+- If your runner has global limits, raise them; do not misdiagnose timeouts.
+
 ## Help/Discovery Roadmap (P0001)
 
 - Add `Plugin.description` (from `package.json`) and expose it in plugin definitions

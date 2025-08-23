@@ -1,9 +1,15 @@
 suite: call
 
 tests:
-  - name: smoke
+  - name: smoke-single
     argv: call tee foo
     stdin: 'ignored'
     stdout: |
       foo
       foo
+  - name: smoke-multi
+    argv: call "tee echo bar" foo
+    stdin: 'ignored'
+    stdout: |
+      foo
+      bar

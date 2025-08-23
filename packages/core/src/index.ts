@@ -1,14 +1,13 @@
 import type {
-  Arguments,
   Assets,
   Command,
   IPluginRuntimeEvent,
+  IProgram,
   LoggingEvent,
   RuntimeCloneChildEvent,
   RuntimeCloneParentEvent,
 } from '@or-q/lib';
 import {
-  commandArgument,
   type Commands,
   fail,
   type IPluginRuntime,
@@ -215,7 +214,7 @@ export class PluginRuntime implements IPluginRuntime {
   }
 
   // Lazy. This should be in IORQPluginRuntime, as it is OR-Q specific
-  async runCommands(input: string | Readable, program: Arguments): Promise<string | Readable> {
+  async runProgram(input: string | Readable, original: IProgram): Promise<string | Readable> {
     // Lazy. Generalize so it is reusable.
     const spam = (...args: unknown[]) => {
       this.emit(loggingEventName, {
@@ -241,59 +240,27 @@ export class PluginRuntime implements IPluginRuntime {
       } as LoggingEvent);
     };
 
-    dbg('runCommands: executing', program);
+    dbg('runCommands: executing', original.toString());
 
-    // Lazy. Reuse something?
-    function truncate(str: string, maxlen: number, suffix: string = '...') {
-      if (str.length <= maxlen) {
-        return str;
-      }
-      return `${str.substring(0, maxlen)}${suffix}`;
-    }
+    const program = original.clone();
+    for (let atom = program.next(); atom !== undefined; atom = program.next()) {
+      const command = await atom.toCommand();
 
-    const args = program.slice();
-    while (args.length > 0) {
-      const command = await commandArgument(this, args.shift(), 'Internal error: unreachable');
-      if (!(command in this.commands)) {
-        // Lazy. DRY with below
-        const failedAt = program.length - args.length - 1;
-        for (let i = 0; i < program.length; ++i) {
-          const open = i === failedAt ? '> ' : '  ';
-          const close = i === failedAt ? ' <' : '';
-          // Lazy, compute maximum padding.
-          error(`${i.toString().padStart(3)}: ${open}${truncate(String(program[i]).trim(), 60)}${close}`);
-        }
-        return fail(`Unknown command "${command}"`);
-      }
       dbg('runCommands: running', command);
+
       try {
-        input = await this.commands[command].run(input, args, this);
+        input = await this.commands[command].run(input, program);
         if (!(input instanceof Readable || typeof input === 'string')) {
           error('input is', input);
-          // Lazy. DRY with below
-          const failedAt = program.length - args.length - 1;
-          for (let i = 0; i < program.length; ++i) {
-            const open = i === failedAt ? '> ' : '  ';
-            const close = i === failedAt ? ' <' : '';
-            // Lazy, compute maximum padding.
-            error(`${i.toString().padStart(3)}: ${open}${truncate(String(program[i]).trim(), 60)}${close}`);
-          }
-          return fail(`runCommands: internal error, invalid resulting input type; ${typeof input}`);
+          return program.fail(`runCommands: internal error, invalid resulting input type; ${typeof input}`);
         }
       } catch (e: unknown) {
         if (e instanceof PluginRuntimeFailure) {
           dbg(`command ${command} failed`, e.message);
           throw e;
         }
-        // Lazy. Improve diagnostics.
-        const failedAt = program.length - args.length - 1;
-        for (let i = 0; i < program.length; ++i) {
-          const open = i === failedAt ? '> ' : '  ';
-          const close = i === failedAt ? ' <' : '';
-          // Lazy, compute maximum padding.
-          error(`${i.toString().padStart(3)}: ${open}${truncate(String(program[i]).trim(), 60)}${close}`);
-        }
-        error(`command ${command} failed`, e);
+        error(program.trace());
+        error(`command ${command} failed with unknown exception`, e);
         throw e;
       }
       spam('runCommands: done running', command);
@@ -303,7 +270,7 @@ export class PluginRuntime implements IPluginRuntime {
 
     if (!(input instanceof Readable || typeof input === 'string')) {
       error('input is', input);
-      error('after execution of\n', program.join('\n'));
+      error('after execution of\n', program.toString());
       return fail(`runCommands: internal error, invalid resulting input type; ${typeof input}`);
     }
 

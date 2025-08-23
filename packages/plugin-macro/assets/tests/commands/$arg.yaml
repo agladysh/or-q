@@ -1,0 +1,23 @@
+suite: $arg
+
+tests:
+  - name: smoke-success-in-macro
+    argv: $defmacro testmacro "['echo', ['$arg', '1']]" $macro "['testmacro', 'hello', 'world']"
+    stdin: 'test input'
+    stdout: 'hello'
+
+  - name: smoke-fail-outside-macro
+    argv: $arg 1
+    stdin: ''
+    stdout: ''
+    stderr:
+      - contains: 'outside of $macro'
+    exit: 1
+
+  - name: smoke-fail-invalid-arg
+    argv: $arg invalid
+    stdin: ''
+    stdout: ''
+    stderr:
+      - contains: 'usage: $arg'
+    exit: 1

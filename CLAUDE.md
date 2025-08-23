@@ -19,6 +19,23 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `pnpm run test` - Run tests (currently just runs linting)
 - `pnpm run pretest` - Pre-test hook that runs linting
 
+### Code Reading Best Practices
+
+**CRITICAL**: Always read entire source files when examining commands or functionality. Partial reading based on search
+results leads to misunderstanding and incorrect implementations.
+
+**Never**:
+
+- Use grep results to understand command behavior
+- Make assumptions about command syntax from partial code snippets
+- Rely on search results to determine command structure
+
+**Always**:
+
+- Read complete source files from start to finish
+- Understand full context before implementing or testing commands
+- Verify command usage by reading the entire implementation
+
 ### Git Status Verification
 
 **CRITICAL**: Always use `git status --untracked-files=all` instead of plain `git status` when checking repository

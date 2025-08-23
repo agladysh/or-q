@@ -122,12 +122,15 @@ The system includes multiple plugins:
 - `commands:` array - sequential command execution with pipeline semantics
 - Scripts are assets loaded from `plugin:package-name/path` or filesystem paths
 
-**Special Directives**:
+**Special Directives (compile-time, not commands)**:
 
-- `_JSON:` - converts YAML objects to JSON command arguments via `loadYAMLAsJSONCommand()`
-- `_RAW:` - inlines command sequences, often used for parameter substitution (`[$arg: N]`)
-- `$defmacro:` - defines reusable command templates with parameter placeholders
-- `$macro:` - invokes defined macros with argument substitution
+- `_JSON:` embeds YAML objects/arrays/primitives as JSON in the compiled program (implemented as emitting `echo <json>`)
+- `_DATA:` converts a YAML list into a JSON array argument for the compiled program
+- `_RAW:` inlines command sequences (often used for parameter substitution with `$arg: N`)
+- `$defmacro:` defines reusable command templates with parameter placeholders
+- `$macro:` invokes defined macros with argument substitution
+
+Note: `_JSON`, `_DATA`, and `_RAW` are reserved placeholders at runtime. Invoking them as commands fails by design.
 
 ### Command Pipeline Architecture
 

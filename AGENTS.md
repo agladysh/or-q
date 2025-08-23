@@ -44,6 +44,12 @@ Scope and intent:
 - `pnpm run fix:eslint` / `pnpm run fix:prettier`: Targeted fixes
 - `pnpm run test`: Runs the test pipeline (currently lint)
 
+### Preferred Workflow (Important)
+
+- Prefer `pnpm run fix` over `pnpm run lint` during development. If `fix` passes, `lint` will also pass.
+- Always run `pnpm run fix` before staging and/or committing. Pre‑commit hooks run lint and may stash changes.
+- Only run `pnpm run lint` when you explicitly want validation without making changes.
+
 ## Git Hygiene (Staging/Committing)
 
 - Never run `git add -A`, `git add .`, or any bulk staging command.
@@ -69,7 +75,7 @@ Scope and intent:
   stash.
 - To recover, run: `git stash list` then `git stash pop` (resolve any conflicts), and re-run linters/fixes before
   committing.
-- Best practice: run `pnpm run lint` (or `pnpm run fix`) before committing to avoid failed hooks and unintended stashes.
+- Best practice: run `pnpm run fix` before committing to avoid failed hooks and unintended stashes.
 - Always verify the result on errors: check `git log -n 1 --oneline` to see if a commit was created; if not, recover
   your changes from the stash or working tree. For unexpected history changes, use `git reflog` to locate lost commits
   or HEAD moves.

@@ -2,6 +2,9 @@
 
 This file provides guidance to Gemini when working with code in this repository.
 
+Note: These agent docs may be outdated at times. For authoritative behavior and conventions (e.g., YAML directives,
+execution model, testing), consult `AGENTS.md` and the code.
+
 ## Project Overview
 
 OR-Q is a plugin-based CLI tool for orchestrating command pipelines, with a focus on interacting with AI models and

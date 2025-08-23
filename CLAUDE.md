@@ -2,6 +2,9 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+Note: Agent docs can lag behind code. Treat `AGENTS.md` and the codebase as ground truth for mechanics (execution model,
+YAML directives, testing). Prefer facts from code over AI-written docs.
+
 ## Development Commands
 
 ### Linting and Code Quality

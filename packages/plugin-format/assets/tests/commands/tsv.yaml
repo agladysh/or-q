@@ -1,0 +1,10 @@
+suite: tsv
+
+tests:
+  - name: smoke
+    argv: tsv
+    stdin: '[["Name", "Age", "City"], ["John", "25", "NYC"], ["Jane", "30", "LA"]]'
+    stdout: |
+      Name	Age	City
+      John	25	NYC
+      Jane	30	LA

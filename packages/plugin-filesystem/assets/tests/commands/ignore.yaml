@@ -1,0 +1,11 @@
+suite: ignore
+
+tests:
+  - name: smoke
+    argv: ignore "*.temp"
+    stdin: '["README.md", "temp.temp", "other.txt"]'
+    stdout: |
+      [
+        "README.md",
+        "other.txt"
+      ]

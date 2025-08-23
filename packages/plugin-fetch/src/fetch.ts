@@ -1,9 +1,7 @@
 import {
-  type Arguments,
-  commandArgument,
   type Commands,
   fail,
-  type IPluginRuntime,
+  type IProgram,
   type LoggingEvent,
   loggingEventName,
   logLevels,
@@ -18,9 +16,9 @@ import pkg from '../package.json' with { type: 'json' };
 const commands: Commands = {
   ['fetch']: {
     description: 'fetches data from a provided URL, with input as request body',
-    run: async (input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
+    run: async (input: string | Readable, program: IProgram): Promise<string | Readable> => {
       const usage = 'usage: fetch-json "<url>"';
-      const url = await commandArgument(runtime, args.shift(), usage);
+      const url = await program.ensureNext(usage).toString();
       const config = yaml.parse(await readableToString(input)); // Lazy. Should validate input.
 
       // If body is an object and Content-Type is application/json, stringify the body
@@ -39,7 +37,7 @@ const commands: Commands = {
         return fail(`fetch: response body is null`);
       }
       // Lazy. Must handle HTTP code (esp. 429), in this handler and in others
-      runtime.emit(loggingEventName, {
+      program.runtime.emit(loggingEventName, {
         source: pkg.name,
         level: logLevels.spam,
         value: ['fetch', response],

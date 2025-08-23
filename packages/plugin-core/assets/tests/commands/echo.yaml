@@ -3,5 +3,5 @@ suite: echo
 tests:
   - name: smoke
     argv: echo test
-    stdin: ''
+    stdin: 'ignored'
     stdout: 'test'

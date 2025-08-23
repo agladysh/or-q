@@ -1,0 +1,18 @@
+suite: _JSON
+
+tests:
+  - name: smoke-string
+    argv: _JSON string hello
+    stdin: ''
+    exit: 1
+    stdout: ''
+    stderr:
+      - contains: 'not a command'
+
+  - name: smoke-number
+    argv: _JSON number 42
+    stdin: ''
+    exit: 1
+    stdout: ''
+    stderr:
+      - contains: 'not a command'

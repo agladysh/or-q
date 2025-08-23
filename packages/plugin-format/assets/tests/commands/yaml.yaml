@@ -1,0 +1,13 @@
+suite: yaml
+
+tests:
+  - name: smoke
+    argv: yaml
+    stdin: '{"name": "John", "age": 30, "hobbies": ["reading", "gaming"], "active": true}'
+    stdout: |
+      name: John
+      age: 30
+      hobbies:
+        - reading
+        - gaming
+      active: true

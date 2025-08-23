@@ -1,18 +1,19 @@
-import { commandArgument, readableToString, type Arguments, type Commands, type IPluginRuntime } from '@or-q/lib';
+import { readableToString, type Commands, type IProgram } from '@or-q/lib';
 import { readFileSync } from 'node:fs';
 import type { Readable } from 'node:stream';
 
 const commands: Commands = {
   ['cat-file']: {
     description: 'replaces input with the file contents from argument',
-    run: async (_input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
-      const filename = await commandArgument(runtime, args.shift(), 'usage: cat-file <filename>');
+    run: async (_input: string | Readable, program: IProgram): Promise<string | Readable> => {
+      const usage = 'usage: cat-file <filename>';
+      const filename = await program.ensureNext(usage).toString();
       return readFileSync(filename, 'utf-8');
     },
   },
   ['file']: {
     description: 'converts input filename to the file contents',
-    run: async (input: string | Readable, _args: Arguments, _runtime: IPluginRuntime): Promise<string | Readable> => {
+    run: async (input: string | Readable, _program: IProgram): Promise<string | Readable> => {
       const filename = await readableToString(input);
       return readFileSync(filename, 'utf-8');
     },

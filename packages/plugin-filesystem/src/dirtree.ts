@@ -1,8 +1,8 @@
-import { fail, readableToString, type Arguments, type Commands, type IPluginRuntime } from '@or-q/lib';
-import yaml from 'yaml';
-import type { Readable } from 'node:stream';
+import { fail, readableToString, type Commands, type IProgram } from '@or-q/lib';
 import path from 'node:path';
+import type { Readable } from 'node:stream';
 import treeify, { type TreeObject } from 'treeify';
+import yaml from 'yaml';
 
 type Dirs = { [dir: string]: Dirs | string | null };
 
@@ -33,7 +33,7 @@ type AnnotatedPathList = [string, string][];
 const commands: Commands = {
   ['dirtree-json']: {
     description: 'consumes list of paths, returns hierarchy as JSON',
-    run: async (input: string | Readable, _args: Arguments, _runtime: IPluginRuntime): Promise<string | Readable> => {
+    run: async (input: string | Readable, _program: IProgram): Promise<string | Readable> => {
       input = await readableToString(input);
       // Lazy. Should validate schema.
       const paths = yaml.parse(input).sort();
@@ -42,7 +42,7 @@ const commands: Commands = {
   },
   ['dirtree-annotated-json']: {
     description: 'consumes list of path - annotation pairs, returns hierarchy as JSON',
-    run: async (input: string | Readable, _args: Arguments, _runtime: IPluginRuntime): Promise<string | Readable> => {
+    run: async (input: string | Readable, _program: IProgram): Promise<string | Readable> => {
       input = await readableToString(input);
       // Lazy. Should validate schema.
       const list = yaml.parse(input) as AnnotatedPathList;
@@ -62,7 +62,7 @@ const commands: Commands = {
   },
   ['dirtree']: {
     description: 'consumes list of paths or dirtree-json output, returns hierarchy as text',
-    run: async (input: string | Readable, _args: Arguments, _runtime: IPluginRuntime): Promise<string | Readable> => {
+    run: async (input: string | Readable, _program: IProgram): Promise<string | Readable> => {
       input = await readableToString(input);
       let dirtree = yaml.parse(input);
       // Lazy. Should validate schema.

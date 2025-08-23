@@ -1,9 +1,7 @@
 import {
-  type Arguments,
   type Command,
-  commandArgument,
   type Commands,
-  type IPluginRuntime,
+  type IProgram,
   type LoggingEvent,
   loggingEventName,
   type LogLevel,
@@ -15,13 +13,14 @@ import pkg from '../package.json' with { type: 'json' };
 // Lazy. Use a wrapper in @org-q/lib
 
 function logCommandEntry(level: LogLevel): [string, Command] {
+  const usage = `usage: ${level} "<text>"`;
   return [
     level,
     {
       description: `logs text with ${level} level, forwards input`,
-      run: async (input: string | Readable, args: Arguments, runtime: IPluginRuntime) => {
-        const text = await commandArgument(runtime, args.shift(), `usage: ${level} "<text>"`);
-        runtime.emit(loggingEventName, {
+      run: async (input: string | Readable, program: IProgram) => {
+        const text = await program.ensureNext(usage).toString();
+        program.runtime.emit(loggingEventName, {
           source: pkg.name,
           level: level,
           value: text,

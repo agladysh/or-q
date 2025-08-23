@@ -1,25 +1,23 @@
-import { type Arguments, commandArgument, type Commands, fail, type IPluginRuntime, readableToString } from '@or-q/lib';
+import { type Commands, fail, type IProgram, readableToString } from '@or-q/lib';
 import { Readable } from 'node:stream';
-import parseArgsStringToArgv from 'string-argv';
 import yaml from 'yaml';
 
 const commands: Commands = {
   call: {
     description: 'calls command feeding it argument as input',
-    run: async (_input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
-      const usage = 'usage: call "<command>" "<input>"';
-      const command = await commandArgument(runtime, args.shift(), usage);
-      const input = await commandArgument(runtime, args.shift(), usage);
+    run: async (_input: string | Readable, program: IProgram): Promise<string | Readable> => {
+      const usage = 'usage: call [commands] "<input>"';
+      const arg = await program.ensureNext(usage).toProgram();
+      const input = await program.ensureNext(usage).toString();
 
-      return runtime.runCommands(input, [command]);
+      return arg.run(input);
     },
   },
   head: {
     description: 'returns first N items from the input array',
-    run: async (input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
+    run: async (input: string | Readable, program: IProgram): Promise<string | Readable> => {
       const usage = 'usage: head N';
-      const nStr = await commandArgument(runtime, args.shift(), usage);
-      const n = Number(nStr);
+      const n = await program.ensureNext(usage).toNumber();
       if (!Number.isInteger(n) || n < 0) {
         return fail(usage);
       }
@@ -36,7 +34,7 @@ const commands: Commands = {
   },
   sort: {
     description: 'sorts input array',
-    run: async (input: string | Readable, _args: Arguments, _runtime: IPluginRuntime): Promise<string | Readable> => {
+    run: async (input: string | Readable, _program: IProgram): Promise<string | Readable> => {
       // Lazy. Should check schema.
       const data = yaml.parse(await readableToString(input)) as string[];
       return `${JSON.stringify(data.sort((lhs, rhs) => lhs.localeCompare(rhs)))}\n`;
@@ -44,21 +42,16 @@ const commands: Commands = {
   },
   map: {
     description: 'applies commands from the argument to each entry of the input array, returns resulting array',
-    run: async (input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
-      let arg = args.shift();
-      if (arg === undefined) {
-        return fail('usage: map [program]');
-      }
-      if (typeof arg === 'string') {
-        arg = parseArgsStringToArgv(arg);
-      }
+    run: async (input: string | Readable, program: IProgram): Promise<string | Readable> => {
+      const usage = 'usage: map [program]';
+      const arg = await program.ensureNext(usage).toProgram();
 
       input = await readableToString(input);
       // Lazy. Should check schema.
       const data = yaml.parse(input) as string[];
       const result = [];
       for (const entry of data) {
-        result.push(await readableToString(await runtime.runCommands(entry, arg.slice())));
+        result.push(await readableToString(await arg.run(entry)));
       }
       return JSON.stringify(result, null, 2);
     },
@@ -66,22 +59,17 @@ const commands: Commands = {
   // Lazy. Is there an idiomatic name for this?
   ['stream-map']: {
     description: 'applies commands from the argument to each entry of the input array, streaming to input',
-    run: async (input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
-      let arg = args.shift();
-      if (arg === undefined) {
-        return fail('usage: stream-map [program]');
-      }
-      if (typeof arg === 'string') {
-        arg = parseArgsStringToArgv(arg);
-      }
+    run: async (input: string | Readable, program: IProgram): Promise<string | Readable> => {
+      const usage = 'usage: stream-map [program]';
+      const arg = await program.ensureNext(usage).toProgram();
 
       input = await readableToString(input);
       // Lazy. Should check schema.
       const data = yaml.parse(input) as string[];
 
-      async function* stream(arg: Arguments) {
+      async function* stream(arg: IProgram) {
         for (const entry of data) {
-          const result = await runtime.runCommands(entry, arg.slice());
+          const result = await arg.clone().run(entry);
           if (typeof result === 'string') {
             yield result;
             continue;
@@ -98,11 +86,10 @@ const commands: Commands = {
   ['map-n']: {
     description:
       'applies programs from the argument to each entry of the input array, returns resulting array of arrays',
-    run: async (input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
+    run: async (input: string | Readable, program: IProgram): Promise<string | Readable> => {
       const usage = 'usage: map-n N [program1] ... [programN]';
-      const nStr = await commandArgument(runtime, args.shift(), usage);
-      const n = Number(nStr);
-      if (!Number.isInteger(n) || n < 1 || n > args.length) {
+      const n = await program.ensureNext(usage).toNumber();
+      if (!Number.isInteger(n) || n < 1) {
         return fail(usage);
       }
       if (n === 1) {
@@ -111,14 +98,7 @@ const commands: Commands = {
 
       const programs = [];
       for (let i = 0; i < n; ++i) {
-        let arg = args.shift();
-        if (arg === undefined) {
-          return fail(usage);
-        }
-        if (typeof arg === 'string') {
-          arg = parseArgsStringToArgv(arg);
-        }
-        programs.push(arg);
+        programs.push(await program.ensureNext(usage).toProgram());
       }
 
       input = await readableToString(input);
@@ -128,7 +108,7 @@ const commands: Commands = {
       for (const entry of data) {
         const row = [];
         for (const program of programs) {
-          row.push(await readableToString(await runtime.runCommands(entry, program.slice())));
+          row.push(await readableToString(await program.run(entry)));
         }
         result.push(row);
       }
@@ -140,27 +120,19 @@ const commands: Commands = {
   ['parallel-map-n']: {
     description:
       'applies programs from the argument to each entry of the input array in parallel, returns resulting array of arrays',
-    run: async (input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
+    run: async (input: string | Readable, program: IProgram): Promise<string | Readable> => {
       const usage = 'usage: parallel-map-n N [program1] ... [programN]';
-      const nStr = await commandArgument(runtime, args.shift(), usage);
-      const n = Number(nStr);
-      if (!Number.isInteger(n) || n < 1 || n > args.length) {
+      const n = await program.ensureNext(usage).toNumber();
+      if (!Number.isInteger(n) || n < 1) {
         return fail(usage);
       }
       if (n === 1) {
         return input;
       }
 
-      const programs: Arguments[] = [];
+      const programs: IProgram[] = [];
       for (let i = 0; i < n; ++i) {
-        let arg = args.shift();
-        if (arg === undefined) {
-          return fail(usage);
-        }
-        if (typeof arg === 'string') {
-          arg = parseArgsStringToArgv(arg);
-        }
-        programs.push(arg);
+        programs.push(await program.ensureNext(usage).toProgram());
       }
 
       // Lazy. Should check schema.
@@ -169,15 +141,13 @@ const commands: Commands = {
       const result = await Promise.all(
         data.map((entry) => {
           return Promise.all(
-            programs.map((program) => {
+            programs.map(async (program) => {
               // Running in throw-away clone to prevent async races
               // Lazy. Least surprise principle violated, this silently loses any updates to scopes, e.g. storage.
               //       Is there a reasonable way possible to provide scope reintegration functionality for the Storage plugin?
               //       Perhaps users doing store-{push,pop} commands manually will help somehow? (It is ok, since our commands are so low-level)
-              return runtime
-                .clone()
-                .runCommands(entry, program.slice())
-                .then((r) => readableToString(r));
+              const r = await program.cloneWithRuntime().run(entry);
+              return readableToString(r);
             })
           );
         })

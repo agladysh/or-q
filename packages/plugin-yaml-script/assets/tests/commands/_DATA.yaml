@@ -1,0 +1,18 @@
+suite: _DATA
+
+tests:
+  - name: smoke-empty
+    argv: _DATA
+    stdin: ''
+    exit: 1
+    stdout: ''
+    stderr:
+      - contains: '_DATA is not a command'
+
+  - name: smoke-args
+    argv: _DATA "one" "two" "three"
+    stdin: ''
+    exit: 1
+    stdout: ''
+    stderr:
+      - contains: '_DATA is not a command'

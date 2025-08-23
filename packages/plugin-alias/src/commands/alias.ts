@@ -1,85 +1,49 @@
-import type { Arguments, IPluginRuntime } from '@or-q/lib';
-import { commandArgument, fail, type LoggingEvent, loggingEventName, logLevels, readableToString } from '@or-q/lib';
-import { Readable } from 'node:stream';
-import parseArgsStringToArgv from 'string-argv';
+import type { AtomMap, IProgram } from '@or-q/lib';
+import { atomsContextID, fail, type LoggingEvent, loggingEventName, logLevels } from '@or-q/lib';
+import type { Readable } from 'node:stream';
 import pkg from '../../package.json' with { type: 'json' };
 
 export const command = 'alias';
 export const description = 'declares a command alias which may accept arguments via placeholders, forwards input';
 export const usage = 'usage: alias "<name>" "<description>" [placeholders] [commands]';
 
-export async function run(
-  input: string | Readable,
-  args: Arguments,
-  runtime: IPluginRuntime
-): Promise<string | Readable> {
-  // Lazy. DRY with similar array argument loading cases to a lib function.
-  // Note all arguments ideally must be shifted before we start massaging them,
-  // which means we need a commandArguments function or something
-  const name = (await commandArgument(runtime, args.shift(), usage)).trim();
-  const description = await commandArgument(runtime, args.shift(), usage);
-  let placeholdersRaw = args.shift();
-  let program = args.shift();
-
-  if (runtime.commandNameSet.has(name)) {
+export async function run(input: string | Readable, program: IProgram): Promise<string | Readable> {
+  const name = (await program.ensureNext(usage).toString()).trim();
+  if (program.runtime.commandNameSet.has(name)) {
     return fail(`alias: command or alias "${name}" already exists`);
   }
 
-  if (placeholdersRaw instanceof Readable) {
-    placeholdersRaw = await readableToString(placeholdersRaw);
-  }
-  if (typeof placeholdersRaw === 'string') {
-    placeholdersRaw = parseArgsStringToArgv(placeholdersRaw);
-  }
-  if (!Array.isArray(placeholdersRaw)) {
-    return fail(`placeholder is not string or array`);
-  }
-  for (const p of placeholdersRaw) {
+  const description = await program.ensureNext(usage).toString();
+  const placeholders = (await program.ensureNext(usage).toFlatArray()).map((p) => {
     if (typeof p !== 'string') {
       return fail(`unexpected placeholder ${JSON.stringify(p)}, should be a string value`);
     }
-    if (runtime.commandNameSet.has(p)) {
+    p = p.trim();
+    if (program.runtime.commandNameSet.has(p)) {
       return fail(`placeholder "${name}" is taken by existing command or alias, must be unique`);
     }
-  }
-  const placeholders: string[] = placeholdersRaw.map((p) => String(p).trim());
+    return p;
+  });
 
-  if (program instanceof Readable) {
-    program = await readableToString(program);
-  }
-  if (typeof program === 'string') {
-    program = parseArgsStringToArgv(program);
-  }
-  if (!Array.isArray(program)) {
-    return fail(`arguments is not string or array`);
-  }
+  const aliasProgram = await program.ensureNext(usage).toProgram();
 
   const aliasUsage = `usage: ${name} ${placeholders.join(' ')}`.trim();
 
-  runtime.emit<LoggingEvent>(loggingEventName, {
+  program.runtime.emit<LoggingEvent>(loggingEventName, {
     source: pkg.name,
     level: logLevels.debug,
     value: ['alias', name, description],
   });
 
-  runtime.addCommand(pkg.name, name, {
+  program.runtime.addCommand(pkg.name, name, {
     description: `${description.trim()} [alias]`,
-    run: async (input: string | Readable, args: Arguments, runtime: IPluginRuntime) => {
-      const placeholderValues: Record<string, string> = {};
+    run: async (input: string | Readable, program: IProgram) => {
+      const map: AtomMap = {};
       for (const p of placeholders) {
-        placeholderValues[p] = await commandArgument(runtime, args.shift(), aliasUsage);
+        map[p] = await program.ensureNext(aliasUsage).toString();
       }
 
-      function patchPlaceholders(program: Arguments): Arguments {
-        return program.map((arg) => {
-          if (Array.isArray(arg)) {
-            return patchPlaceholders(arg);
-          }
-          return placeholderValues[arg] ?? arg;
-        });
-      }
-
-      return runtime.runCommands(input, patchPlaceholders(program));
+      return aliasProgram.runInContext(input, atomsContextID, map);
     },
   });
 

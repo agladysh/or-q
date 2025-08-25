@@ -51,7 +51,7 @@ tests:
         - _JSON:
             dot: true
     stdout: | # yaml
-      - echo
+      - _RAW
       - '{"dot":true}'
 
   - name: regression-_DATA

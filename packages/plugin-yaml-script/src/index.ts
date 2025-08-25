@@ -59,7 +59,7 @@ function loadCommandsImpl(parent: Arguments, root: Arguments, commands: CommandL
     }
 
     if (entries.length === 1 && entries[0][0] === '_JSON') {
-      root.push('echo'); // Lazy. This should create a dependency on or-q/plugin-echo, not on the whole core
+      root.push('_RAW');
       root.push(JSON.stringify(entries[0][1]));
       return root;
     }
@@ -152,6 +152,12 @@ const plugin: Plugin = {
           'usage: exec "<yaml>", you may use run <(cat filename.yaml) to read from file'
         );
         return runYAMLScript(input, yamlString, runtime);
+      },
+    },
+    ['exec-input']: {
+      description: 'executes YAML script from input',
+      run: async (input: string | Readable, _args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
+        return runYAMLScript('', await readableToString(input), runtime);
       },
     },
     ['list-script-assets']: {
@@ -263,15 +269,38 @@ const plugin: Plugin = {
         return fail('_DATA is not a command');
       },
     },
-    // Reserved; use only as a directive inside YAML scripts to inline commands
     _RAW: {
-      description: 'not a command, reserved to use _RAW in yaml-scripts to inline commands',
-      run: async (
-        _input: string | Readable,
-        _args: Arguments,
-        _runtime: IPluginRuntime
-      ): Promise<string | Readable> => {
-        return fail('_RAW is not a command');
+      description: 'replaces single-key `_RAW: [or-q commands] nodes in JSON or YAML argument with the command output',
+      run: async (_input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
+        const usage = 'usage: _RAW "<data>"';
+        const arg = await commandArgument(runtime, args.shift(), usage);
+        const data = yaml.parse(arg);
+
+        async function replaceRaws(data: unknown): Promise<unknown> {
+          if (Array.isArray(data)) {
+            return Promise.all(data.map(replaceRaws));
+          }
+
+          if (typeof data !== 'object' || data === null) {
+            return data;
+          }
+
+          const entries = Object.entries(data);
+          if (entries.length === 1 && entries[0][0] === '_RAW') {
+            const rawProgram = loadYAMLScript(JSON.stringify(entries[0][1]), runtime); // Lazy. Seems heavy.
+            if (!Array.isArray(rawProgram)) {
+              return fail('_RAW must be an array of commands');
+            }
+            // Lazy. Should validate schema.
+            return await runtime.runCommands('', rawProgram.slice());
+          }
+
+          return Object.fromEntries(await Promise.all(entries.map(async ([k, v]) => [k, await replaceRaws(v)])));
+        }
+
+        const result = await replaceRaws(data);
+
+        return `${JSON.stringify(result)}\n`;
       },
     },
   },

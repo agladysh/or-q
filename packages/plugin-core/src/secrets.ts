@@ -1,4 +1,4 @@
-import { commandArgument, type Arguments, type Commands, type IPluginRuntime } from '@or-q/lib';
+import { commandArgument, fail, type Arguments, type Commands, type IPluginRuntime } from '@or-q/lib';
 import type { Readable } from 'node:stream';
 
 const commands: Commands = {
@@ -7,7 +7,10 @@ const commands: Commands = {
     // Lazy. Protect the secret from exposure e.g. in logs.
     run: async (_input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
       const id = await commandArgument(runtime, args.shift(), 'usage: secret "<id>"');
-      return process.env[id] ?? '';
+      if (process.env[id] === undefined) {
+        return fail(`secret ${id} not found`);
+      }
+      return process.env[id]!;
     },
   },
 };

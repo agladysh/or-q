@@ -15,7 +15,8 @@
     "fix:prettier": "prettier --write .",
     "fix:markdownlint": "markdownlint --ignore '**/node_modules/**/*' --fix '**/*.md'",
     "fix": "pnpm run fix:eslint && pnpm run fix:prettier && pnpm run fix:markdownlint",
-    "lefthook:precommit": "pnpm exec lefthook run pre-commit"
+    "lefthook:precommit": "pnpm exec lefthook run pre-commit",
+    "link": "pnpm uninstall -g @or-q/cli @or-q/cli-plugins || true && pnpm link --global \"$(pwd)/packages/cli\" && pnpm link --global \"$(pwd)/packages/cli-plugins\""
   },
   "keywords": [
     "or-q"

@@ -1,6 +1,6 @@
 {
   "name": "@or-q/cli-plugins",
-  "description": "OR-Q CLI with All Official Plugins Bundle",
+  "description": "A bundle of all official OR-Q plugins.",
   "version": "1.0.0",
   "author": "Alexander Gladysh <agladysh@gmail.com>",
   "license": "MIT",
@@ -14,7 +14,6 @@
     "typescript": "^5.9.2"
   },
   "dependencies": {
-    "@or-q/cli": "workspace:*",
     "@or-q/plugin-alias": "workspace:*",
     "@or-q/plugin-core": "workspace:*",
     "@or-q/plugin-dot-or-q-assets": "workspace:*",

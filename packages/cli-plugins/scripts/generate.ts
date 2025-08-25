@@ -36,9 +36,7 @@ async function main() {
   const allDependencies = pnpmListJson[0].dependencies;
 
   // 2. Build a list of tuples <package-name>: "workspace:*"
-  const dependenciesToAdd: { [key: string]: string } = {
-    '@or-q/cli': 'workspace:*', // 3. Add @or-q/cli: workspace:*
-  };
+  const dependenciesToAdd: { [key: string]: string } = {};
 
   // 3. Filter and add @or-q/plugin-* dependencies directly
   for (const depName of Object.keys(allDependencies)) {

@@ -1,0 +1,35 @@
+{
+  "name": "@or-q/cli-plugins",
+  "description": "OR-Q CLI with All Official Plugins Bundle",
+  "version": "1.0.0",
+  "author": "Alexander Gladysh <agladysh@gmail.com>",
+  "license": "MIT",
+  "packageManager": "pnpm@10.13.1",
+  "type": "module",
+  "scripts": {
+    "preinstall": "node --experimental-strip-types --disable-warning=ExperimentalWarning scripts/generate.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^24.2.0",
+    "typescript": "^5.9.2"
+  },
+  "dependencies": {
+    "@or-q/cli": "workspace:*",
+    "@or-q/plugin-alias": "workspace:*",
+    "@or-q/plugin-core": "workspace:*",
+    "@or-q/plugin-dot-or-q-assets": "workspace:*",
+    "@or-q/plugin-fetch": "workspace:*",
+    "@or-q/plugin-filesystem": "workspace:*",
+    "@or-q/plugin-format": "workspace:*",
+    "@or-q/plugin-jp": "workspace:*",
+    "@or-q/plugin-macro": "workspace:*",
+    "@or-q/plugin-ollama": "workspace:*",
+    "@or-q/plugin-openrouter-api": "workspace:*",
+    "@or-q/plugin-shell": "workspace:*",
+    "@or-q/plugin-stdio-logger": "workspace:*",
+    "@or-q/plugin-store": "workspace:*",
+    "@or-q/plugin-template": "workspace:*",
+    "@or-q/plugin-test": "workspace:*",
+    "@or-q/plugin-yaml-script": "workspace:*"
+  }
+}

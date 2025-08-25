@@ -8,6 +8,8 @@ Keep sections in decreasing order of priority.
 - [ ] Find `Lazy` with `TODO` and migrate them here.
 - [ ] Triage and redesign command naming, focusing on non-idiomatic commands like echo and tee, which currently violate
       principle of least surprise by not behaving as their idiomatic names imply
+- [ ] Consider generalizing `_RAW` command (renaming it and perhaps changing its syntax), it might be useful in other
+      cases
 - [ ] Add and configure conventional commits linting
 
 ## Low Hanging Fruits

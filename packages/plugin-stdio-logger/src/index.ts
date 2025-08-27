@@ -1,17 +1,16 @@
 import {
-  type Arguments,
-  type IPluginRuntime,
-  type IPluginRuntimeEventListener,
-  type LoggingEvent,
-  type LogLevelOrd,
-  type Plugin,
   commandArgument,
   fail,
+  type IPluginRuntimeEventListener,
+  type IProgram,
   loadModuleAssets,
+  type LoggingEvent,
   loggingEventName,
   logLevelNames,
+  type LogLevelOrd,
   logLevelOrds,
   logLevels,
+  type Plugin,
 } from '@or-q/lib';
 import { Console } from 'node:console';
 import type { Readable } from 'stream';
@@ -45,8 +44,9 @@ export class LoggingPlugin implements Plugin {
     // Lazy. Should be named
     ['stdio-loglevel']: {
       description: 'changes loglevel, useful for debugging',
-      run: async (input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
-        const level = await commandArgument(runtime, args.shift(), `usage: loglevel "${logLevelNames.join('|')}"`);
+      run: async (input: string | Readable, program: IProgram): Promise<string | Readable> => {
+        const usage = `usage: loglevel "${logLevelNames.join('|')}"`;
+        const level = await commandArgument(runtime, args.shift(), usage);
         if (!(level in logLevelOrds)) {
           return fail(`unknown log level ${level}`);
         }

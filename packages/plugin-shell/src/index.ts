@@ -1,4 +1,4 @@
-import type { Arguments, IPluginRuntime, Plugin } from '@or-q/lib';
+import type { IProgram, Plugin } from '@or-q/lib';
 import { commandArgument, loadModuleAssets, spawnText } from '@or-q/lib';
 import type { Readable } from 'node:stream';
 import pkg from '../package.json' with { type: 'json' };
@@ -9,8 +9,9 @@ const plugin: Plugin = {
   commands: {
     shell: {
       description: 'run a shell command (use with caution)',
-      run: async (input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
-        const command = await commandArgument(runtime, args.shift(), 'usage: shell "[shell command]"');
+      run: async (input: string | Readable, program: IProgram): Promise<string | Readable> => {
+        const usage = 'usage: shell "[shell command]"';
+        const command = await commandArgument(runtime, args.shift(), usage);
         return spawnText(command, input, { shell: true });
       },
     },

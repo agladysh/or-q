@@ -34,5 +34,12 @@ commands:
             - - yaml
               - tee
               - fail: '$fetch-gemini-2.5-flash-instruct: RESOURCE_EXHAUSTED'
+
+        - if-then:
+            - - contains: 'API_KEY_INVALID'
+            - - yaml
+              - tee
+              - fail: '$fetch-gemini-2.5-flash-instruct: API_KEY_INVALID'
+
         - jp: 'candidates[0].content.parts[0].text'
         - unquote

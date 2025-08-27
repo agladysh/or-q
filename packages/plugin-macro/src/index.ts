@@ -2,7 +2,7 @@ import {
   type Arguments,
   commandArgument,
   fail,
-  type IPluginRuntime,
+  type IProgram,
   loadModuleAssets,
   type Plugin,
   runCommandsInContext,
@@ -11,12 +11,12 @@ import type { Readable } from 'node:stream';
 import yaml from 'yaml';
 import pkg from '../package.json' with { type: 'json' };
 
-type Defs = Record<string, Arguments>;
+type Defs = Record<string, IProgram>;
 
 const macros: Defs = {};
 
 const contextID = `context:${pkg.name}:$macro`;
-type Context = { args: Arguments };
+type Context = { program: IProgram };
 
 const plugin: Plugin = {
   name: pkg.name,
@@ -24,15 +24,13 @@ const plugin: Plugin = {
   commands: {
     $defmacro: {
       description: 'stores or overrides a macro definition, forwards input',
-      run: async (input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
+      run: async (input: string | Readable, program: IProgram): Promise<string | Readable> => {
         const usage = 'usage: $defmacro <name> <def>';
-        const name = await commandArgument(runtime, args.shift(), usage);
-        const defArg = args.shift();
-        if (defArg === undefined) {
-          return fail(usage);
-        }
-        // Lazy. Must check schema.
-        const def = (typeof defArg === 'string' ? yaml.parse(defArg) : defArg) as Arguments;
+        const name = await program.ensureNext(usage).toString();
+
+        // TODO: This had yaml.parse originally, it now does argv parsing, check nothing breaks and fix, should accept both
+        const def = await program.ensureNext(usage).toProgram();
+
         if (macros[name]) {
           // Lazy. This should have asset-like name resolution instead.
           return fail(`duplicate macro definition ${name}`);
@@ -44,7 +42,7 @@ const plugin: Plugin = {
     },
     $macro: {
       description: 'invokes macro',
-      run: async (input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
+      run: async (input: string | Readable, program: IProgram): Promise<string | Readable> => {
         const usage = 'usage: $macro [<macro>, ...args]';
         const arg = args.shift();
         if (arg === undefined) {
@@ -73,15 +71,14 @@ const plugin: Plugin = {
     },
     $arg: {
       description: 'macro argument placeholder',
-      run: async (_input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
+      run: async (_input: string | Readable, program: IProgram): Promise<string | Readable> => {
         const usage = 'usage: $arg <n>';
-        const argStr = await commandArgument(runtime, args.shift(), usage);
-        const argno = Number(argStr);
+        const argno = await program.ensureNext(usage).toNumber();
         if (!Number.isInteger(argno)) {
           return fail(usage);
         }
 
-        const context = runtime.getContext<Context>(contextID);
+        const context = program.runtime.getContext<Context>(contextID);
         if (!context) {
           return fail('attempted to run $arg command outside of $macro command context');
         }
@@ -95,7 +92,7 @@ const plugin: Plugin = {
     },
     ['dump-macros']: {
       description: 'replaces input with macros saved as JSON',
-      run: async (input: string | Readable, _args: Arguments, _runtime: IPluginRuntime): Promise<string | Readable> => {
+      run: async (input: string | Readable, _program: IProgram): Promise<string | Readable> => {
         process.stdout.write(`${JSON.stringify(macros, null, 2)}\n`);
         return input;
       },

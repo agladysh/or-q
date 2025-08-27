@@ -1,8 +1,7 @@
 import {
-  type Arguments,
   type Commands,
   fail,
-  type IPluginRuntime,
+  type IProgram,
   type LoggingEvent,
   loggingEventName,
   logLevels,
@@ -17,7 +16,7 @@ const url = 'https://openrouter.ai/api/v1/chat/completions';
 const commands: Commands = {
   completions: {
     description: 'feeds input to the OpenRouter completions API, requires OPENROUTER_API_KEY env variable',
-    run: async (input: string | Readable, _args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
+    run: async (input: string | Readable, program: IProgram): Promise<string | Readable> => {
       const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
       if (!OPENROUTER_API_KEY) {
         return fail('OPENROUTER_API_KEY environment variable is not set');
@@ -39,7 +38,7 @@ const commands: Commands = {
         return fail(`completions: response body is null`);
       }
       // Lazy. Must handle HTTP code (esp. 429), in this handler and in others
-      runtime.emit(loggingEventName, {
+      program.runtime.emit(loggingEventName, {
         source: pkg.name,
         level: logLevels.spam,
         value: ['completions', response],

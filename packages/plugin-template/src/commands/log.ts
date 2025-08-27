@@ -1,8 +1,7 @@
 import {
-  type Arguments,
   commandArgument,
   type Commands,
-  type IPluginRuntime,
+  type IProgram,
   type LoggingEvent,
   loggingEventName,
   type LogLevel,
@@ -23,10 +22,10 @@ function logCommandEntry(level: LogLevel): Commands {
     [command]: {
       description,
       // usage,
-      run: async (input: string | Readable, args: Arguments, runtime: IPluginRuntime) => {
+      run: async (input: string | Readable, program: IProgram) => {
         const template = await commandArgument(runtime, args.shift(), usage);
         input = await readableToString(input); // Reading stream to preserve the input value.
-        const text = await renderORQ(runtime, template, input);
+        const text = await renderORQ(program.runtime, template, input);
         runtime.emit(loggingEventName, {
           source: pkg.name,
           level: level,

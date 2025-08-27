@@ -25,33 +25,17 @@ commands:
       ${ run codebase }
       </codebase>
   - save: CODEBASE
-  - alias:
-      - compose-system-message
-      - Composes a system message from store variables
-      - [-role, -rules, -codebase]
-      - - t: | # markdown
-            ${ load -role }
-            ${ load -rules }
-            ${ load -codebase }
-
-  - alias:
-      - -SYSTEM
-      - A default system message
-      - []
-      - - compose-system-message
-        - ROLE
-        - RULES
-        - CODEBASE
-
-  - fail: [[-SYSTEM]]
-
-  # - log: Explaining...
-  # - $macro:
-  #     - - $fetch-gemini-2.5-flash-instruct
-  #       - - -SYSTEM
-  #       - - t: | # markdown
-  #             Professionally explain P3 of P0001 roadmap. Include professional objective skeptical review of the P3, and recommendations, if any.
-  #             Ground your review in the P0001 proposal as ground truth, and referring to the <codebase> current state.
+  - t: | # markdown
+      ${ load -role }
+      ${ load -rules }
+      ${ load -codebase }
+  - save: SYSTEM
+  - log: Explaining...
+  - $macro:
+      - - $fetch-gemini-2.5-flash-instruct
+        - - load: SYSTEM
+        - - t: | # markdown
+              We're in the middle of refactoring. Identify what is going on.
 
   # - save: EXPLANATION # TODO: We need a reduce command, it seems
 

@@ -9,6 +9,7 @@ import {
   resolveAssetSubdir,
   type Arguments,
   type IPluginRuntime,
+  type IProgram,
   type Plugin,
 } from '@or-q/lib';
 import { parse } from 'node:path';
@@ -145,7 +146,7 @@ const plugin: Plugin = {
   commands: {
     exec: {
       description: 'executes YAML script from argument',
-      run: async (input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
+      run: async (input: string | Readable, program: IProgram): Promise<string | Readable> => {
         const yamlString = await commandArgument(
           runtime,
           args.shift(),
@@ -156,7 +157,7 @@ const plugin: Plugin = {
     },
     ['list-script-assets']: {
       description: 'prints the list of available builtin scripts to stdout, passes input along',
-      run: async (input: string | Readable, _args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
+      run: async (input: string | Readable, _program: IProgram): Promise<string | Readable> => {
         // Lazy. Sort by name, so duplicates are clearly visible.
         const assetNames = assetGlob(runtime, `**/scripts/**/*.yaml`).sort();
         process.stdout.write(
@@ -167,7 +168,7 @@ const plugin: Plugin = {
     },
     ['load-yaml-script-asset']: {
       description: 'loads YAML script from file and returns commands as JSON',
-      run: async (_input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
+      run: async (_input: string | Readable, program: IProgram): Promise<string | Readable> => {
         const uri = await commandArgument(runtime, args.shift(), 'usage: load-yaml-script "<file>"');
 
         const yamlString = resolveAssetSubdir(runtime, uri, 'scripts');
@@ -180,7 +181,7 @@ const plugin: Plugin = {
     },
     ['load-yaml-script-input']: {
       description: 'loads YAML script from input and returns commands as JSON',
-      run: async (input: string | Readable, _args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
+      run: async (input: string | Readable, _program: IProgram): Promise<string | Readable> => {
         input = await readableToString(input);
 
         return `${JSON.stringify(loadYAMLScript(input, runtime))}\n`;
@@ -188,7 +189,7 @@ const plugin: Plugin = {
     },
     run: {
       description: 'runs YAML script file from file: or plugin:',
-      run: async (input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
+      run: async (input: string | Readable, program: IProgram): Promise<string | Readable> => {
         const uri = await commandArgument(runtime, args.shift(), 'usage: run "<file>"');
 
         const yamlString = resolveAssetSubdir(runtime, uri, 'scripts');
@@ -202,7 +203,7 @@ const plugin: Plugin = {
     // Lazy. Replace with proper control flow commands
     forever: {
       description: 'runs forever, interrupt to exit',
-      run: async (input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
+      run: async (input: string | Readable, program: IProgram): Promise<string | Readable> => {
         // Not using commandArgument() helper, since we do NOT want sub-command expansion here.
         let arg = args.shift();
         if (arg === undefined) {
@@ -218,7 +219,7 @@ const plugin: Plugin = {
     },
     'on-empty-stdin': {
       description: 'if input is empty, runs commands to populate, treats TTY stdin as empty',
-      run: async (input: string | Readable, args: Arguments, runtime: IPluginRuntime): Promise<string | Readable> => {
+      run: async (input: string | Readable, program: IProgram): Promise<string | Readable> => {
         // Not using commandArgument() helper, since we do NOT want sub-command expansion here.
         let arg = args.shift();
         if (arg === undefined) {

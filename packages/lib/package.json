@@ -17,7 +17,6 @@
   },
   "dependencies": {
     "glob": "^11.0.3",
-    "installed-node-modules": "workspace:*",
     "minimatch": "^10.0.3"
   },
   "devDependencies": {

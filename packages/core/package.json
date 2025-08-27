@@ -17,7 +17,7 @@
   },
   "dependencies": {
     "@or-q/lib": "workspace:*",
-    "installed-node-modules": "workspace:*"
+    "installed-node-modules": "^1.0.1"
   },
   "devDependencies": {
     "@types/node": "^24.2.0",

@@ -10,7 +10,7 @@
     "preinstall": "node --experimental-strip-types --disable-warning=ExperimentalWarning scripts/generate.ts"
   },
   "devDependencies": {
-    "@types/node": "^24.2.0",
+    "@types/node": "^24.3.0",
     "typescript": "^5.9.2"
   },
   "dependencies": {

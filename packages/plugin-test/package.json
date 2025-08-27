@@ -22,7 +22,7 @@
     "string-argv": "^0.3.2"
   },
   "devDependencies": {
-    "@types/node": "^24.2.0",
+    "@types/node": "^24.3.0",
     "typescript": "^5.9.2"
   }
 }

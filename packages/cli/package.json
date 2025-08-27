@@ -13,11 +13,11 @@
     "prepack": "tsc --emitDeclarationOnly"
   },
   "dependencies": {
-    "@or-q/lib": "workspace:*",
-    "@or-q/core": "workspace:*"
+    "@or-q/core": "workspace:*",
+    "@or-q/lib": "workspace:*"
   },
   "devDependencies": {
-    "@types/node": "^24.2.0",
+    "@types/node": "^24.3.0",
     "typescript": "^5.9.2"
   }
 }

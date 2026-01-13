@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "@or-q/lib": "workspace:*",
-    "glob": "^11.0.3",
+    "glob": "^11.1.0",
     "ignore": "^7.0.5",
     "treeify": "^1.1.0"
   },

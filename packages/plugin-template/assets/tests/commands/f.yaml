@@ -1,0 +1,7 @@
+suite: f
+
+tests:
+  - name: smoke-literal
+    argv: f "hello world"
+    stdin: 'some input'
+    stdout: 'hello world'

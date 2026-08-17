@@ -1,0 +1,8 @@
+suite: dump-store
+
+tests:
+  - name: smoke
+    argv: dump-store
+    stdin: ''
+    stdout:
+      - contains: '{}'

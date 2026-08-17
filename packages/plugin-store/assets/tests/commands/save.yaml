@@ -1,0 +1,7 @@
+suite: save
+
+tests:
+  - name: smoke
+    argv: echo "test data" save testkey load testkey
+    stdin: ''
+    stdout: 'test data'

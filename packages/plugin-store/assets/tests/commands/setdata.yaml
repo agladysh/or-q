@@ -1,0 +1,7 @@
+suite: setdata
+
+tests:
+  - name: smoke
+    argv: setdata key1 value1 load key1
+    stdin: ''
+    stdout: '"value1"'

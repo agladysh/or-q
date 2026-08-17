@@ -1,0 +1,10 @@
+suite: exec
+
+tests:
+  - name: smoke-fail
+    argv: exec "invalid yaml"
+    stdin: ''
+    stdout: ''
+    stderr:
+      - contains: 'unexpected command'
+    exit: 1

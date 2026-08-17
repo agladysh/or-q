@@ -1,0 +1,12 @@
+suite: stdio-loglevel
+
+tests:
+  - name: smoke-set-info
+    argv: stdio-loglevel info
+    stdin: ''
+    stdout: ''
+
+  - name: smoke-set-debug
+    argv: stdio-loglevel debug
+    stdin: ''
+    stdout: ''

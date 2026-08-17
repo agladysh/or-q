@@ -1,0 +1,7 @@
+suite: render
+
+tests:
+  - name: smoke-literal
+    argv: render
+    stdin: 'hello world'
+    stdout: 'hello world'

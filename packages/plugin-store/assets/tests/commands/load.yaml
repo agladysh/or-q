@@ -1,0 +1,7 @@
+suite: load
+
+tests:
+  - name: smoke-missing-key
+    argv: load "nonexistent"
+    stdin: ''
+    stdout: ''

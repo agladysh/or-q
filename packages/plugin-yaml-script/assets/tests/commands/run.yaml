@@ -1,0 +1,10 @@
+suite: run
+
+tests:
+  - name: smoke-fail
+    argv: run "nonexistent"
+    stdin: ''
+    stdout: ''
+    stderr:
+      - contains: 'not found'
+    exit: 1

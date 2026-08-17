@@ -1,0 +1,8 @@
+suite: list-script-assets
+
+tests:
+  - name: smoke
+    argv: list-script-assets
+    stdin: ''
+    stdout:
+      - contains: 'Available script assets'

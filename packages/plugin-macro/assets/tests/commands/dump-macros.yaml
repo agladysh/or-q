@@ -1,0 +1,8 @@
+suite: dump-macros
+
+tests:
+  - name: smoke
+    argv: dump-macros
+    stdin: ''
+    stdout:
+      - contains: '{}'

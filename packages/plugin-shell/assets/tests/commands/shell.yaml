@@ -1,0 +1,12 @@
+suite: shell
+
+tests:
+  - name: smoke-echo
+    argv: shell "echo hello"
+    stdin: ''
+    stdout: 'hello'
+
+  - name: smoke-with-input
+    argv: shell cat
+    stdin: 'test input'
+    stdout: 'test input'

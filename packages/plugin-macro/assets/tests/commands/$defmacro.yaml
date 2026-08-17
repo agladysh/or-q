@@ -1,0 +1,7 @@
+suite: $defmacro
+
+tests:
+  - name: smoke
+    argv: echo "test data" '$defmacro' testmacro "['echo', 'test']"
+    stdin: ''
+    stdout: 'test data'

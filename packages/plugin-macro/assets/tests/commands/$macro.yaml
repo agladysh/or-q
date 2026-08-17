@@ -1,0 +1,10 @@
+suite: $macro
+
+tests:
+  - name: smoke-fail
+    argv: $macro "['unknown']"
+    stdin: ''
+    stdout: ''
+    stderr:
+      - contains: 'unknown macro'
+    exit: 1

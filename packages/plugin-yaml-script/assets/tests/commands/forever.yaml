@@ -1,0 +1,14 @@
+suite: forever
+
+requires:
+  - '@or-q/plugin-core'
+  - '@or-q/plugin-yaml-script'
+
+tests:
+  - name: smoke-timeout
+    argv: forever "print test"
+    stdin: ''
+    timeout: 1
+    exit: 'timeout'
+    stdout:
+      - contains: 'test'

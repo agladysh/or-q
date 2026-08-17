@@ -1,0 +1,16 @@
+suite: user
+
+tests:
+  - name: smoke
+    argv: conversation "test-model" user "Hello world"
+    stdin: ''
+    stdout: |
+      {
+        "model": "test-model",
+        "messages": [
+          {
+            "role": "user",
+            "content": "Hello world"
+          }
+        ]
+      }

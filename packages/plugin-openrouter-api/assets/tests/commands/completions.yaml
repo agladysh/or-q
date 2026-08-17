@@ -1,0 +1,9 @@
+suite: completions
+
+tests:
+  - name: smoke
+    argv: completions
+    stdin: '{"model": "openai/gpt-oss-20b:free", "messages": [{"role": "user", "content": "test"}]}'
+    stdout:
+      - contains: '"choices"'
+      - contains: '"message"'

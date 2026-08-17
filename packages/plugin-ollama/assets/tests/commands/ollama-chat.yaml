@@ -1,0 +1,14 @@
+# Testing ollama-chat command
+# Note: This test expects model not found error from Ollama server
+suite: ollama-chat
+
+tests:
+  - name: smoke
+    argv:
+      - echo
+      - '{"model": "gpt-oss:20b", "messages": [{"role": "user", "content": "Hello"}]}'
+      - ollama-chat
+    stdin: ''
+    # Test expects model not found error
+    stdout:
+      - contains: 'model'

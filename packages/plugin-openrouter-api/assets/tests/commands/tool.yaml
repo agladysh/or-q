@@ -1,0 +1,16 @@
+suite: tool
+
+tests:
+  - name: smoke
+    argv: conversation "test-model" tool "Function executed successfully"
+    stdin: ''
+    stdout: |
+      {
+        "model": "test-model",
+        "messages": [
+          {
+            "role": "tool",
+            "content": "Function executed successfully"
+          }
+        ]
+      }

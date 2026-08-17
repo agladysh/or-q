@@ -1,0 +1,9 @@
+suite: models
+
+tests:
+  - name: smoke
+    argv: models
+    stdin: ''
+    stdout:
+      - contains: '"data"'
+      - contains: '"id"'

@@ -1,0 +1,16 @@
+suite: assistant
+
+tests:
+  - name: smoke
+    argv: conversation "test-model" assistant "Hello! How can I help you today?"
+    stdin: ''
+    stdout: |
+      {
+        "model": "test-model",
+        "messages": [
+          {
+            "role": "assistant",
+            "content": "Hello! How can I help you today?"
+          }
+        ]
+      }

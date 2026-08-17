@@ -1,0 +1,7 @@
+suite: conversation
+
+tests:
+  - name: smoke
+    argv: conversation "test-model"
+    stdin: ''
+    stdout: '{"model":"test-model","messages":[]}'

@@ -1,0 +1,12 @@
+suite: temperature
+
+tests:
+  - name: smoke
+    argv: conversation "test-model" temperature "0.7"
+    stdin: ''
+    stdout: |
+      {
+        "model": "test-model",
+        "messages": [],
+        "temperature": 0.7
+      }

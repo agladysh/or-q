@@ -100,6 +100,7 @@ async function spawnTest(cmd: string, input: Readable | string, opts: SpawnOptio
   const child = spawn(cmd, args, {
     stdio: ['pipe', 'pipe', 'pipe'],
     shell: false,
+    // Lazy. Do NOT reduce nose, deal with it.
     env: { ...process.env, NODE_NO_WARNINGS: '1' }, // Reduce noise
   });
 
